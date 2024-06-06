@@ -26,10 +26,14 @@ import {
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import Profile from "../../Components/Popup/profile";
 import Notification from "../../Components/Popup/notification";
 import { appColor } from "../../theme/appColor";
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import UserImg from "../../Images/user_login_photo.webp";
+import Logo from "../../Images/logo_main_white.webp";
+import LoginImg from "../../Images/atto_desk_login_background.webp";
+
 
 const drawerWidth = 240;
 
@@ -40,6 +44,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
+  backgroundColor: appColor.black,
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -52,6 +57,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
   [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
+  backgroundColor: appColor.black,
 });
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -100,6 +106,7 @@ const Drawer = styled(MuiDrawer, {
     ...closedMixin(theme),
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
+  
 }));
 const menuList: {
   title: string;
@@ -168,10 +175,10 @@ export default function MiniDrawer({
           <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
             {open ? (
               <ChevronLeftIcon
-                sx={{ fontSize: "30px", color: appColor.black }}
+                sx={{ fontSize: 30, color: appColor.black }}
               />
             ) : (
-              <MenuIcon sx={{ fontSize: 28, color: appColor.black }} />
+              <MenuIcon sx={{ fontSize: 30, color: appColor.black }} />
             )}
           </IconButton>
           {!open && <></>}
@@ -184,7 +191,7 @@ export default function MiniDrawer({
             sx={{ display: "flex" }}
           >
             <Grid item sx={{ pb: 1 }}>
-              <Typography variant="h6" sx={{ color: appColor.black }}>
+              <Typography sx={{ color: appColor.black, fontSize: 14 }}>
                 Super Admin
               </Typography>
             </Grid>
@@ -195,16 +202,14 @@ export default function MiniDrawer({
                   size="small"
                   aria-haspopup="true"
                 >
-                  <NotificationsIcon
+                  <NotificationsNoneIcon
                     style={{
-                      color: appColor.white,
+                      color: appColor.black,
                       width: 36,
                       height: 36,
                       borderRadius: "100%",
                       padding: "auto",
-                      // border: `0.5px solid ${appColor.website[70]}`,
                       margin: "auto",
-                      boxShadow: "0 0 25px #73BFB9",
                     }}
                   />
                 </IconButton>
@@ -220,14 +225,14 @@ export default function MiniDrawer({
                 >
                   <Avatar
                     alt="Travis Howard"
-                    src="https://www.hdwallpapers.in/download/cute_adorable_girl_baby_is_looking_up_wearing_purple_dress_hd_cute-HD.jpg"
+                    src={UserImg}
                     sx={{
                       width: 40,
                       height: 40,
                       padding: "auto",
                       // border: `0.5px solid ${appColors.website[70]}`,
                       margin: "auto",
-                      boxShadow: "0 0 30px #73BFB9",
+                      
                     }}
                   />
                 </IconButton>
@@ -246,18 +251,16 @@ export default function MiniDrawer({
           />
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
-        {/* <DrawerHeader>
-          
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon sx={{ fontSize: "30px" }} />
-            ) : (
-              <ChevronLeftIcon sx={{ fontSize: "30px" }} />
-            )}
-          </IconButton>
-        </DrawerHeader> */}
-        {/* <Divider /> */}
+      <Drawer variant="permanent" open={open} sx={{backgroundColor: appColor.black}}>
+        <DrawerHeader> 
+        <img
+          src={Logo}
+          alt="AttoDesk Login"
+          style={{ width: "100%", height: "auto", display: "block" }}
+        />
+
+        </DrawerHeader>
+        
         <List>
           {menuList.map((ml, index) => (
             <ListItem
@@ -290,7 +293,7 @@ export default function MiniDrawer({
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    // color: appColors.website[100],
+                    color: appColor.white,
                   }}
                 >
                   {ml.icon as React.ReactNode}
@@ -299,6 +302,7 @@ export default function MiniDrawer({
                   primary={ml.title}
                   sx={{
                     opacity: open ? 1 : 0,
+                    color: appColor.white,
                   }}
                 />
               </ListItemButton>
