@@ -1,26 +1,49 @@
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import React, { useContext } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import MiniDrawer from "./Drawer/Menu/Menu";
 import AppRoutes from "./Drawer/Routes";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import LoginProvider from "./Pages/Login/LoginProvider"; // Correct casing
-import { Box } from "@mui/material";
-import { BrowserRouter } from "react-router-dom";
+import { AuthContext, AuthProvider } from "./Pages/Login/AuthContext";
+import Auth from "./Pages/Login";
+
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const authContext = useContext(AuthContext);
+
+  if (!authContext) {
+    return null;
+  }
+
+  const { isAuthenticated } = authContext;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
-  const theme = createTheme(); 
+  const theme = createTheme();
 
   return (
     <ThemeProvider theme={theme}>
-      <BrowserRouter basename='/'>
-        {/* <LoginProvider> */}
-          <Box>
-            <MiniDrawer>
-              <AppRoutes />
-            </MiniDrawer>
-          </Box>
-        {/* </LoginProvider> */}
-      </BrowserRouter>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Auth />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <MiniDrawer>
+                    <AppRoutes />
+                  </MiniDrawer>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

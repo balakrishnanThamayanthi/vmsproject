@@ -3,11 +3,12 @@ import { Box, Grid } from "@mui/material";
 import LoginImg from "../../Images/atto_desk_login_background.webp";
 import Login from "./Login";
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { ThemeProvider, createTheme, useTheme, Theme } from '@mui/material/styles';
+import { useTheme, Theme } from '@mui/material/styles';
 
 const Auth: React.FC = () => {
   const theme = useTheme<Theme>();
-  const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <Box>
       <Grid
@@ -44,16 +45,16 @@ const Auth: React.FC = () => {
 
         <Grid
           container
-          justifyContent="end"
+          justifyContent="flex-end"
           alignItems="center"
           sx={{
             position: "relative",
             zIndex: 1,
             height: "100%",
-            mr:isSmall? 0 : 20,
+            mr: isSmall ? 0 : 20,
           }}
         >
-          <Grid item lg={4} md={12} sm={12} xs={12}>
+          <Grid item lg={4} md={6} sm={8} xs={10}>
             <Login />
           </Grid>
         </Grid>

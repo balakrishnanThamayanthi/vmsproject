@@ -1,20 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import { appColor } from "../../theme/appColor";
 import Logo from "../../Images/logo_main_black.webp";
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme, Theme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./AuthContext";
 
 const Login: React.FC = () => {
-  const theme = useTheme<Theme>();
-  const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate(); // Use useNavigate hook
+  const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
 
-  // Function to handle login button click
+  if (!authContext) {
+    return null;
+  }
+
+  const { login } = authContext;
+
   const handleLogin = () => {
-    // Redirect to /dashboard path
-    navigate('/dashboard');
+    login();
+    navigate("/dashboard");
   };
 
   return (
@@ -25,7 +28,6 @@ const Login: React.FC = () => {
         p: 5,
         maxWidth: 400,
         mx: "auto",
-        position: "relative", 
       }}
     >
       <Box
@@ -33,13 +35,12 @@ const Login: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           pb: 4,
-          position: "relative", 
         }}
       >
         <img
           src={Logo}
           alt="AttoDesk Login"
-          style={{ width: "100%", height: "auto", display: "block" }} 
+          style={{ width: "100%", height: "auto", display: "block" }}
         />
       </Box>
       <TextField
@@ -79,8 +80,7 @@ const Login: React.FC = () => {
             backgroundColor: appColor.black,
           },
         }}
-        type="submit"
-        onClick={handleLogin} // Call handleLogin function on button click
+        onClick={handleLogin}
       >
         Login
       </Button>
