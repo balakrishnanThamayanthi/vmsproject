@@ -26,7 +26,7 @@ const Profile: React.FC<IProfileProps> = ({ notification, onClose, open }) => {
         elevation: 0,
         sx: {
           borderRadius: 4,
-          boxShadow: "0 0 25px #73BFB9",
+          // boxShadow: "0 0 25px #73BFB9",
           overflow: "visible",
           filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
           mt: 1.5,

@@ -19,7 +19,9 @@ import ListItemText from "@mui/material/ListItemText";
 import {
   Avatar,
   Grid,
+  InputAdornment,
   SvgIconProps,
+  TextField,
   Tooltip,
   useMediaQuery,
 } from "@mui/material";
@@ -29,11 +31,11 @@ import { useMemo, useState } from "react";
 import Profile from "../../Components/Popup/profile";
 import Notification from "../../Components/Popup/notification";
 import { appColor } from "../../theme/appColor";
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import UserImg from "../../Images/user_login_photo.webp";
 import Logo from "../../Images/logo_main_white.webp";
 import LoginImg from "../../Images/atto_desk_login_background.webp";
-
+import SearchIcon from "@mui/icons-material/Search";
 
 const drawerWidth = 240;
 
@@ -45,6 +47,11 @@ const openedMixin = (theme: Theme): CSSObject => ({
   }),
   overflowX: "hidden",
   backgroundColor: appColor.black,
+  // backgroundImage: `url(${LoginImg})`,
+  // backgroundSize: "cover",
+  // backgroundRepeat: "no-repeat",
+  // backgroundPosition: "center",
+  // opacity: 0.1,
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -58,6 +65,10 @@ const closedMixin = (theme: Theme): CSSObject => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
   backgroundColor: appColor.black,
+  // backgroundImage: `url(${LoginImg})`,
+  // backgroundSize: "cover",
+  // backgroundRepeat: "no-repeat",
+  // backgroundPosition: "center",
 });
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -106,7 +117,6 @@ const Drawer = styled(MuiDrawer, {
     ...closedMixin(theme),
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
-  
 }));
 const menuList: {
   title: string;
@@ -174,13 +184,33 @@ export default function MiniDrawer({
         <Toolbar>
           <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
             {open ? (
-              <ChevronLeftIcon
-                sx={{ fontSize: 30, color: appColor.black }}
-              />
+              <ChevronLeftIcon sx={{ fontSize: 30, color: appColor.black }} />
             ) : (
               <MenuIcon sx={{ fontSize: 30, color: appColor.black }} />
             )}
           </IconButton>
+
+          <TextField
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            fullWidth
+            placeholder="Search in Front"
+            sx={{
+              width: 350,
+              pl: 2,
+              "& .MuiFormLabel-root.MuiInputLabel-root": {
+                color: "appColors.darkGray[20]",
+              },
+            }}
+            size="small"
+            variant="outlined"
+          />
+
           {!open && <></>}
           <Grid
             container
@@ -232,7 +262,6 @@ export default function MiniDrawer({
                       padding: "auto",
                       // border: `0.5px solid ${appColors.website[70]}`,
                       margin: "auto",
-                      
                     }}
                   />
                 </IconButton>
@@ -251,16 +280,19 @@ export default function MiniDrawer({
           />
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open} sx={{backgroundColor: appColor.black}}>
-        <DrawerHeader> 
-        <img
-          src={Logo}
-          alt="AttoDesk Login"
-          style={{ width: "100%", height: "auto", display: "block" }}
-        />
-
+      <Drawer
+        variant="permanent"
+        open={open}
+        sx={{ backgroundColor: appColor.black }}
+      >
+        <DrawerHeader>
+          <img
+            src={Logo}
+            alt="AttoDesk Login"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
         </DrawerHeader>
-        
+
         <List>
           {menuList.map((ml, index) => (
             <ListItem
