@@ -162,41 +162,19 @@ export default function MiniDrawer({
       <AppBar
         position="fixed"
         open={open}
-        // sx={{ backgroundColor: appColor.website[90] }}
+        sx={{ backgroundColor: appColor.white }}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              mr: 5,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon sx={{ fontSize: 28 }} />
+          <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
+            {open ? (
+              <ChevronLeftIcon
+                sx={{ fontSize: "30px", color: appColor.black }}
+              />
+            ) : (
+              <MenuIcon sx={{ fontSize: 28, color: appColor.black }} />
+            )}
           </IconButton>
-          {!open && (
-            <>
-              {/* <Box alignItems="left" sx={{ pr: 4 }}>
-                <img
-                  height={40}
-                  width={30}
-                  src="https://seeklogo.com/images/S/sri-lanka-government-logo-A3C2CFB62A-seeklogo.com.png"
-                />
-              </Box> */}
-
-              <Typography
-                variant="h4"
-                noWrap
-                component="div"
-                sx={{ color: appColor.white, overflow: "visible" }}
-              >
-                PET APP
-              </Typography>
-            </>
-          )}
+          {!open && <></>}
           <Grid
             container
             data-testid="user-content"
@@ -206,8 +184,8 @@ export default function MiniDrawer({
             sx={{ display: "flex" }}
           >
             <Grid item sx={{ pb: 1 }}>
-              <Typography variant="h5" sx={{ color: appColor.white }}>
-                Dhara
+              <Typography variant="h6" sx={{ color: appColor.black }}>
+                Super Admin
               </Typography>
             </Grid>
             <Grid item sx={{ pb: 1 }}>
@@ -269,15 +247,8 @@ export default function MiniDrawer({
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <Typography
-            variant="h4"
-            sx={{
-              px: 5,
-            }}
-          >
-            PET APP
-          </Typography>
+        {/* <DrawerHeader>
+          
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon sx={{ fontSize: "30px" }} />
@@ -285,15 +256,16 @@ export default function MiniDrawer({
               <ChevronLeftIcon sx={{ fontSize: "30px" }} />
             )}
           </IconButton>
-        </DrawerHeader>
-        <Divider />
+        </DrawerHeader> */}
+        {/* <Divider /> */}
         <List>
           {menuList.map((ml, index) => (
             <ListItem
               key={ml.title}
               disablePadding
-              sx={{ display: "block",
-              //  color: appColors.website[100] 
+              sx={{
+                display: "block",
+                //  color: appColors.website[100]
               }}
             >
               <ListItemButton
