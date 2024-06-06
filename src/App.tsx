@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import MiniDrawer from "./Drawer/Menu/Menu";
+import AppRoutes from "./Drawer/Routes";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import LoginProvider from "./Pages/Login/LoginProvider"; // Correct casing
+import { Box } from "@mui/material";
+import { BrowserRouter } from "react-router-dom";
 
-function App() {
+const App: React.FC = () => {
+  const theme = createTheme(); 
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter basename='/'>
+        {/* <LoginProvider> */}
+          <Box>
+            <MiniDrawer>
+              <AppRoutes />
+            </MiniDrawer>
+          </Box>
+        {/* </LoginProvider> */}
+      </BrowserRouter>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;

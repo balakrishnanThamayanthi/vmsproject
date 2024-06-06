@@ -44,3 +44,14 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+// comments 
+Setup Project: npx create-react-app pet-app --template typescript
+Install Material-UI: npm install @mui/material @emotion/react @emotion/styled
+Routing: npm install react-router-dom
+Material Icons: npm install @mui/icons-material @mui/material @emotion/styled @emotion/react
+npm install highcharts highcharts-react-official
+npm install @mui/icons-material
+npm install react-redux @types/react-redux
+npm install @reduxjs/toolkit
