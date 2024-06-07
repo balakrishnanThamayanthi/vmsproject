@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import { width } from "@mui/system";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -84,7 +85,20 @@ const options = {
 };
 
 function PieChart() {
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
+  return (
+    <Box>
+      <Box
+        sx={{
+          width: "98%",
+          height: 1.1,
+          backgroundColor: "#e5e5e5",
+
+          mt: 1,
+        }}
+      />
+      <HighchartsReact highcharts={Highcharts} options={options} />
+    </Box>
+  );
 }
 
 export default PieChart;

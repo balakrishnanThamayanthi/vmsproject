@@ -1,12 +1,12 @@
 import React from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Box } from "@mui/material";
 
 const options = {
   chart: {
     type: "column",
     height: 350,
-    width: 500,
   },
   title: {
     text: "",
@@ -68,7 +68,20 @@ const options = {
 };
 
 const SaleChart: React.FC = () => {
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
+  return (
+    <Box>
+      <Box
+        sx={{
+          width: "98%",
+          height: 1.1,
+          backgroundColor: "#e5e5e5",
+          mt: 1,
+        }}
+      />
+      <HighchartsReact highcharts={Highcharts} options={options} />
+      {/* ddd */}
+    </Box>
+  );
 };
 
 export default SaleChart;

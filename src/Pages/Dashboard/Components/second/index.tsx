@@ -36,7 +36,9 @@ function index() {
               Latest Inqueries
             </Typography>
           </Box>
-          <LatestInqueries />
+          <Box sx={{ mt: 4 }}>
+            <LatestInqueries />
+          </Box>
         </Item>
       </Grid>
       <Grid item key="2_2" lg={6} sm={6} xs={12} direction="row">
@@ -58,8 +60,16 @@ function index() {
               Monthly Sale Reports
             </Typography>
           </Box>
+          <Box
+            sx={{
+              width: "98%",
+              height: 1.1,
+              backgroundColor: "#ffffff",
 
-          <Box sx={{ mt: 5 }}>
+              mt: 1,
+            }}
+          />
+          <Box sx={{ mt: 4 }}>
             <SaleChart />
           </Box>
         </Item>
