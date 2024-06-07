@@ -63,7 +63,7 @@ function index() {
               </span>
             </Typography>
           </Grid>
-          <Grid item lg={3} sm={6} xs={6} sx={{ textAlign: "end" }}>
+          <Grid item lg={3.5} sm={6} xs={6} sx={{ textAlign: "end" }}>
             <Typography
               gutterBottom
               sx={{
@@ -136,7 +136,7 @@ function index() {
               </span>
             </Typography>
           </Grid>
-          <Grid item lg={3} sm={6} xs={6} sx={{ textAlign: "end" }}>
+          <Grid item lg={3.5} sm={6} xs={6} sx={{ textAlign: "end" }}>
             <Typography
               gutterBottom
               sx={{
@@ -209,7 +209,7 @@ function index() {
               </span>
             </Typography>
           </Grid>
-          <Grid item lg={3} sm={6} xs={6} sx={{ textAlign: "end" }}>
+          <Grid item lg={3.5} sm={6} xs={6} sx={{ textAlign: "end" }}>
             <Typography
               gutterBottom
               sx={{
