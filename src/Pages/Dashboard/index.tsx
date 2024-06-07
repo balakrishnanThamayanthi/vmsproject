@@ -3,7 +3,8 @@ import TopItem from "./Components/topItem";
 import { Box, Typography } from "@mui/material";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import SecondSection from "./Components/second/index";
-import SaleChart from "./Components/second/saleChart";
+import ThirdSection from "./Components/thirdSection/index";
+
 const index = () => {
   return (
     <Box sx={{ bgcolor: "#efffed", pb: 20 }}>
@@ -27,6 +28,8 @@ const index = () => {
       <TopItem />
       <Box sx={{ pb: 2 }} />
       <SecondSection />
+      <Box sx={{ pb: 2 }} />
+      <ThirdSection />
       <Box sx={{ pb: 2 }} />
     </Box>
   );
