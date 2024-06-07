@@ -2,7 +2,8 @@ import React from "react";
 import TopItem from "./Components/topItem";
 import { Box, Typography } from "@mui/material";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
-
+import SecondSection from "./Components/second/index";
+import SaleChart from "./Components/second/saleChart";
 const index = () => {
   return (
     <Box sx={{ bgcolor: "#efffed", pb: 20 }}>
@@ -22,10 +23,11 @@ const index = () => {
         />
         Dashboard
       </Typography>
-      <div>
-        {" "}
-        <TopItem />
-      </div>
+
+      <TopItem />
+      <Box sx={{ pb: 2 }} />
+      <SecondSection />
+      <Box sx={{ pb: 2 }} />
     </Box>
   );
 };

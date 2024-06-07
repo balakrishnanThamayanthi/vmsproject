@@ -45,8 +45,7 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
-
-// comments 
+// comments
 Setup Project: npx create-react-app pet-app --template typescript
 Install Material-UI: npm install @mui/material @emotion/react @emotion/styled
 Routing: npm install react-router-dom
@@ -55,3 +54,6 @@ npm install highcharts highcharts-react-official
 npm install @mui/icons-material
 npm install react-redux @types/react-redux
 npm install @reduxjs/toolkit
+npm install highcharts
+npm install --save-dev @types/highcharts
+npm install highcharts-react-official
