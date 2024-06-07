@@ -79,6 +79,7 @@ const SaleChart: React.FC = () => {
         }}
       />
       <HighchartsReact highcharts={Highcharts} options={options} />
+      {/* ddd */}
     </Box>
   );
 };
