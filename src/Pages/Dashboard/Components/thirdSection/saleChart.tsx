@@ -15,10 +15,13 @@ const options = {
   legend: {
     layout: "horizontal",
     align: "center",
-    verticalAlign: "top",
+    verticalAlign: "top", // Move legend to the top
     y: 0,
     padding: 0,
     symbolRadius: 0,
+    // symbolHeight: 30, // Set the height of the legend symbol
+    // symbolWidth: 10, // Set the width of the legend symbol
+
     symbol: "rectangle",
   },
   xAxis: {
@@ -42,10 +45,11 @@ const options = {
       pointPadding: 0.1,
       borderWidth: 0,
       size: "100%",
+      // allowPointSelect: true,
       cursor: "pointer",
       states: {
         hover: {
-          enabled: false,
+          enabled: false, // Disable the hover effect
         },
       },
     },
