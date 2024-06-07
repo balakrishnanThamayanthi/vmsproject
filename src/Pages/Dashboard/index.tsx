@@ -7,7 +7,7 @@ import ThirdSection from "./Components/thirdSection/index";
 
 const index = () => {
   return (
-    <Box sx={{ bgcolor: "#efffed", pb: 20 }}>
+    <Box sx={{ bgcolor: "#efffed", pb: 20, p: 1 }}>
       <Typography
         gutterBottom
         sx={{

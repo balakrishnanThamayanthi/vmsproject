@@ -2,6 +2,7 @@ import { Box, Grid, Paper, Typography, styled } from "@mui/material";
 import React from "react";
 import SaleChart from "./saleChart";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import LatestInqueries from "./latestInqueries";
 
 const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
@@ -35,6 +36,7 @@ function index() {
               Latest Inqueries
             </Typography>
           </Box>
+          <LatestInqueries />
         </Item>
       </Grid>
       <Grid item key="2_2" lg={6} sm={6} xs={12} direction="row">
