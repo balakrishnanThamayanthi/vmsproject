@@ -1,12 +1,12 @@
 import React from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Box } from "@mui/material";
 
 const options = {
   chart: {
     type: "column",
     height: 350,
-    width: 500,
   },
   title: {
     text: "",
@@ -15,13 +15,10 @@ const options = {
   legend: {
     layout: "horizontal",
     align: "center",
-    verticalAlign: "top", // Move legend to the top
+    verticalAlign: "top",
     y: 0,
     padding: 0,
     symbolRadius: 0,
-    // symbolHeight: 30, // Set the height of the legend symbol
-    // symbolWidth: 10, // Set the width of the legend symbol
-
     symbol: "rectangle",
   },
   xAxis: {
@@ -45,11 +42,10 @@ const options = {
       pointPadding: 0.1,
       borderWidth: 0,
       size: "100%",
-      // allowPointSelect: true,
       cursor: "pointer",
       states: {
         hover: {
-          enabled: false, // Disable the hover effect
+          enabled: false,
         },
       },
     },
@@ -72,7 +68,19 @@ const options = {
 };
 
 const SaleChart: React.FC = () => {
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
+  return (
+    <Box>
+      <Box
+        sx={{
+          width: "98%",
+          height: 1.1,
+          backgroundColor: "#e5e5e5",
+          mt: 1,
+        }}
+      />
+      <HighchartsReact highcharts={Highcharts} options={options} />
+    </Box>
+  );
 };
 
 export default SaleChart;

@@ -35,7 +35,17 @@ function index() {
             >
               Monthly Sale Reports
             </Typography>
+          </Box>
+          <Box
+            sx={{
+              width: "98%",
+              height: 1.1,
+              backgroundColor: "#ffffff",
 
+              mt: 1,
+            }}
+          />
+          <Box sx={{ mt: 4 }}>
             <SaleChart />
           </Box>
         </Item>
@@ -59,6 +69,15 @@ function index() {
               Inventory Report
             </Typography>
           </Box>
+          <Box
+            sx={{
+              width: "98%",
+              height: 1.1,
+              backgroundColor: "#ffffff",
+
+              mt: 1,
+            }}
+          />
           <Box sx={{ mt: 4 }}>
             <PieChart />
           </Box>
@@ -83,6 +102,15 @@ function index() {
               Latest Inqueries
             </Typography>
           </Box>
+          <Box
+            sx={{
+              width: "98%",
+              height: 1.1,
+              backgroundColor: "#ffffff",
+
+              mt: 1,
+            }}
+          />
           <Box sx={{ mt: 4 }}>
             <PieChart2 />
           </Box>
