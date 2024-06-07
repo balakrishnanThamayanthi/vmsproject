@@ -18,6 +18,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import {
   Avatar,
+  Collapse,
   Grid,
   InputAdornment,
   SvgIconProps,
@@ -36,6 +37,12 @@ import UserImg from "../../Images/user_login_photo.webp";
 import Logo from "../../Images/logo_main_white.webp";
 import LoginImg from "../../Images/atto_desk_login_background.webp";
 import SearchIcon from "@mui/icons-material/Search";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
+import CategoryIcon from '@mui/icons-material/Category';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
 const drawerWidth = 240;
 
@@ -47,7 +54,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
   }),
   overflowX: "hidden",
   backgroundColor: appColor.black,
-  borderRight: "6px solid green", 
+  borderRight: "6px solid green",
   // backgroundImage: `url(${LoginImg})`,
   // backgroundSize: "cover",
   // backgroundRepeat: "no-repeat",
@@ -61,12 +68,12 @@ const closedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
+  width: `calc(${theme.spacing(5)} + 1px)`,
   [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
+    width: `calc(${theme.spacing(7)} + 1px)`,
   },
   backgroundColor: appColor.black,
-  borderRight: "6px solid green", 
+  borderRight: "6px solid green",
   // backgroundImage: `url(${LoginImg})`,
   // backgroundSize: "cover",
   // backgroundRepeat: "no-repeat",
@@ -120,16 +127,49 @@ const Drawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
 }));
+
+type SubmenuItem = {
+  title: string;
+  path: string;
+  newPage?: boolean;
+  icon: React.ReactElement;
+};
+
 const menuList: {
   title: string;
   icon: SvgIconProps;
   path: string;
   newPage?: boolean;
+  submenuOpen?: boolean;
+  submenus?: SubmenuItem[];
 }[] = [
   {
     title: "Dashboard",
     icon: <DashboardIcon />,
     path: "/dashboard",
+  },
+  {
+    title: "Setting",
+    icon: <SettingsIcon />,
+    path: "/setting",
+    submenuOpen: true,
+    submenus: [
+      {
+        title: "Company Info",
+        icon: <InfoIcon />,
+        path: "/company-info",
+      },
+      {
+        title: "Category",
+        icon: <CategoryIcon />,
+        path: "/category",
+      },
+      {
+        title: "Item",
+        icon: <AddShoppingCartIcon />,
+        path: "/item",
+      },
+    ],
   },
 ];
 
@@ -139,6 +179,10 @@ export default function MiniDrawer({
   children: React.ReactNode;
 }) {
   const theme = useTheme();
+  const [currentMenuName, setCurrentMenuName] = React.useState("");
+  const [hoveredMenuName, setHoveredMenuName] = React.useState("");
+  const [expandMenu, setExpandMenu] = React.useState<string>("");
+
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -173,6 +217,24 @@ export default function MiniDrawer({
 
   const handleCloseNotificationPopUp = () => {
     setNotificationPopUp(null);
+  };
+
+  const handleMainMenuItemClick = (ml: (typeof menuList)[0]) => {
+    if (isSmall) {
+      // handle small screen logic here
+    }
+
+    if (ml.submenus && ml.submenus.length > 0) {
+      ml.title === expandMenu ? setExpandMenu("") : setExpandMenu(ml.title);
+    } else if (ml.path) {
+      setCurrentMenuName(ml.path);
+      navigate(ml.path);
+    }
+  };
+
+  const handleSubmenuItemClicked = (submenu: SubmenuItem) => {
+    setCurrentMenuName(submenu.path);
+    navigate(submenu.path);
   };
 
   return (
@@ -282,7 +344,7 @@ export default function MiniDrawer({
           />
         </Toolbar>
       </AppBar>
-      <Drawer
+      {/* <Drawer
         variant="permanent"
         open={open}
         sx={{ backgroundColor: appColor.black }}
@@ -340,6 +402,140 @@ export default function MiniDrawer({
                   }}
                 />
               </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer> */}
+      <Drawer
+        variant="permanent"
+        open={open}
+        sx={{ backgroundColor: appColor.black }}
+      >
+        <DrawerHeader>
+          <img
+            src={Logo}
+            alt="AttoDesk Login"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
+        </DrawerHeader>
+
+        <List>
+          {menuList.map((ml, index) => (
+            <ListItem
+              key={ml.title}
+              disablePadding
+              sx={{
+                display: "block",
+                background: currentMenuName === ml.path ? "green" : "none",
+              }}
+              onMouseEnter={() => setHoveredMenuName(ml.path)}
+              onMouseLeave={() => setHoveredMenuName("")}
+            >
+              <ListItemButton
+                onClick={() => handleMainMenuItemClick(ml)}
+                sx={{
+                  "& .MuiListItemIcon-root": {
+                    minWidth: "auto",
+                    mr: 2,
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color:
+                      currentMenuName === ml.path
+                        ? appColor.white
+                        : appColor.white,
+                  }}
+                >
+                  {ml.icon as React.ReactNode}
+                </ListItemIcon>
+                <ListItemText>
+                  <Typography
+                    // variant="h5"
+                    sx={{
+                      color:
+                        currentMenuName === ml.path
+                          ? appColor.white
+                          : appColor.white,
+                    }}
+                  >
+                    {ml.title}
+                  </Typography>
+                </ListItemText>
+                {ml.submenus &&
+                  (expandMenu === ml.title ? (
+                    <ExpandLessIcon
+                      sx={{
+                        color:
+                          currentMenuName === ml.path
+                            ? appColor.white
+                            : appColor.white,
+                        ml: 2,
+                      }}
+                    />
+                  ) : (
+                    <ExpandMoreIcon
+                      sx={{
+                        color:
+                          currentMenuName === ml.path
+                            ? appColor.white
+                            : appColor.white,
+                        ml: 2,
+                      }}
+                    />
+                  ))}
+              </ListItemButton>
+              {ml.submenus && (
+                <Collapse
+                  in={expandMenu === ml.title}
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <List>
+                    {ml.submenus.map((submenu) => (
+                      <ListItem
+                        disablePadding
+                        key={submenu.title}
+                        sx={{
+                          color: appColor.white,
+                          background:
+                            currentMenuName === submenu.path ? "green" : "none",
+                        }}
+                      >
+                        <ListItemButton
+                          onClick={() => handleSubmenuItemClicked(submenu)}
+                          sx={{ ml: 0.6 }}
+                        >
+                          <ListItemIcon
+                            sx={{
+                              color:
+                                currentMenuName === submenu.path
+                                  ? appColor.white
+                                  : appColor.white,
+                            }}
+                          >
+                            {submenu.icon as React.ReactNode}
+                          </ListItemIcon>
+                          <ListItemText>
+                            <Typography
+                              // variant="h5"
+                              sx={{
+                                color:
+                                  currentMenuName === submenu.path
+                                    ? appColor.white
+                                    : appColor.white,
+                              }}
+                            >
+                              {submenu.title}
+                            </Typography>
+                          </ListItemText>
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Collapse>
+              )}
             </ListItem>
           ))}
         </List>
