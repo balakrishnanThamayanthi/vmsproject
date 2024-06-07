@@ -18,7 +18,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const TopItem = () => {
   return (
     <Grid container justifyContent="space-between" spacing={1}>
-      <Grid item lg={2.9} sm={6} xs={12}>
+      <Grid item lg={3} sm={6} xs={12}>
         <Item sx={{ position: "relative", px: 2, pt: 2 }}>
           <Grid container justifyContent="space-between">
             <Grid item lg={8} sm={6} xs={6}>
@@ -52,7 +52,7 @@ const TopItem = () => {
           </Grid>
         </Item>
       </Grid>
-      <Grid item lg={2.9} sm={6} xs={12}>
+      <Grid item lg={3} sm={6} xs={12}>
         <Item sx={{ position: "relative", px: 2, pt: 2 }}>
           <Grid container justifyContent="space-between">
             <Grid item lg={7} sm={6} xs={6}>
@@ -105,7 +105,7 @@ const TopItem = () => {
           </Grid>
         </Item>
       </Grid>
-      <Grid item lg={2.9} sm={6} xs={12}>
+      <Grid item lg={3} sm={6} xs={12}>
         <Item sx={{ position: "relative", px: 2, pt: 2 }}>
           <Grid container justifyContent="space-between">
             <Grid item lg={7} sm={6} xs={6}>
@@ -160,7 +160,7 @@ const TopItem = () => {
           </Grid>
         </Item>
       </Grid>
-      <Grid item lg={2.9} sm={6} xs={12}>
+      <Grid item lg={3} sm={6} xs={12}>
         <Item sx={{ position: "relative", px: 2, pt: 2 }}>
           <Grid container justifyContent="space-between">
             <Grid item lg={7} sm={6} xs={6}>
