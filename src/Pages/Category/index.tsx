@@ -134,7 +134,7 @@ const Category: React.FC = () => {
               pb: 2,
             }}
           >
-            <Grid container spacing={4}>
+            <Grid container spacing={5}>
               <Grid
                 item
                 lg={12}
@@ -222,7 +222,7 @@ const Category: React.FC = () => {
                       defaultValue=""
                       InputLabelProps={{ shrink: true }}
                     >
-                      <option value="" disabled color="gray">
+                      <option value="" disabled style={{ color: "gray" }}>
                         Select an option
                       </option>
                       <option>Food Department</option>
@@ -231,6 +231,7 @@ const Category: React.FC = () => {
                       <option>cc Department</option>
                       <option>yy Department</option>
                     </TextField>
+
                     <Button
                       variant="contained"
                       size="small"
@@ -674,6 +675,7 @@ const Category: React.FC = () => {
                   </Grid>
                 </Grid>
               </Grid>
+
               <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
                 <Grid container direction="row" alignItems="center" spacing={2}>
                   <Grid item lg={3} md={3} sm={12} xs={12}>
@@ -832,7 +834,6 @@ const Category: React.FC = () => {
                     </TextField>
                   </Grid>
                 </Grid>
-
                 <Grid
                   container
                   direction="row"
@@ -967,6 +968,26 @@ const Category: React.FC = () => {
                   variant="contained"
                   startIcon={<SaveAltIcon />}
                   sx={{
+                    backgroundColor: "#b71c1c",
+                    textTransform: "none",
+                    boxShadow: "none",
+                    "&:hover": {
+                      backgroundColor: "#b71c1c",
+                      boxShadow: "none",
+                    },
+                    "&:active": {
+                      backgroundColor: "#b71c1c",
+                      boxShadow: "none",
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Box m={0.5}></Box>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveAltIcon />}
+                  sx={{
                     backgroundColor: "green",
                     textTransform: "none",
                     boxShadow: "none",
@@ -981,6 +1002,26 @@ const Category: React.FC = () => {
                   }}
                 >
                   Save
+                </Button>
+                <Box m={0.5}></Box>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveAltIcon />}
+                  sx={{
+                    backgroundColor: "green",
+                    textTransform: "none",
+                    boxShadow: "none",
+                    "&:hover": {
+                      backgroundColor: "green",
+                      boxShadow: "none",
+                    },
+                    "&:active": {
+                      backgroundColor: "green",
+                      boxShadow: "none",
+                    },
+                  }}
+                >
+                  Save and publish
                 </Button>
               </Grid>
             </Grid>
