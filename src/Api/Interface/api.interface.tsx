@@ -56,3 +56,11 @@ export interface IApiResponse {
     coursingName: string;
     priocity: string;
   }
+
+  export interface ITaxes {
+    taxName: string;
+    taxType: string;
+    applyTo: string;
+    percentage: string;
+    taxCode: string;
+  }

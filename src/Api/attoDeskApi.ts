@@ -26,7 +26,8 @@ export const attoDeskApi = createApi({
     "Category",
     "company",
     "department",
-    "coursing"
+    "coursing",
+    "tax"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -89,6 +90,16 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['coursing'],
     }),
+    createTax: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/tax',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['tax'],
+    }),
   }),
 });
 
@@ -98,5 +109,6 @@ export const {
   useCreateCategoryMutation,
   useCreateCompanyMutation,
   useCreateDepartmentMutation,
-  useCreateCoursingMutation
+  useCreateCoursingMutation,
+  useCreateTaxMutation
 } = attoDeskApi;

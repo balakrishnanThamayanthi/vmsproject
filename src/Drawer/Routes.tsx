@@ -10,8 +10,6 @@ import Department from "../Pages/Department";
 import Coursing from "../Pages/Coursing";
 import Tax from "../Pages/Tax";
 
-
-
 /**
  * AppRoutes will load the app routes.
  * @returns
@@ -25,13 +23,62 @@ const AppRoutes = () => {
         }
         path="/fallback"
       />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/company-info" element={<CompanyInfo />} />
-      <Route path="/category" element={<Category />} />
-      <Route path="/department" element={<Department />} />
-      <Route path="/coursing" element={<Coursing />} />
-      <Route path="/taxes" element={<Tax />} />
-      <Route path="/item" element={<Item />} />
+      <Route
+        path="/dashboard"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Dashboard />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/company-info"
+        element={
+          <Suspense fallback={<Loader />}>
+            <CompanyInfo />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/category"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Category />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/department"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Department />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/coursing"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Coursing />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/taxes"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Tax />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/item"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Item />
+          </Suspense>
+        }
+      />
       <Route element={<Navigate replace to="/dashboard" />} path="*" />
     </Routes>
   );
