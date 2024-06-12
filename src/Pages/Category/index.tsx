@@ -3,9 +3,16 @@ import {
   Box,
   Button,
   Card,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
+  IconButton,
+  ImageList,
+  ImageListItem,
   MenuItem,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { appColor } from "../../theme/appColor";
@@ -29,20 +36,26 @@ import {
   IDepartment,
   ITaxes,
 } from "../../Api/Interface/api.interface";
-import { KitchenPrinterType, RooleType, SizeOfLevelType } from "../../Core/Enum/enum";
+import {
+  KitchenPrinterType,
+  RooleType,
+  SizeOfLevelType,
+} from "../../Core/Enum/enum";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import AppsIcon from "@mui/icons-material/Apps";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
-  width: 62, // Increased width
-  height: 34, // Increased height
+  width: 62, 
+  height: 34, 
   padding: 0,
   "& .MuiSwitch-switchBase": {
     padding: 0,
     margin: 2,
     transitionDuration: "300ms",
     "&.Mui-checked": {
-      transform: "translateX(28px)", // Adjusted for increased size
+      transform: "translateX(28px)", 
       color: "#fff",
       "& + .MuiSwitch-track": {
         backgroundColor: theme.palette.mode === "dark" ? "#2ECA45" : "#65C466",
@@ -110,6 +123,8 @@ const Category: React.FC = () => {
   const { data: coursingData, isLoading: coursingLoading } =
     useGetCoursingQuery();
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const [image, setImage] = useState<string | null>(null);
+  const [openGallery, setOpenGallery] = useState(false);
 
   const departmentList = useMemo(() => {
     return departmentData?.data as IDepartment[];
@@ -190,6 +205,39 @@ const Category: React.FC = () => {
       ? false
       : true;
   }, [formik]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGallerySelection = (selectedImage: string) => {
+    setImage(selectedImage);
+    setOpenGallery(false);
+  };
+
+  const openGalleryDialog = () => {
+    setOpenGallery(true);
+  };
+
+  const closeGalleryDialog = () => {
+    setOpenGallery(false);
+  };
+
+  const galleryImages = [
+    "/Images/atto_desk_login_background.webp",
+    "/Images/dummy_image.webp",
+    "/Images/user_login_photo.webp",
+    "/Images/atto_desk_login_background.webp",
+    "/Images/dummy_image.webp",
+    "/Images/user_login_photo.webp",
+  ];
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -486,7 +534,7 @@ const Category: React.FC = () => {
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
+                      <TextField
                         select
                         size="small"
                         sx={{ width: "100%" }}
@@ -553,7 +601,7 @@ const Category: React.FC = () => {
                       </TextField>
                     </Grid>
                   </Grid> */}
-                  
+
                   <Grid
                     container
                     direction="row"
@@ -573,7 +621,7 @@ const Category: React.FC = () => {
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
+                      <TextField
                         select
                         size="small"
                         sx={{ width: "100%" }}
@@ -1025,25 +1073,90 @@ const Category: React.FC = () => {
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "appColor.greenSmoke[40]", // Assuming appColor is defined elsewhere
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          padding: 1,
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
                       >
-                        <option value="" disabled color="gray">
-                          Select Target Group
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
+                        {image && (
+                          <img
+                            src={image}
+                            alt="Uploaded"
+                            style={{
+                              maxWidth: "200px",
+                              maxHeight: "200px",
+                              marginRight: "auto",
+                            }}
+                          />
+                        )}
+                        <div>
+                          <input
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            id="icon-button-file-1"
+                            type="file"
+                            onChange={handleFileChange}
+                          />
+                          <label htmlFor="icon-button-file-1">
+                            <Tooltip title="Select image from desk">
+                              <IconButton
+                                color="primary"
+                                aria-label="upload picture"
+                                component="span"
+                              >
+                                <CloudUploadIcon
+                                  sx={{ fontSize: 45, color: "green" }}
+                                />
+                              </IconButton>
+                            </Tooltip>
+                          </label>
+                          <Tooltip title="Select image from our gallery">
+                            <IconButton
+                              color="primary"
+                              aria-label="select from gallery"
+                              component="span"
+                              onClick={openGalleryDialog}
+                            >
+                              <AppsIcon sx={{ fontSize: 45, color: "green" }} />
+                            </IconButton>
+                          </Tooltip>
+                        </div>
+                        <Dialog open={openGallery} onClose={closeGalleryDialog}>
+                          <DialogTitle
+                            sx={{ backgroundColor: "appColor.greenSmoke[40]" }}
+                          >
+                            Select an Image from Gallery
+                          </DialogTitle>
+                          <DialogContent>
+                            <ImageList
+                              sx={{ width: 500, height: 450 }}
+                              cols={3}
+                              rowHeight={164}
+                            >
+                              {galleryImages.map((imagePath) => (
+                                <ImageListItem key={imagePath}>
+                                  <img
+                                    src={`${imagePath}?w=164&h=164&fit=crop&auto=format`}
+                                    srcSet={`${imagePath}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                    alt="Gallery"
+                                    loading="lazy"
+                                    onClick={() =>
+                                      handleGallerySelection(imagePath)
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </ImageListItem>
+                              ))}
+                            </ImageList>
+                          </DialogContent>
+                        </Dialog>
+                      </Box>
                     </Grid>
                   </Grid>
                   <Grid
