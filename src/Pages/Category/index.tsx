@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { Box, Button, Card, Grid, TextField, Typography } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  Grid,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { appColor } from "../../theme/appColor";
 import CategoryIcon from "@mui/icons-material/Category";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
@@ -8,6 +16,20 @@ import CheckIcon from "@mui/icons-material/Check";
 import { styled } from "@mui/material/styles";
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import CloseIcon from "@mui/icons-material/Close";
+import {
+  useCreateCategoryMutation,
+  useGetCoursingQuery,
+  useGetDepartmentQuery,
+  useGetTaxQuery,
+} from "../../Api/attoDeskApi";
+import { useNotifier } from "../../Core/Notifier";
+import { useFormik } from "formik";
+import {
+  ICoursing,
+  IDepartment,
+  ITaxes,
+} from "../../Api/Interface/api.interface";
+import { KitchenPrinterType, RooleType, SizeOfLevelType } from "../../Core/Enum/enum";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -81,907 +103,1042 @@ const IOSSwitch = styled((props: SwitchProps) => (
 }));
 
 const Category: React.FC = () => {
+  const [newCategory, { isLoading }] = useCreateCategoryMutation();
+  const { showErrorMessage, showMessage } = useNotifier();
+  const { data: departmentData, isLoading: departmentLoading } =
+    useGetDepartmentQuery();
+  const { data: coursingData, isLoading: coursingLoading } =
+    useGetCoursingQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+
+  const departmentList = useMemo(() => {
+    return departmentData?.data as IDepartment[];
+  }, [departmentData?.data]);
+
+  const coursingList = useMemo(() => {
+    return coursingData?.data as ICoursing[];
+  }, [coursingData?.data]);
+
+  const taxList = useMemo(() => {
+    return taxData?.data as ITaxes[];
+  }, [taxData?.data]);
+
+  const formik = useFormik({
+    initialValues: {
+      categoryName: "",
+      departmentId: null,
+      roleId: [],
+      coursingId: null,
+      servingSize: [],
+      hidePos: false,
+      hideOnlineOrder: false,
+      hideKiosk: false,
+      Conversational: false,
+      itemServiceCharge: "",
+      ageRestriction: false,
+      excludeCheckTax: false,
+      kitchenPrinters: false,
+      labelPrinters: false,
+      restrictPrinters: false,
+      taxeId: null,
+      // kitchenPrintersTypes: [],
+    },
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const temData = {
+          categoryName: values.categoryName,
+          departmentId: values.departmentId,
+          roleId: values.roleId,
+          coursingId: values.coursingId,
+          servingSize: values.servingSize,
+          hidePos: values.hidePos,
+          hideOnlineOrder: values.hideOnlineOrder,
+          hideKiosk: values.hideKiosk,
+          Conversational: values.Conversational,
+          itemServiceCharge: values.itemServiceCharge,
+          ageRestriction: values.ageRestriction,
+          excludeCheckTax: values.excludeCheckTax,
+          kitchenPrinters: values.kitchenPrinters,
+          labelPrinters: values.labelPrinters,
+          restrictPrinters: values.restrictPrinters,
+          taxeId: values.taxeId,
+          // kitchenPrintersTypes: values.kitchenPrintersTypes,
+        };
+
+        const addCategoryResponse = await newCategory(temData).unwrap();
+        if (!addCategoryResponse.status) {
+          showErrorMessage(addCategoryResponse.message);
+        } else {
+          showMessage("Category Created successfully");
+          resetForm();
+        }
+      } catch (error) {
+        showErrorMessage("Something went wrong");
+      }
+    },
+  });
+
+  const formValid = useMemo(() => {
+    return formik.values.categoryName === "" ||
+      formik.values.categoryName === undefined ||
+      formik.values.departmentId === null ||
+      formik.values.departmentId === undefined ||
+      formik.values.coursingId === null ||
+      formik.values.coursingId === undefined ||
+      formik.values.taxeId === null ||
+      formik.values.taxeId === undefined
+      ? false
+      : true;
+  }, [formik]);
+
   return (
-    <Box
-      sx={{
-        backgroundColor: "#e0e0e0",
-        p: 2,
-        minHeight: "100vh",
-        width: "100%",
-      }}
-    >
-      <Grid container>
-        <Grid
-          item
-          lg={12}
-          md={12}
-          sm={12}
-          xs={12}
-          sx={{
-            mt: 2,
-            maxHeight: "100%",
-          }}
-        >
-          <Card
+    <form onSubmit={formik.handleSubmit}>
+      <Box
+        sx={{
+          backgroundColor: "#e0e0e0",
+          p: 2,
+          minHeight: "100vh",
+          width: "100%",
+        }}
+      >
+        <Grid container>
+          <Grid
+            item
+            lg={12}
+            md={12}
+            sm={12}
+            xs={12}
             sx={{
-              p: 2,
-              width: "100%",
-              boxShadow: "none",
-              pb: 2,
+              mt: 2,
+              maxHeight: "100%",
             }}
           >
-            <Grid container spacing={5}>
-              <Grid
-                item
-                lg={12}
-                md={12}
-                sm={12}
-                xs={12}
-                sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
-              >
-                <Typography
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    fontWeight: 500,
-                    fontSize: "21px",
-                    color: appColor.black,
-                  }}
+            <Card
+              sx={{
+                p: 2,
+                width: "100%",
+                boxShadow: "none",
+                pb: 2,
+              }}
+            >
+              <Grid container spacing={5}>
+                <Grid
+                  item
+                  lg={12}
+                  md={12}
+                  sm={12}
+                  xs={12}
+                  sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
                 >
-                  New Category
-                </Typography>
-              </Grid>
+                  <Typography
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      fontWeight: 500,
+                      fontSize: "21px",
+                      color: appColor.black,
+                    }}
+                  >
+                    New Category
+                  </Typography>
+                </Grid>
 
-              <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
-                <Grid container direction="row" alignItems="center" spacing={2}>
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Name
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      placeholder="Enter Category Name"
-                      size="small"
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        sx: {
+                <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
                           fontSize: 14,
-                        },
-                      }}
-                      InputLabelProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Department
-                    </Typography>
+                        }}
+                      >
+                        Name
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        placeholder="Enter Category Name"
+                        size="small"
+                        {...formik.getFieldProps("categoryName")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
+                    </Grid>
                   </Grid>
                   <Grid
-                    item
-                    lg={9}
-                    md={9}
-                    sm={12}
-                    xs={12}
-                    display="flex"
+                    container
+                    direction="row"
                     alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
                   >
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ flexGrow: 1 }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Department
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
                     >
-                      <option value="" disabled style={{ color: "gray" }}>
-                        Select an option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("departmentId")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {departmentList &&
+                          departmentList.map((department) => (
+                            <option key={department.id} value={department.id}>
+                              {department.departmentName}
+                            </option>
+                          ))}
+                      </TextField>
 
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={{
-                        backgroundColor: "green",
-                        color: "white",
-                        borderRadius: 0,
-                        ml: 2,
-                        border: 1,
-                        borderColor: "green",
-                        "&:hover": {
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
                           backgroundColor: "green",
-                        },
-                        "&:active": {
-                          backgroundColor: "green",
-                        },
-                      }}
-                    >
-                      <AddIcon sx={{ fontSize: 30 }} />
-                    </Button>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Roles
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Coursing
-                    </Typography>
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
                   </Grid>
                   <Grid
-                    item
-                    lg={9}
-                    md={9}
-                    sm={12}
-                    xs={12}
-                    display="flex"
+                    container
+                    direction="row"
                     alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
                   >
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ flexGrow: 1 }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select an option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={{
-                        backgroundColor: "green",
-                        color: "white",
-                        borderRadius: 0,
-                        ml: 2,
-                        border: 1,
-                        borderColor: "green",
-                        "&:hover": {
-                          backgroundColor: "green",
-                        },
-                        "&:active": {
-                          backgroundColor: "green",
-                        },
-                      }}
-                    >
-                      <AddIcon sx={{ fontSize: 30 }} />
-                    </Button>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Serving Size Levels
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Tare Group
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select Target Group
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Tare Group
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Item Service Charge
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      placeholder="None"
-                      size="small"
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        sx: {
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
                           fontSize: 14,
-                        },
-                      }}
-                      InputLabelProps={{
-                        sx: {
+                        }}
+                      >
+                        Roles
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          multiple: true,
+                          native: false,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("roleId")}
+                      >
+                        {!formik.values.roleId.length && (
+                          <MenuItem value="" disabled>
+                            Select some option
+                          </MenuItem>
+                        )}
+                        {Object.entries(RooleType).map(
+                          ([key, value], index) => (
+                            <MenuItem key={index} value={value}>
+                              {key}
+                            </MenuItem>
+                          )
+                        )}
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
                           fontSize: 14,
-                        },
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
+                        }}
+                      >
+                        Coursing
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
                     >
-                      Hide in POS
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Hide in Online Order
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Hide in Kiosk
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Conversational
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Age Restriction
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Exclude Check Tax
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
-                <Grid container direction="row" alignItems="center" spacing={2}>
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Include Default
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Hide in POS
-                    </Typography>
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Label Printers
-                    </Typography>
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Restrict PRinters
-                    </Typography>
-                    <IOSSwitch color="primary" sx={{ mr: 2 }} />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Taxes
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={9}
-                    md={9}
-                    sm={12}
-                    xs={12}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ flexGrow: 1 }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={{
-                        backgroundColor: "green",
-                        color: "white",
-                        borderRadius: 0,
-                        ml: 2,
-                        border: 1,
-                        borderColor: "green",
-                        "&:hover": {
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("coursingId")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {coursingList &&
+                          coursingList.map((coursing) => (
+                            <option key={coursing.id} value={coursing.id}>
+                              {coursing.coursingName}
+                            </option>
+                          ))}
+                      </TextField>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
                           backgroundColor: "green",
-                        },
-                        "&:active": {
-                          backgroundColor: "green",
-                        },
-                      }}
-                    >
-                      <AddIcon sx={{ fontSize: 30 }} />
-                    </Button>
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Kitchen Printers
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Serving Size Levels
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
                     <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          multiple: true,
+                          native: false,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("servingSize")}
+                      >
+                        {!formik.values.servingSize.length && (
+                          <MenuItem value="" disabled>
+                            Select some option
+                          </MenuItem>
+                        )}
+                        {Object.entries(SizeOfLevelType).map(
+                          ([key, value], index) => (
+                            <MenuItem key={index} value={value}>
+                              {key}
+                            </MenuItem>
+                          )
+                        )}
+                      </TextField>
+                    </Grid>
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Restrict Printers
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
+                  {/* <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Tare Group
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                      >
+                        <option value="" disabled color="gray">
+                          Select Target Group
+                        </option>
+                        <option>Food Department</option>
+                        <option>Shop Department</option>
+                        <option>xx Department</option>
+                        <option>cc Department</option>
+                        <option>yy Department</option>
+                      </TextField>
+                    </Grid>
+                  </Grid> */}
+                  
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Item Service Charge
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
                     <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                      >
+                        <option value="" disabled color="gray">
+                          Select an option
+                        </option>
+                        <option>None</option>
+                        <option>Pay</option>
+                      </TextField>
+                    </Grid>
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Display Button
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select Target Group
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Applicable Time Period
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select some option
-                      </option>
-                      <option>Food Department</option>
-                      <option>Shop Department</option>
-                      <option>xx Department</option>
-                      <option>cc Department</option>
-                      <option>yy Department</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-              </Grid>
 
-              <Grid
-                item
-                lg={12}
-                md={12}
-                sm={12}
-                xs={12}
-                sx={{ display: "flex", justifyContent: "flex-end" }}
-              >
-                <Button
-                  variant="contained"
-                  startIcon={<CloseIcon />}
-                  sx={{
-                    backgroundColor: "#b71c1c",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Hide in POS
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("hidePos")}
+                        checked={formik.values.hidePos}
+                      />
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Hide in Online Order
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("hideOnlineOrder")}
+                        checked={formik.values.hideOnlineOrder}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Hide in Kiosk
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("hideKiosk")}
+                        checked={formik.values.hideKiosk}
+                      />
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Conversational
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("Conversational")}
+                        checked={formik.values.Conversational}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Age Restriction
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("ageRestriction")}
+                        checked={formik.values.ageRestriction}
+                      />
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Exclude Check Tax
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("excludeCheckTax")}
+                        checked={formik.values.excludeCheckTax}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Include Default
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={4} xs={4}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Kitchen Printer
+                      </Typography>
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("kitchenPrinters")}
+                        checked={formik.values.kitchenPrinters}
+                      />
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={4} xs={4}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Label Printers
+                      </Typography>
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("labelPrinters")}
+                        checked={formik.values.labelPrinters}
+                      />
+                    </Grid>
+                    <Grid item lg={3} md={3} sm={4} xs={4}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Restrict PRinters
+                      </Typography>
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("restrictPrinters")}
+                        checked={formik.values.restrictPrinters}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Taxes
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("taxeId")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {taxList &&
+                          taxList.map((tax) => (
+                            <option key={tax.id} value={tax.id}>
+                              {tax.taxName}
+                            </option>
+                          ))}
+                      </TextField>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  {/* <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Kitchen Printers
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          multiple: true,
+                          native: false,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("kitchenPrintersTypes")}
+                      >
+                        {!formik.values.kitchenPrintersTypes.length && (
+                          <MenuItem value="" disabled>
+                            Select some option
+                          </MenuItem>
+                        )}
+                        {Object.entries(KitchenPrinterType).map(
+                          ([key, value], index) => (
+                            <MenuItem key={index} value={value}>
+                              {key}
+                            </MenuItem>
+                          )
+                        )}
+                      </TextField>
+                    </Grid>
+                  </Grid> */}
+                  {/* <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Restrict Printers
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                      >
+                        <option value="" disabled color="gray">
+                          Select some option
+                        </option>
+                        <option>Food Department</option>
+                        <option>Shop Department</option>
+                        <option>xx Department</option>
+                        <option>cc Department</option>
+                        <option>yy Department</option>
+                      </TextField>
+                    </Grid>
+                  </Grid> */}
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Display Button
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                      >
+                        <option value="" disabled color="gray">
+                          Select Target Group
+                        </option>
+                        <option>Food Department</option>
+                        <option>Shop Department</option>
+                        <option>xx Department</option>
+                        <option>cc Department</option>
+                        <option>yy Department</option>
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Applicable Time Period
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                      >
+                        <option value="" disabled color="gray">
+                          Select some option
+                        </option>
+                        <option>Food Department</option>
+                        <option>Shop Department</option>
+                        <option>xx Department</option>
+                        <option>cc Department</option>
+                        <option>yy Department</option>
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                <Grid
+                  item
+                  lg={12}
+                  md={12}
+                  sm={12}
+                  xs={12}
+                  sx={{ display: "flex", justifyContent: "flex-end" }}
+                >
+                  <Button
+                    variant="contained"
+                    startIcon={<CloseIcon />}
+                    sx={{
                       backgroundColor: "#b71c1c",
+                      textTransform: "none",
                       boxShadow: "none",
-                    },
-                    "&:active": {
-                      backgroundColor: "#b71c1c",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Box m={0.5}></Box>
-                <Button
-                  variant="contained"
-                  startIcon={<SaveAltIcon />}
-                  sx={{
-                    backgroundColor: "green",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
+                      "&:hover": {
+                        backgroundColor: "#b71c1c",
+                        boxShadow: "none",
+                      },
+                      "&:active": {
+                        backgroundColor: "#b71c1c",
+                        boxShadow: "none",
+                      },
+                    }}
+                    onClick={() => formik.resetForm()}
+                  >
+                    Cancel
+                  </Button>
+                  <Box m={0.5}></Box>
+                  <Button
+                    variant="contained"
+                    startIcon={<SaveAltIcon />}
+                    sx={{
                       backgroundColor: "green",
+                      textTransform: "none",
                       boxShadow: "none",
-                    },
-                    "&:active": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Save
-                </Button>
-                {/* <Box m={0.5}></Box>
+                      "&:hover": {
+                        backgroundColor: "green",
+                        boxShadow: "none",
+                      },
+                      "&:active": {
+                        backgroundColor: "green",
+                        boxShadow: "none",
+                      },
+                    }}
+                    onClick={() => formik.handleSubmit()}
+                    disabled={!formValid || isLoading}
+                  >
+                    Save
+                  </Button>
+                  {/* <Box m={0.5}></Box>
                 <Button
                   variant="contained"
                   startIcon={<SaveAltIcon />}
@@ -1001,12 +1158,13 @@ const Category: React.FC = () => {
                 >
                   Save and publish
                 </Button> */}
+                </Grid>
               </Grid>
-            </Grid>
-          </Card>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </form>
   );
 };
 

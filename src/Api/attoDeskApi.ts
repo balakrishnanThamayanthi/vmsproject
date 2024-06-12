@@ -100,6 +100,36 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['tax'],
     }),
+    getDepartment: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/department/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['department'],
+      keepUnusedDataFor: 0,
+    }),
+    getCoursing: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/coursing/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['coursing'],
+      keepUnusedDataFor: 0,
+    }),
+    getTax: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/tax/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['tax'],
+      keepUnusedDataFor: 0,
+    })
   }),
 });
 
@@ -110,5 +140,8 @@ export const {
   useCreateCompanyMutation,
   useCreateDepartmentMutation,
   useCreateCoursingMutation,
-  useCreateTaxMutation
+  useCreateTaxMutation,
+  useGetDepartmentQuery,
+  useGetCoursingQuery,
+  useGetTaxQuery
 } = attoDeskApi;

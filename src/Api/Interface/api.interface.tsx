@@ -18,6 +18,7 @@ export interface IApiResponse {
   }
 
   export interface ICategory {
+    id: number, 
     categoryName: string;
     departmentId: number;
     roleId: number;
@@ -38,6 +39,7 @@ export interface IApiResponse {
   }
   
   export interface ICompany {
+    id: number, 
     companyName: string;
     displayName: string;
     address: string;
@@ -48,16 +50,19 @@ export interface IApiResponse {
   }
 
   export interface IDepartment {
+    id: number, 
     departmentName: string;
     description: string;
   }
 
   export interface ICoursing {
+    id: number, 
     coursingName: string;
     priocity: string;
   }
 
   export interface ITaxes {
+    id: number, 
     taxName: string;
     taxType: string;
     applyTo: string;
