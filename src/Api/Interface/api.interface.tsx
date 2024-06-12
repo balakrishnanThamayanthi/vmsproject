@@ -16,3 +16,33 @@ export interface IApiResponse {
   export interface IAuth {
     token: string;
   }
+
+  export interface ICategory {
+    categoryName: string;
+    departmentId: number;
+    roleId: number;
+    coursingId: number;
+    servingSize: number;
+    hidePos: boolean;
+    hideOnlineOrder: boolean;
+    hideKiosk: boolean;
+    Conversational: boolean;
+    itemServiceCharge: string;
+    ageRestriction: boolean;
+    excludeCheckTax: boolean;
+    kitchenPrinters: boolean;
+    labelPrinters: boolean;
+    restrictPrinters: boolean;
+    taxeId: number;
+    kitchenPrintersTypes: string;
+  }
+  
+  export interface ICompany {
+    companyName: string;
+    displayName: string;
+    address: string;
+    description: string;
+    openingHours: string;
+    closingHours: string;
+    imgUrl: string;
+  }

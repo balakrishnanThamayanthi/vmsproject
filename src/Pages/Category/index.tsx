@@ -84,7 +84,7 @@ const Category: React.FC = () => {
   return (
     <Box
       sx={{
-        backgroundColor: appColor.blue[10],
+        backgroundColor: "#e0e0e0",
         p: 2,
         minHeight: "100vh",
         width: "100%",
@@ -145,7 +145,7 @@ const Category: React.FC = () => {
               >
                 <Typography
                   sx={{
-                    fontSize: 14,
+                    fontSize: 16,
                     margin: 1,
                     fontWeight: "bold",
                   }}
@@ -1003,7 +1003,7 @@ const Category: React.FC = () => {
                 >
                   Save
                 </Button>
-                <Box m={0.5}></Box>
+                {/* <Box m={0.5}></Box>
                 <Button
                   variant="contained"
                   startIcon={<SaveAltIcon />}
@@ -1022,7 +1022,7 @@ const Category: React.FC = () => {
                   }}
                 >
                   Save and publish
-                </Button>
+                </Button> */}
               </Grid>
             </Grid>
           </Card>

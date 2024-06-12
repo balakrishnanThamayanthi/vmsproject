@@ -64,7 +64,8 @@ const Login: React.FC = () => {
           backgroundColor: appColor.white,
           boxShadow: 3,
           p: 5,
-          maxWidth: 400,
+          maxWidth: 500,
+          height: "auto",
           mx: "auto",
         }}
       >
