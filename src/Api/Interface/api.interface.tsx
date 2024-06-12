@@ -51,3 +51,8 @@ export interface IApiResponse {
     departmentName: string;
     description: string;
   }
+
+  export interface ICoursing {
+    coursingName: string;
+    priocity: string;
+  }

@@ -25,7 +25,8 @@ export const attoDeskApi = createApi({
     "User",
     "Category",
     "company",
-    "department"
+    "department",
+    "coursing"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -78,6 +79,16 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['department'],
     }),
+    createCoursing: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/coursing',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['coursing'],
+    }),
   }),
 });
 
@@ -86,5 +97,6 @@ export const {
   useLoginMutation,
   useCreateCategoryMutation,
   useCreateCompanyMutation,
-  useCreateDepartmentMutation
+  useCreateDepartmentMutation,
+  useCreateCoursingMutation
 } = attoDeskApi;

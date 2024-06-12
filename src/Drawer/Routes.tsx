@@ -7,6 +7,8 @@ import CompanyInfo from "../Pages/CompanyInfo";
 import Category from "../Pages/Category";
 import Item from "../Pages/Item";
 import Department from "../Pages/Department";
+import Coursing from "../Pages/Coursing";
+
 
 
 /**
@@ -26,6 +28,7 @@ const AppRoutes = () => {
       <Route path="/company-info" element={<CompanyInfo />} />
       <Route path="/category" element={<Category />} />
       <Route path="/department" element={<Department />} />
+      <Route path="/coursing" element={<Coursing />} />
       <Route path="/item" element={<Item />} />
       <Route element={<Navigate replace to="/dashboard" />} path="*" />
     </Routes>
