@@ -57,3 +57,5 @@ npm install @reduxjs/toolkit
 npm install highcharts
 npm install --save-dev @types/highcharts
 npm install highcharts-react-official
+
+npm install formik

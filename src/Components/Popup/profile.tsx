@@ -18,6 +18,11 @@ const Profile: React.FC<IProfileProps> = ({ profile, onClose, open }) => {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     onClose();
   };
+  
+  const logout = () => {
+    localStorage.removeItem('token');
+    window.location.reload();
+  };
 
   return (
     <Menu
@@ -75,7 +80,7 @@ const Profile: React.FC<IProfileProps> = ({ profile, onClose, open }) => {
         </ListItemIcon>
         Settings
       </MenuItem>
-      <MenuItem onClick={handleClick}>
+      <MenuItem onClick={logout}>
         <ListItemIcon>
           <LogoutIcon fontSize="small" />
         </ListItemIcon>

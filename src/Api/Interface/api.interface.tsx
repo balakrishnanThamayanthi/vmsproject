@@ -1,8 +1,6 @@
 export interface IApiResponse {
     records: any;
     id: string;
-    department: IApiResponse | undefined;
-    // title(title: any): unknown;
     code: number;
     status: boolean;
     message: string;
@@ -13,4 +11,8 @@ export interface IApiResponse {
   export interface IUser {
     username: string;
     password: string;
+  }
+
+  export interface IAuth {
+    token: string;
   }

@@ -9,7 +9,7 @@ import { IApiResponse, IUser } from "./Interface/api.interface";
  */
 
 export const attoDeskApi = createApi({
-  reducerPath: "posApi",
+  reducerPath: "attoDeskApi",
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
     prepareHeaders: (headers) => {
@@ -23,17 +23,23 @@ export const attoDeskApi = createApi({
   }),
   tagTypes: [
     "User",
-    "UserManagement",
-    "dashboard",
-    "Driver",
-    "user",
-    "Vehicle",
   ],
   endpoints: (builder) => ({  
+    getUser: builder.query<IApiResponse, void>({
+      query: (request) => {
+        return {
+          url: '/user/userInfo',
+          method: 'POST',
+          body: request,
+        };
+      },
+      keepUnusedDataFor: 1,
+      providesTags: ['User'],
+    }),
     login: builder.mutation<IApiResponse, IUser>({
       query: (request) => {
         return {
-          url: "/login/authenticate",
+          url: "/login",
           method: "POST",
           body: JSON.stringify(request),
         };
@@ -43,5 +49,6 @@ export const attoDeskApi = createApi({
 });
 
 export const {
+  useGetUserQuery,
   useLoginMutation,
 } = attoDeskApi;
