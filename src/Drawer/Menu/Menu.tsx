@@ -45,6 +45,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import SubjectIcon from '@mui/icons-material/Subject';
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 
 const drawerWidth = 240;
 
@@ -170,6 +171,11 @@ const menuList: {
         title: "Coursing",
         icon: <SubjectIcon />,
         path: "/coursing",
+      },
+      {
+        title: "Taxes",
+        icon: <CurrencyExchangeIcon />,
+        path: "/taxes",
       },
       {
         title: "Category",

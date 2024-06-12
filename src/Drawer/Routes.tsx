@@ -8,6 +8,7 @@ import Category from "../Pages/Category";
 import Item from "../Pages/Item";
 import Department from "../Pages/Department";
 import Coursing from "../Pages/Coursing";
+import Tax from "../Pages/Tax";
 
 
 
@@ -29,6 +30,7 @@ const AppRoutes = () => {
       <Route path="/category" element={<Category />} />
       <Route path="/department" element={<Department />} />
       <Route path="/coursing" element={<Coursing />} />
+      <Route path="/taxes" element={<Tax />} />
       <Route path="/item" element={<Item />} />
       <Route element={<Navigate replace to="/dashboard" />} path="*" />
     </Routes>
