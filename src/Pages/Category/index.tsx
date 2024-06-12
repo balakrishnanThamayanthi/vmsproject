@@ -1129,7 +1129,7 @@ const Category: React.FC = () => {
                         </div>
                         <Dialog open={openGallery} onClose={closeGalleryDialog}>
                           <DialogTitle
-                            sx={{ backgroundColor: "appColor.greenSmoke[40]" }}
+                            sx={{ backgroundColor: appColor.greenSmoke[40] }}
                           >
                             Select an Image from Gallery
                           </DialogTitle>
