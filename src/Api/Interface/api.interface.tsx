@@ -46,3 +46,8 @@ export interface IApiResponse {
     closingHours: string;
     imgUrl: string;
   }
+
+  export interface IDepartment {
+    departmentName: string;
+    description: string;
+  }

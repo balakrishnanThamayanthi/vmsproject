@@ -43,6 +43,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import CategoryIcon from '@mui/icons-material/Category';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
 
 const drawerWidth = 240;
 
@@ -158,6 +159,11 @@ const menuList: {
         title: "Company Info",
         icon: <InfoIcon />,
         path: "/company-info",
+      },
+      {
+        title: "Department",
+        icon: <DomainAddIcon />,
+        path: "/department",
       },
       {
         title: "Category",

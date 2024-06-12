@@ -99,30 +99,6 @@ const Category: React.FC = () => {
           xs={12}
           sx={{
             mt: 2,
-          }}
-        >
-          <Typography
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              fontWeight: 500,
-              fontSize: "21px",
-              color: appColor.black,
-            }}
-          >
-            <CategoryIcon sx={{ fontSize: 24, marginRight: "8px" }} />
-            Category
-          </Typography>
-        </Grid>
-
-        <Grid
-          item
-          lg={12}
-          md={12}
-          sm={12}
-          xs={12}
-          sx={{
-            mt: 2,
             maxHeight: "100%",
           }}
         >
@@ -145,12 +121,14 @@ const Category: React.FC = () => {
               >
                 <Typography
                   sx={{
-                    fontSize: 16,
-                    margin: 1,
-                    fontWeight: "bold",
+                    display: "flex",
+                    alignItems: "center",
+                    fontWeight: 500,
+                    fontSize: "21px",
+                    color: appColor.black,
                   }}
                 >
-                  Create Category
+                  New Category
                 </Typography>
               </Grid>
 
@@ -966,7 +944,7 @@ const Category: React.FC = () => {
               >
                 <Button
                   variant="contained"
-                  startIcon={<SaveAltIcon />}
+                  startIcon={<CloseIcon />}
                   sx={{
                     backgroundColor: "#b71c1c",
                     textTransform: "none",

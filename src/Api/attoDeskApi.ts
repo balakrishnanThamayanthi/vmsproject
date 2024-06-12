@@ -24,7 +24,8 @@ export const attoDeskApi = createApi({
   tagTypes: [
     "User",
     "Category",
-    "company"
+    "company",
+    "department"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -67,6 +68,16 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['company'],
     }),
+    createDepartment: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/department',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['department'],
+    }),
   }),
 });
 
@@ -74,5 +85,6 @@ export const {
   useGetUserQuery,
   useLoginMutation,
   useCreateCategoryMutation,
-  useCreateCompanyMutation
+  useCreateCompanyMutation,
+  useCreateDepartmentMutation
 } = attoDeskApi;

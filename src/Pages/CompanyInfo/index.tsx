@@ -48,7 +48,7 @@ const Category: React.FC = () => {
         const formattedClosingHours = values.closingHours.map(
           ({ hour, minute }) => `${hour}:${minute}`
         );
-  
+
         const temData = {
           companyName: values.companyName,
           displayName: values.displayName,
@@ -57,20 +57,19 @@ const Category: React.FC = () => {
           openingHours: formattedOpeningHours,
           closingHours: formattedClosingHours,
         };
-  
+
         const addCompanyResponse = await newCompany(temData).unwrap();
         if (!addCompanyResponse.status) {
           showErrorMessage(addCompanyResponse.message);
         } else {
           showMessage("Company Created successfully");
-          resetForm(); 
+          resetForm();
         }
       } catch (error) {
         showErrorMessage("Something went wrong");
       }
     },
   });
-  
 
   const formValid = useMemo(() => {
     return formik.values.companyName === "" ||
@@ -103,255 +102,102 @@ const Category: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        backgroundColor: "#e0e0e0",
-        p: 2,
-        minHeight: "100vh",
-        width: "100%",
-      }}
-    >
-      <Grid container>
-        <Grid
-          item
-          lg={12}
-          sx={{
-            mt: 2,
-            maxHeight: "100%",
-          }}
-        >
-          <Card
+    <form onSubmit={formik.handleSubmit}>
+      <Box
+        sx={{
+          backgroundColor: "#e0e0e0",
+          p: 2,
+          minHeight: "100vh",
+          width: "100%",
+        }}
+      >
+        <Grid container>
+          <Grid
+            item
+            lg={12}
             sx={{
-              p: 2,
-              width: "100%",
-              boxShadow: "none",
-              pb: 2,
+              mt: 2,
+              maxHeight: "100%",
             }}
           >
-            <Grid container justifyContent="space-between">
-              <Grid
-                item
-                lg={12}
-                md={12}
-                sm={12}
-                xs={12}
-                sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
-              >
-                <Typography
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    fontWeight: 500,
-                    fontSize: "21px",
-                    color: appColor.black,
-                  }}
+            <Card
+              sx={{
+                p: 2,
+                width: "100%",
+                boxShadow: "none",
+                pb: 2,
+              }}
+            >
+              <Grid container justifyContent="space-between">
+                <Grid
+                  item
+                  lg={12}
+                  md={12}
+                  sm={12}
+                  xs={12}
+                  sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
                 >
-                  <InfoIcon sx={{ fontSize: 24, marginRight: "8px" }} />
-                  Company Information
-                </Typography>
-              </Grid>
-              <Grid item lg={2} md={12} sm={12} xs={12} p={2}>
-                <Box
-                  component="img"
-                  src={imageSrc}
-                  alt="Company Image"
-                  border={1}
-                  borderColor={appColor.greenSmoke[20]}
-                  onClick={handleImageClick}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    maxHeight: "100%",
-                    maxWidth: "100%",
-                    cursor: "pointer",
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  color="error"
-                  sx={{
-                    fontSize: 13,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "auto",
-                    mx: "auto",
-                    mt: 2,
-                    padding: "8px 16px",
-                    cursor: "pointer",
-                    borderColor: appColor.greenSmoke[20],
-                  }}
-                  onClick={handleRemoveImage}
-                >
-                  <CloseIcon sx={{ mr: 1 }} />
-                  Remove Image
-                </Button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                />
-              </Grid>
-              <Grid item lg={10} md={10} sm={12} xs={12} py={2}>
-                <Grid container spacing={2}>
-                  <Grid item lg={4} md={4} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Company Name
-                    </Typography>
-                    <TextField
-                      placeholder="Enter Company Name"
-                      size="small"
-                      {...formik.getFieldProps("companyName")}
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                      InputLabelProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item lg={4} md={4} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Display Name
-                    </Typography>
-                    <TextField
-                      placeholder="Enter Display Name"
-                      size="small"
-                      {...formik.getFieldProps("displayName")}
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                      InputLabelProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item lg={4} md={4} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Address
-                    </Typography>
-                    <TextField
-                      placeholder="Enter Company Address"
-                      size="small"
-                      {...formik.getFieldProps("address")}
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                      InputLabelProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item lg={12} md={12} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Company Description
-                    </Typography>
-                    <TextField
-                      placeholder="Company Description"
-                      size="small"
-                      {...formik.getFieldProps("description")}
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                      InputLabelProps={{
-                        sx: {
-                          fontSize: 14,
-                        },
-                      }}
-                    />
-                  </Grid>
+                  <Typography
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      fontWeight: 500,
+                      fontSize: "21px",
+                      color: appColor.black,
+                    }}
+                  >
+                    {/* <InfoIcon sx={{ fontSize: 24, marginRight: "8px" }} /> */}
+                    Company Information
+                  </Typography>
                 </Grid>
-              </Grid>
-            </Grid>
-          </Card>
-        </Grid>
-
-        <Grid
-          item
-          lg={12}
-          sx={{
-            mt: 2,
-            maxHeight: "100%",
-          }}
-        >
-          <Card
-            sx={{
-              p: 2,
-              width: "100%",
-              boxShadow: "none",
-              pb: 2,
-            }}
-          >
-            <Grid container justifyContent="space-between">
-              <Grid
-                item
-                lg={12}
-                md={12}
-                sm={12}
-                xs={12}
-                sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
-              >
-                <Typography
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    fontWeight: 500,
-                    fontSize: "16px",
-                    color: appColor.black,
-                  }}
-                >
-                  Opening & Closing Hours
-                </Typography>
-              </Grid>
-              {daysOfWeek.map((day, index) => (
-                <Grid item lg={12} md={12} sm={12} xs={12} py={1} key={index}>
+                <Grid item lg={2} md={12} sm={12} xs={12} p={2}>
+                  <Box
+                    component="img"
+                    src={imageSrc}
+                    alt="Company Image"
+                    border={1}
+                    borderColor={appColor.greenSmoke[20]}
+                    onClick={handleImageClick}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      maxHeight: "100%",
+                      maxWidth: "100%",
+                      cursor: "pointer",
+                    }}
+                  />
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    sx={{
+                      fontSize: 13,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "auto",
+                      mx: "auto",
+                      mt: 2,
+                      padding: "8px 16px",
+                      cursor: "pointer",
+                      borderColor: appColor.greenSmoke[20],
+                    }}
+                    onClick={handleRemoveImage}
+                  >
+                    <CloseIcon sx={{ mr: 1 }} />
+                    Remove Image
+                  </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                  />
+                </Grid>
+                <Grid item lg={10} md={10} sm={12} xs={12} py={2}>
                   <Grid container spacing={2}>
-                    <Grid item lg={2} md={2} sm={12} xs={12}>
+                    <Grid item lg={4} md={4} sm={12} xs={12}>
                       <Typography
                         variant="subtitle1"
                         sx={{
@@ -359,157 +205,316 @@ const Category: React.FC = () => {
                           fontSize: 14,
                         }}
                       >
-                        {day}
+                        Company Name
                       </Typography>
-                    </Grid>
-                    <Grid item lg={2} md={2} sm={6} xs={6}>
                       <TextField
-                        select
+                        placeholder="Enter Company Name"
                         size="small"
-                        {...formik.getFieldProps(`openingHours[${index}].hour`)}
+                        {...formik.getFieldProps("companyName")}
                         sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled>
-                          Opening Hours
-                        </option>
-                        {Array.from(Array(24).keys()).map((hour) => (
-                          <option
-                            key={hour}
-                            value={hour < 10 ? `0${hour}` : `${hour}`}
-                          >
-                            {hour < 10 ? `0${hour}` : `${hour}`}
-                          </option>
-                        ))}
-                      </TextField>
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
                     </Grid>
-
-                    <Grid item lg={2} md={2} sm={6} xs={6}>
-                      <TextField
-                        select
-                        size="small"
-                        {...formik.getFieldProps(
-                          `openingHours[${index}].minute`
-                        )}
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                    <Grid item lg={4} md={4} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
                       >
-                        <option value="" disabled>
-                          Minutes
-                        </option>
-                        {Array.from(Array(60).keys()).map((minute) => (
-                          <option
-                            key={minute}
-                            value={minute < 10 ? `0${minute}` : `${minute}`}
-                          >
-                            {minute < 10 ? `0${minute}` : `${minute}`}
-                          </option>
-                        ))}
-                      </TextField>
+                        Display Name
+                      </Typography>
+                      <TextField
+                        placeholder="Enter Display Name"
+                        size="small"
+                        {...formik.getFieldProps("displayName")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
                     </Grid>
-
-                    <Grid item lg={2} md={2} sm={6} xs={6}>
-                      <TextField
-                        select
-                        size="small"
-                        {...formik.getFieldProps(`closingHours[${index}].hour`)}
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                    <Grid item lg={4} md={4} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
                       >
-                        <option value="" disabled>
-                          Closing Hours
-                        </option>
-                        {Array.from(Array(24).keys()).map((hour) => (
-                          <option
-                            key={hour}
-                            value={hour < 10 ? `0${hour}` : `${hour}`}
-                          >
-                            {hour < 10 ? `0${hour}` : `${hour}`}
-                          </option>
-                        ))}
-                      </TextField>
+                        Address
+                      </Typography>
+                      <TextField
+                        placeholder="Enter Company Address"
+                        size="small"
+                        {...formik.getFieldProps("address")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
                     </Grid>
-
-                    <Grid item lg={2} md={2} sm={6} xs={6}>
-                      <TextField
-                        select
-                        size="small"
-                        {...formik.getFieldProps(
-                          `closingHours[${index}].minute`
-                        )}
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                    <Grid item lg={12} md={12} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
                       >
-                        <option value="" disabled>
-                          Minutes
-                        </option>
-                        {Array.from(Array(60).keys()).map((minute) => (
-                          <option
-                            key={minute}
-                            value={minute < 10 ? `0${minute}` : `${minute}`}
-                          >
-                            {minute < 10 ? `0${minute}` : `${minute}`}
-                          </option>
-                        ))}
-                      </TextField>
+                        Company Description
+                      </Typography>
+                      <TextField
+                        placeholder="Company Description"
+                        size="small"
+                        {...formik.getFieldProps("description")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
-              ))}
-            </Grid>
-          </Card>
-        </Grid>
+              </Grid>
+            </Card>
+          </Grid>
 
-        <Grid
-          item
-          lg={12}
-          sx={{
-            mt: 2,
-            mb: 5,
-            maxHeight: "100%",
-          }}
-        >
-          <Button
-            variant="contained"
+          <Grid
+            item
+            lg={12}
             sx={{
-              backgroundColor: "green",
-              color: "white",
               mt: 2,
-              textAlign: "left",
-              borderRadius: 0,
-              width: "auto",
-              "&:hover": {
-                backgroundColor: "green",
-              },
-              "&:active": {
-                backgroundColor: "green",
-              },
+              maxHeight: "100%",
             }}
-            onClick={() => formik.handleSubmit()}
-            disabled={!formValid || isLoading}
           >
-            <SaveAltIcon sx={{ mr: 1 }} />
-            Save
-          </Button>
+            <Card
+              sx={{
+                p: 2,
+                width: "100%",
+                boxShadow: "none",
+                pb: 2,
+              }}
+            >
+              <Grid container justifyContent="space-between">
+                <Grid
+                  item
+                  lg={12}
+                  md={12}
+                  sm={12}
+                  xs={12}
+                  sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
+                >
+                  <Typography
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      color: appColor.black,
+                    }}
+                  >
+                    Opening & Closing Hours
+                  </Typography>
+                </Grid>
+                {daysOfWeek.map((day, index) => (
+                  <Grid item lg={12} md={12} sm={12} xs={12} py={1} key={index}>
+                    <Grid container spacing={2}>
+                      <Grid item lg={2} md={2} sm={12} xs={12}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          {day}
+                        </Typography>
+                      </Grid>
+                      <Grid item lg={2} md={2} sm={6} xs={6}>
+                        <TextField
+                          select
+                          size="small"
+                          {...formik.getFieldProps(
+                            `openingHours[${index}].hour`
+                          )}
+                          sx={{ width: "100%" }}
+                          SelectProps={{
+                            native: true,
+                          }}
+                          defaultValue=""
+                          InputLabelProps={{ shrink: true }}
+                        >
+                          <option value="" disabled>
+                            Opening Hours
+                          </option>
+                          {Array.from(Array(24).keys()).map((hour) => (
+                            <option
+                              key={hour}
+                              value={hour < 10 ? `0${hour}` : `${hour}`}
+                            >
+                              {hour < 10 ? `0${hour}` : `${hour}`}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+
+                      <Grid item lg={2} md={2} sm={6} xs={6}>
+                        <TextField
+                          select
+                          size="small"
+                          {...formik.getFieldProps(
+                            `openingHours[${index}].minute`
+                          )}
+                          sx={{ width: "100%" }}
+                          SelectProps={{
+                            native: true,
+                          }}
+                          defaultValue=""
+                          InputLabelProps={{ shrink: true }}
+                        >
+                          <option value="" disabled>
+                            Minutes
+                          </option>
+                          {Array.from(Array(60).keys()).map((minute) => (
+                            <option
+                              key={minute}
+                              value={minute < 10 ? `0${minute}` : `${minute}`}
+                            >
+                              {minute < 10 ? `0${minute}` : `${minute}`}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+
+                      <Grid item lg={2} md={2} sm={6} xs={6}>
+                        <TextField
+                          select
+                          size="small"
+                          {...formik.getFieldProps(
+                            `closingHours[${index}].hour`
+                          )}
+                          sx={{ width: "100%" }}
+                          SelectProps={{
+                            native: true,
+                          }}
+                          defaultValue=""
+                          InputLabelProps={{ shrink: true }}
+                        >
+                          <option value="" disabled>
+                            Closing Hours
+                          </option>
+                          {Array.from(Array(24).keys()).map((hour) => (
+                            <option
+                              key={hour}
+                              value={hour < 10 ? `0${hour}` : `${hour}`}
+                            >
+                              {hour < 10 ? `0${hour}` : `${hour}`}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+
+                      <Grid item lg={2} md={2} sm={6} xs={6}>
+                        <TextField
+                          select
+                          size="small"
+                          {...formik.getFieldProps(
+                            `closingHours[${index}].minute`
+                          )}
+                          sx={{ width: "100%" }}
+                          SelectProps={{
+                            native: true,
+                          }}
+                          defaultValue=""
+                          InputLabelProps={{ shrink: true }}
+                        >
+                          <option value="" disabled>
+                            Minutes
+                          </option>
+                          {Array.from(Array(60).keys()).map((minute) => (
+                            <option
+                              key={minute}
+                              value={minute < 10 ? `0${minute}` : `${minute}`}
+                            >
+                              {minute < 10 ? `0${minute}` : `${minute}`}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                ))}
+              </Grid>
+            </Card>
+          </Grid>
+
+          <Grid
+            item
+            lg={12}
+            sx={{
+              mt: 2,
+              mb: 5,
+              maxHeight: "100%",
+            }}
+          >
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "green",
+                color: "white",
+                mt: 2,
+                textAlign: "left",
+                borderRadius: 0,
+                width: "auto",
+                "&:hover": {
+                  backgroundColor: "green",
+                },
+                "&:active": {
+                  backgroundColor: "green",
+                },
+              }}
+              onClick={() => formik.handleSubmit()}
+              disabled={!formValid || isLoading}
+            >
+              <SaveAltIcon sx={{ mr: 1 }} />
+              Save
+            </Button>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </form>
   );
 };
 
