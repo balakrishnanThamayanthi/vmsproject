@@ -81,7 +81,7 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
-const Department: React.FC = () => {
+const ProductBrand: React.FC = () => {
   const [newProductBrand, { isLoading }] = useCreateProductBrandMutation();
   const { showErrorMessage, showMessage } = useNotifier();
 
@@ -298,4 +298,4 @@ const Department: React.FC = () => {
   );
 };
 
-export default Department;
+export default ProductBrand;

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Box, Button, Card, Grid, TextField, Typography } from "@mui/material";
 import { appColor } from "../../theme/appColor";
 import DomainAddIcon from "@mui/icons-material/DomainAdd";
-import { useCreateProductBrandMutation } from "../../Api/attoDeskApi";
+import { useCreatePrinterMutation } from "../../Api/attoDeskApi";
 import { useNotifier } from "../../Core/Notifier";
 import { useFormik } from "formik";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
@@ -81,27 +81,27 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
-const Department: React.FC = () => {
-  const [newProductBrand, { isLoading }] = useCreateProductBrandMutation();
+const Printer: React.FC = () => {
+  const [newPrinter, { isLoading }] = useCreatePrinterMutation();
   const { showErrorMessage, showMessage } = useNotifier();
 
   const formik = useFormik({
     initialValues: {
-      productBrandName: "",
-      isActive: false,
+      printerName: "",
+      printerDescription: "",
     },
     onSubmit: async (values, { resetForm }) => {
       try {
         const temData = {
-          productBrandName: values.productBrandName,
-          isActive: values.isActive,
+          printerName: values.printerName,
+          printerDescription: values.printerDescription,
         };
 
-        const addProductBrand = await newProductBrand(temData).unwrap();
-        if (!addProductBrand.status) {
-          showErrorMessage(addProductBrand.message);
+        const addPrinter = await newPrinter(temData).unwrap();
+        if (!addPrinter.status) {
+          showErrorMessage(addPrinter.message);
         } else {
-          showMessage("Product Brand Created successfully");
+          showMessage("Printer Created successfully");
           resetForm();
         }
       } catch (error) {
@@ -111,8 +111,8 @@ const Department: React.FC = () => {
   });
 
   const formValid = useMemo(() => {
-    return formik.values.productBrandName === "" ||
-      formik.values.productBrandName === undefined
+    return formik.values.printerName === "" ||
+      formik.values.printerName === undefined
       ? false
       : true;
   }, [formik]);
@@ -169,7 +169,7 @@ const Department: React.FC = () => {
                     }}
                   >
                     {/* <DomainAddIcon sx={{ fontSize: 24, marginRight: "8px" }} /> */}
-                    New Product Brand
+                    New Printer
                   </Typography>
                 </Grid>
 
@@ -193,9 +193,9 @@ const Department: React.FC = () => {
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                       <TextField
-                        placeholder="Enter Product Brand Name"
+                        placeholder="Enter Printer Name"
                         size="small"
-                        {...formik.getFieldProps("productBrandName")}
+                        {...formik.getFieldProps("printerName")}
                         sx={{ width: "100%" }}
                         InputProps={{
                           sx: {
@@ -225,15 +225,25 @@ const Department: React.FC = () => {
                           fontSize: 14,
                         }}
                       >
-                        Active
+                        Description
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("isActive")}
-                        checked={formik.values.isActive}
+                      <TextField
+                        placeholder="Enter Printer Description"
+                        size="small"
+                        {...formik.getFieldProps("printerDescription")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
                       />
                     </Grid>
                   </Grid>
@@ -298,4 +308,4 @@ const Department: React.FC = () => {
   );
 };
 
-export default Department;
+export default Printer;

@@ -95,7 +95,7 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
-const Department: React.FC = () => {
+const ProductCategory: React.FC = () => {
   const [newProductCategory, { isLoading }] = useCreateProductCategoryMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const { data: categoryData, isLoading: departmentLoading } = useGetCategoryQuery();
@@ -532,4 +532,4 @@ const Department: React.FC = () => {
   );
 };
 
-export default Department;
+export default ProductCategory;
