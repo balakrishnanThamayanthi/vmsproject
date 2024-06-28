@@ -5,7 +5,7 @@ import { Loader } from "../Components/Loader";
 import Dashboard from "../Pages/Dashboard";
 import CompanyInfo from "../Pages/CompanyInfo";
 import Category from "../Pages/Category";
-import Item from "../Pages/Item";
+import ProductBrand from "../Pages/ProductBrand";
 import Department from "../Pages/Department";
 import Coursing from "../Pages/Coursing";
 import Tax from "../Pages/Tax";
@@ -72,10 +72,10 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/item"
+        path="/product/brand"
         element={
           <Suspense fallback={<Loader />}>
-            <Item />
+            <ProductBrand />
           </Suspense>
         }
       />

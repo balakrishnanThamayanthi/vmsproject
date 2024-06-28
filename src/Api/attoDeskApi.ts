@@ -27,7 +27,8 @@ export const attoDeskApi = createApi({
     "company",
     "department",
     "coursing",
-    "tax"
+    "tax",
+    "product"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -107,7 +108,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['department'],
+      providesTags: ['department', "Category"],
       keepUnusedDataFor: 0,
     }),
     getCoursing: builder.query<IApiResponse, void>({
@@ -117,7 +118,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['coursing'],
+      providesTags: ['coursing', "Category"],
       keepUnusedDataFor: 0,
     }),
     getTax: builder.query<IApiResponse, void>({
@@ -127,9 +128,19 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['tax'],
+      providesTags: ['tax', "Category"],
       keepUnusedDataFor: 0,
-    })
+    }),
+    createProductBrand: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/product/brand',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['product'],
+    }),
   }),
 });
 
@@ -143,5 +154,6 @@ export const {
   useCreateTaxMutation,
   useGetDepartmentQuery,
   useGetCoursingQuery,
-  useGetTaxQuery
+  useGetTaxQuery,
+  useCreateProductBrandMutation,
 } = attoDeskApi;

@@ -46,6 +46,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import SubjectIcon from '@mui/icons-material/Subject';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 
 const drawerWidth = 240;
 
@@ -183,9 +184,9 @@ const menuList: {
         path: "/category",
       },
       {
-        title: "Item",
-        icon: <AddShoppingCartIcon />,
-        path: "/item",
+        title: "Product Brand",
+        icon: <ProductionQuantityLimitsIcon />,
+        path: "/product/brand",
       },
     ],
   },

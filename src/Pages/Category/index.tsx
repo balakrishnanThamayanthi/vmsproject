@@ -43,19 +43,23 @@ import {
 } from "../../Core/Enum/enum";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AppsIcon from "@mui/icons-material/Apps";
+import { useNavigate } from "react-router-dom";
+import NewDepartment from "./Components/NewDepartment";
+import NewCoursing from "./Components/NewCoursing";
+import NewTax from "./Components/NewTax";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
-  width: 62, 
-  height: 34, 
+  width: 62,
+  height: 34,
   padding: 0,
   "& .MuiSwitch-switchBase": {
     padding: 0,
     margin: 2,
     transitionDuration: "300ms",
     "&.Mui-checked": {
-      transform: "translateX(28px)", 
+      transform: "translateX(28px)",
       color: "#fff",
       "& + .MuiSwitch-track": {
         backgroundColor: theme.palette.mode === "dark" ? "#2ECA45" : "#65C466",
@@ -125,6 +129,9 @@ const Category: React.FC = () => {
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
   const [image, setImage] = useState<string | null>(null);
   const [openGallery, setOpenGallery] = useState(false);
+  const [openDepartment, setOpenDepartment] = useState(false);
+  const [openCoursing, setOpenCoursing] = useState(false);
+  const [openTax, setOpenTax] = useState(false);
 
   const departmentList = useMemo(() => {
     return departmentData?.data as IDepartment[];
@@ -186,6 +193,7 @@ const Category: React.FC = () => {
         } else {
           showMessage("Category Created successfully");
           resetForm();
+          window.location.reload();
         }
       } catch (error) {
         showErrorMessage("Something went wrong");
@@ -394,6 +402,9 @@ const Category: React.FC = () => {
                             backgroundColor: "green",
                           },
                         }}
+                        onClick={() => {
+                          setOpenDepartment(true);
+                        }}
                       >
                         <AddIcon sx={{ fontSize: 30 }} />
                       </Button>
@@ -509,6 +520,9 @@ const Category: React.FC = () => {
                           "&:active": {
                             backgroundColor: "green",
                           },
+                        }}
+                        onClick={() => {
+                          setOpenCoursing(true);
                         }}
                       >
                         <AddIcon sx={{ fontSize: 30 }} />
@@ -963,6 +977,9 @@ const Category: React.FC = () => {
                             backgroundColor: "green",
                           },
                         }}
+                        onClick={() => {
+                          setOpenTax(true);
+                        }}
                       >
                         <AddIcon sx={{ fontSize: 30 }} />
                       </Button>
@@ -1159,7 +1176,7 @@ const Category: React.FC = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                  <Grid
+                  {/* <Grid
                     container
                     direction="row"
                     alignItems="center"
@@ -1198,7 +1215,7 @@ const Category: React.FC = () => {
                         <option>yy Department</option>
                       </TextField>
                     </Grid>
-                  </Grid>
+                  </Grid> */}
                 </Grid>
 
                 <Grid
@@ -1276,6 +1293,26 @@ const Category: React.FC = () => {
             </Card>
           </Grid>
         </Grid>
+        {openDepartment && (
+          <NewDepartment
+            handleCloseDialog={() => setOpenDepartment(false)}
+            openModel={openDepartment}
+          />
+        )}
+
+        {openCoursing && (
+          <NewCoursing
+            handleCloseDialog={() => setOpenCoursing(false)}
+            openModel={openCoursing}
+          />
+        )}
+
+        {openTax && (
+          <NewTax
+            handleCloseDialog={() => setOpenTax(false)}
+            openModel={openTax}
+          />
+        )}
       </Box>
     </form>
   );
