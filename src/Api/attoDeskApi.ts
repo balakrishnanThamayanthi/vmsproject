@@ -28,7 +28,8 @@ export const attoDeskApi = createApi({
     "department",
     "coursing",
     "tax",
-    "product"
+    "product",
+    "printer"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -141,6 +142,56 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['product'],
     }),
+    createProductTag: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/product/tags',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['product'],
+    }),
+    createProductCategory: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/product/category',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['product'],
+    }),
+    createProduct: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/product',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['product'],
+    }),
+    createPrinter: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/printer',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['printer'],
+    }),
+    getCategory: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/category/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['product', "Category"],
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -156,4 +207,9 @@ export const {
   useGetCoursingQuery,
   useGetTaxQuery,
   useCreateProductBrandMutation,
+  useCreateProductTagMutation,
+  useCreateProductCategoryMutation,
+  useCreateProductMutation,
+  useCreatePrinterMutation,
+  useGetCategoryQuery
 } = attoDeskApi;

@@ -47,6 +47,10 @@ import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import SubjectIcon from '@mui/icons-material/Subject';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import PrintIcon from '@mui/icons-material/Print';
+import StyleIcon from '@mui/icons-material/Style';
+import ClassIcon from '@mui/icons-material/Class';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const drawerWidth = 240;
 
@@ -185,8 +189,28 @@ const menuList: {
       },
       {
         title: "Product Brand",
-        icon: <ProductionQuantityLimitsIcon />,
+        icon: <CheckCircleOutlineIcon />,
         path: "/product/brand",
+      },
+      {
+        title: "Product Tag",
+        icon: <StyleIcon />,
+        path: "/product/tag",
+      },
+      {
+        title: "Product Category",
+        icon: <ClassIcon />,
+        path: "/product/category",
+      },
+      {
+        title: "Product",
+        icon: <ProductionQuantityLimitsIcon />,
+        path: "/product",
+      },
+      {
+        title: "Printer",
+        icon: <PrintIcon />,
+        path: "/printer",
       },
     ],
   },

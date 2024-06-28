@@ -10,6 +10,12 @@ import Department from "../Pages/Department";
 import Coursing from "../Pages/Coursing";
 import Tax from "../Pages/Tax";
 
+import ProductCategory from "../Pages/ProductCategory";
+import ProductTags from "../Pages/ProductTags";
+import Product from "../Pages/Product";
+import Printer from "../Pages/Printer";
+
+
 /**
  * AppRoutes will load the app routes.
  * @returns
@@ -76,6 +82,38 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<Loader />}>
             <ProductBrand />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/product/tag"
+        element={
+          <Suspense fallback={<Loader />}>
+            <ProductTags />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/product/category"
+        element={
+          <Suspense fallback={<Loader />}>
+            <ProductCategory />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/product"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Product />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/printer"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Printer />
           </Suspense>
         }
       />
