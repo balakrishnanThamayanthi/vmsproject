@@ -1,15 +1,47 @@
-import React, { useMemo } from "react";
-import { Box, Button, Card, Grid, TextField, Typography } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  ImageList,
+  ImageListItem,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { appColor } from "../../theme/appColor";
-import DomainAddIcon from "@mui/icons-material/DomainAdd";
-import { useCreateProductBrandMutation } from "../../Api/attoDeskApi";
-import { useNotifier } from "../../Core/Notifier";
-import { useFormik } from "formik";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
-import CloseIcon from "@mui/icons-material/Close";
-
+import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import Switch, { SwitchProps } from "@mui/material/Switch";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  useCreateCategoryMutation,
+  useGetPrinterQuery,
+  useGetProductBrandQuery,
+  useGetProductCategoryQuery,
+  useGetProductTagQuery,
+} from "../../Api/attoDeskApi";
+import { useNotifier } from "../../Core/Notifier";
+import { useFormik } from "formik";
+import {
+  IPrinter,
+  IProduct,
+  IProductBrand,
+  IProductCategory,
+  IProductTag,
+} from "../../Api/Interface/api.interface";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import AppsIcon from "@mui/icons-material/Apps";
+import NewProductCategory from "./Components/NewProductCategory";
+import NewProductBrant from "./Components/NewProductBrant";
+import NewProductTag from "./Components/NewProductTag";
+
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
@@ -81,28 +113,95 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
-const Product: React.FC = () => {
-  const [newProductBrand, { isLoading }] = useCreateProductBrandMutation();
-  const { showErrorMessage, showMessage } = useNotifier();
+const isPrinterArray = (data: any): data is IPrinter[] => {
+  return (
+    Array.isArray(data) &&
+    data.every(
+      (item) =>
+        "id" in item && "printerName" in item && "printerDescription" in item
+    )
+  );
+};
 
-  const formik = useFormik({
+const Category: React.FC = () => {
+  const [newCategory, { isLoading }] = useCreateCategoryMutation();
+  const { showErrorMessage, showMessage } = useNotifier();
+  const { data: productCategoryData, isLoading: departmentLoading } =
+    useGetProductCategoryQuery();
+  const { data: productBrandData, isLoading: ProductBrandLoading } =
+    useGetProductBrandQuery();
+  const { data: productTagData, isLoading: ProductTagLoading } =
+    useGetProductTagQuery();
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
+
+  const [image, setImage] = useState<string | null>(null);
+  const [openGallery, setOpenGallery] = useState(false);
+  const [openProductCategory, setOpenProductCategory] = useState(false);
+  const [openProductBrand, setOpenProductBrand] = useState(false);
+  const [openProductTag, setOpenProductTag] = useState(false);
+
+  const productList = useMemo(() => {
+    return productCategoryData?.data as IProductCategory[];
+  }, [productCategoryData?.data]);
+
+  const productBrandList = useMemo(() => {
+    return productBrandData?.data as IProductBrand[];
+  }, [productBrandData?.data]);
+
+  const productTagList = useMemo(() => {
+    return productTagData?.data as IProductTag[];
+  }, [productTagData?.data]);
+
+  const printerList: IPrinter[] = useMemo(() => {
+    if (!printerData || !isPrinterArray(printerData.data)) {
+      return [];
+    }
+    return printerData.data;
+  }, [printerData]);
+
+  const formik = useFormik<IProduct>({
     initialValues: {
-      productBrandName: "",
+      productName: "",
+      productShortDescription: "",
+      productLongDescription: "",
+      productConversionUnit: "",
+      productBrandId: null,
+      productCategoryId: null,
+      productTagIds: null,
+      productViewOnline: false,
       isActive: false,
+      productPrinterIds: [],
+      productIcon: "",
+      productImg: "",
+      productButtonColor: "",
+      productBarcode: ""
     },
     onSubmit: async (values, { resetForm }) => {
       try {
         const temData = {
-          productBrandName: values.productBrandName,
+          productName: values.productName,
+          productShortDescription: values.productShortDescription,
+          productLongDescription: values.productLongDescription,
+          productConversionUnit: values.productConversionUnit,
+          productBrandId: values.productBrandId,
+          productCategoryId: values.productCategoryId,
+          productTagIds: values.productTagIds,
+          productViewOnline: values.productViewOnline,
           isActive: values.isActive,
+          productPrinterIds: values.productPrinterIds,
+          productIcon: values.productIcon,
+          productImg: values.productImg,
+          productButtonColor: values.productButtonColor,
+          productBarcode: values.productBarcode
         };
 
-        const addProductBrand = await newProductBrand(temData).unwrap();
-        if (!addProductBrand.status) {
-          showErrorMessage(addProductBrand.message);
+        const addCategoryResponse = await newCategory(temData).unwrap();
+        if (!addCategoryResponse.status) {
+          showErrorMessage(addCategoryResponse.message);
         } else {
-          showMessage("Product Brand Created successfully");
+          showMessage("Product Created successfully");
           resetForm();
+          window.location.reload();
         }
       } catch (error) {
         showErrorMessage("Something went wrong");
@@ -111,11 +210,54 @@ const Product: React.FC = () => {
   });
 
   const formValid = useMemo(() => {
-    return formik.values.productBrandName === "" ||
-      formik.values.productBrandName === undefined
+    return formik.values.productName === "" ||
+      formik.values.productName === undefined ||
+      formik.values.productCategoryId === null ||
+      formik.values.productCategoryId === undefined
       ? false
       : true;
   }, [formik]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGallerySelection = (selectedImage: string) => {
+    setImage(selectedImage);
+    setOpenGallery(false);
+  };
+
+  const openGalleryDialog = () => {
+    setOpenGallery(true);
+  };
+
+  const closeGalleryDialog = () => {
+    setOpenGallery(false);
+  };
+
+  const galleryImages = [
+    "/Images/atto_desk_login_background.webp",
+    "/Images/dummy_image.webp",
+    "/Images/user_login_photo.webp",
+    "/Images/atto_desk_login_background.webp",
+    "/Images/dummy_image.webp",
+    "/Images/user_login_photo.webp",
+  ];
+
+  const handlePrinterToggle = (printerId: number) => {
+    const { productPrinterIds } = formik.values;
+    const updatedPrinterIds = productPrinterIds.includes(printerId)
+      ? productPrinterIds.filter((id) => id !== printerId)
+      : [...productPrinterIds, printerId];
+    formik.setFieldValue("productPrinterIds", updatedPrinterIds);
+  };
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -131,33 +273,30 @@ const Product: React.FC = () => {
           <Grid
             item
             lg={12}
+            md={12}
+            sm={12}
+            xs={12}
             sx={{
               mt: 2,
               maxHeight: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
             }}
           >
             <Card
               sx={{
                 p: 2,
-                maxWidth: 900,
+                width: "100%",
                 boxShadow: "none",
                 pb: 2,
               }}
             >
-              <Grid container justifyContent="space-between">
+              <Grid container spacing={5}>
                 <Grid
                   item
                   lg={12}
                   md={12}
                   sm={12}
                   xs={12}
-                  sx={{
-                    borderBottom: 1,
-                    borderColor: appColor.greenSmoke[20],
-                  }}
+                  sx={{ borderBottom: 1, borderColor: appColor.greenSmoke[20] }}
                 >
                   <Typography
                     sx={{
@@ -168,12 +307,11 @@ const Product: React.FC = () => {
                       color: appColor.black,
                     }}
                   >
-                    {/* <DomainAddIcon sx={{ fontSize: 24, marginRight: "8px" }} /> */}
-                    New Product Brand
+                    New Product
                   </Typography>
                 </Grid>
 
-                <Grid item lg={12} md={10} sm={12} xs={12} py={2}>
+                <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
                   <Grid
                     container
                     direction="row"
@@ -193,9 +331,9 @@ const Product: React.FC = () => {
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                       <TextField
-                        placeholder="Enter Product Brand Name"
+                        placeholder="Enter Category Name"
                         size="small"
-                        {...formik.getFieldProps("productBrandName")}
+                        {...formik.getFieldProps("productName")}
                         sx={{ width: "100%" }}
                         InputProps={{
                           sx: {
@@ -215,9 +353,271 @@ const Product: React.FC = () => {
                     direction="row"
                     alignItems="center"
                     spacing={2}
-                    sx={{ mt: 1 }}
+                    sx={{ mt: 2 }}
                   >
                     <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Product Category
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("productCategoryId")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {productList &&
+                          productList.map((productCat) => (
+                            <option key={productCat.id} value={productCat.id}>
+                              {productCat.productCatName}
+                            </option>
+                          ))}
+                      </TextField>
+
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                        onClick={() => {
+                          setOpenProductCategory(true);
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Product Brand
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("productBrandId")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {productBrandList &&
+                          productBrandList.map((productBrand) => (
+                            <option
+                              key={productBrand.id}
+                              value={productBrand.id}
+                            >
+                              {productBrand.productBrandName}
+                            </option>
+                          ))}
+                      </TextField>
+
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                        onClick={() => {
+                          setOpenProductBrand(true);
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Product Tag
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("productTagIds")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {productTagList &&
+                          productTagList.map((productTag) => (
+                            <option key={productTag.id} value={productTag.id}>
+                              {productTag.tagName}
+                            </option>
+                          ))}
+                      </TextField>
+
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                        onClick={() => {
+                          setOpenProductTag(true);
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Conversion unit
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        placeholder="Enter Conversion unit"
+                        size="small"
+                        {...formik.getFieldProps("productConversionUnit")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
                       <Typography
                         variant="subtitle1"
                         sx={{
@@ -228,16 +628,197 @@ const Product: React.FC = () => {
                         Active
                       </Typography>
                     </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <IOSSwitch
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
                         color="primary"
                         sx={{ mr: 2 }}
                         {...formik.getFieldProps("isActive")}
                         checked={formik.values.isActive}
                       />
                     </Grid>
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Product View Online
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("productViewOnline")}
+                        checked={formik.values.productViewOnline}
+                      />
+                    </Grid>
                   </Grid>
                 </Grid>
+
+                <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Include Default
+                      </Typography>
+                    </Grid>
+                    {printerList.map((printer) => (
+                      <Grid item lg={3} md={3} sm={4} xs={4} key={printer.id}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 400, fontSize: 14 }}
+                        >
+                          {printer.printerName}
+                        </Typography>
+                        <IOSSwitch
+                          color="primary"
+                          sx={{ mr: 2 }}
+                          checked={formik.values.productPrinterIds.includes(
+                            printer.id
+                          )}
+                          onChange={() => handlePrinterToggle(printer.id)}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Display Image
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "appColor.greenSmoke[40]", // Assuming appColor is defined elsewhere
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          padding: 1,
+                        }}
+                      >
+                        {image && (
+                          <img
+                            src={image}
+                            alt="Uploaded"
+                            style={{
+                              maxWidth: "200px",
+                              maxHeight: "200px",
+                              marginRight: "auto",
+                            }}
+                          />
+                        )}
+                        <div>
+                          <input
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            id="icon-button-file-1"
+                            type="file"
+                            onChange={handleFileChange}
+                          />
+                          <label htmlFor="icon-button-file-1">
+                            <Tooltip title="Select image from desk">
+                              <IconButton
+                                color="primary"
+                                aria-label="upload picture"
+                                component="span"
+                              >
+                                <CloudUploadIcon
+                                  sx={{ fontSize: 45, color: "green" }}
+                                />
+                              </IconButton>
+                            </Tooltip>
+                          </label>
+                          <Tooltip title="Select image from our gallery">
+                            <IconButton
+                              color="primary"
+                              aria-label="select from gallery"
+                              component="span"
+                              onClick={openGalleryDialog}
+                            >
+                              <AppsIcon sx={{ fontSize: 45, color: "green" }} />
+                            </IconButton>
+                          </Tooltip>
+                        </div>
+                        <Dialog open={openGallery} onClose={closeGalleryDialog}>
+                          <DialogTitle
+                            sx={{ backgroundColor: appColor.greenSmoke[40] }}
+                          >
+                            Select an Image from Gallery
+                          </DialogTitle>
+                          <DialogContent>
+                            <ImageList
+                              sx={{ width: 500, height: 450 }}
+                              cols={3}
+                              rowHeight={164}
+                            >
+                              {galleryImages.map((imagePath) => (
+                                <ImageListItem key={imagePath}>
+                                  <img
+                                    src={`${imagePath}?w=164&h=164&fit=crop&auto=format`}
+                                    srcSet={`${imagePath}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                    alt="Gallery"
+                                    loading="lazy"
+                                    onClick={() =>
+                                      handleGallerySelection(imagePath)
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </ImageListItem>
+                              ))}
+                            </ImageList>
+                          </DialogContent>
+                        </Dialog>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Grid>
+
                 <Grid
                   item
                   lg={12}
@@ -293,9 +874,29 @@ const Product: React.FC = () => {
             </Card>
           </Grid>
         </Grid>
+        {openProductCategory && (
+          <NewProductCategory
+            handleCloseDialog={() => setOpenProductCategory(false)}
+            openModel={openProductCategory}
+          />
+        )}
+
+        {openProductBrand && (
+          <NewProductBrant
+            handleCloseDialog={() => setOpenProductBrand(false)}
+            openModel={openProductBrand}
+          />
+        )}
+
+        {openProductTag && (
+          <NewProductTag
+            handleCloseDialog={() => setOpenProductTag(false)}
+            openModel={openProductTag}
+          />
+        )}
       </Box>
     </form>
   );
 };
 
-export default Product;
+export default Category;

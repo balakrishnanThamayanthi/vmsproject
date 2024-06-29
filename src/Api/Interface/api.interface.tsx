@@ -69,3 +69,50 @@ export interface IApiResponse {
     percentage: string;
     taxCode: string;
   }
+
+  export interface IProductCategory {
+    id: number, 
+    productCatName: string;
+    productCatDescription: string;
+    productCatImg: string;
+    isMain: boolean;
+    isActive: boolean;
+    mainCatId: number
+  }
+
+  export interface IProductTag {
+    id: number, 
+    tagName: string;
+    isActive: boolean;
+  }
+
+  export interface IProductBrand {
+    id: number, 
+    productBrandName: string;
+    isActive: boolean;
+  }
+
+  export interface IPrinter {
+    id: number, 
+    printerName: string;
+    printerDescription: string;
+  }
+
+  export interface IProduct {
+    productName: string;
+    productShortDescription: string;
+    productLongDescription: string;
+    productConversionUnit: string;
+    productBrandId: number | null;
+    productCategoryId: number | null;
+    productTagIds: number[] | null;
+    productViewOnline: boolean; // Assuming this should be a boolean
+    productPrinterIds: number[];
+    productIcon: string;
+    productImg: string;
+    productButtonColor: string;
+    productBarcode: string;
+    isActive: boolean; // Assuming this should be a boolean
+  }
+  
+  

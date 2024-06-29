@@ -192,6 +192,46 @@ export const attoDeskApi = createApi({
       providesTags: ['product', "Category"],
       keepUnusedDataFor: 0,
     }),
+    getProductCategory: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/product/category/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['product'],
+      keepUnusedDataFor: 0,
+    }),
+    getProductBrand: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/product/brand/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['product'],
+      keepUnusedDataFor: 0,
+    }),
+    getProductTag: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/product/tags/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['product'],
+      keepUnusedDataFor: 0,
+    }),
+    getPrinter: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/printer/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['product'],
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -211,5 +251,9 @@ export const {
   useCreateProductCategoryMutation,
   useCreateProductMutation,
   useCreatePrinterMutation,
-  useGetCategoryQuery
+  useGetCategoryQuery,
+  useGetProductCategoryQuery,
+  useGetProductBrandQuery,
+  useGetProductTagQuery,
+  useGetPrinterQuery
 } = attoDeskApi;
