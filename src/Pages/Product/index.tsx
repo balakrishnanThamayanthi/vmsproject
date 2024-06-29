@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -41,6 +41,9 @@ import AppsIcon from "@mui/icons-material/Apps";
 import NewProductCategory from "./Components/NewProductCategory";
 import NewProductBrant from "./Components/NewProductBrant";
 import NewProductTag from "./Components/NewProductTag";
+import NewPrinter from "./Components/NewPrinter";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
+import { HexColorPicker } from "react-colorful";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -139,6 +142,10 @@ const Category: React.FC = () => {
   const [openProductCategory, setOpenProductCategory] = useState(false);
   const [openProductBrand, setOpenProductBrand] = useState(false);
   const [openProductTag, setOpenProductTag] = useState(false);
+  const [openPrinter, setOpenPrinter] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
   const productList = useMemo(() => {
     return productCategoryData?.data as IProductCategory[];
@@ -174,7 +181,7 @@ const Category: React.FC = () => {
       productIcon: "",
       productImg: "",
       productButtonColor: "",
-      productBarcode: ""
+      productBarcode: "",
     },
     onSubmit: async (values, { resetForm }) => {
       try {
@@ -192,7 +199,7 @@ const Category: React.FC = () => {
           productIcon: values.productIcon,
           productImg: values.productImg,
           productButtonColor: values.productButtonColor,
-          productBarcode: values.productBarcode
+          productBarcode: values.productBarcode,
         };
 
         const addCategoryResponse = await newCategory(temData).unwrap();
@@ -258,6 +265,32 @@ const Category: React.FC = () => {
       : [...productPrinterIds, printerId];
     formik.setFieldValue("productPrinterIds", updatedPrinterIds);
   };
+
+  const handleColorChange = (newColor: string) => {
+    setSelectedColor(newColor);
+    formik.setFieldValue("productButtonColor", newColor);
+  };
+
+  const toggleColorPicker = () => {
+    setShowColorPicker(!showColorPicker);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowColorPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -617,6 +650,43 @@ const Category: React.FC = () => {
                     spacing={2}
                     sx={{ mt: 2 }}
                   >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Short Description
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        placeholder="Enter Short Description"
+                        size="small"
+                        {...formik.getFieldProps("productShortDescription")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
                     <Grid item lg={3} md={3} sm={3} xs={3}>
                       <Typography
                         variant="subtitle1"
@@ -693,7 +763,7 @@ const Category: React.FC = () => {
                       </Typography>
                     </Grid>
                     {printerList.map((printer) => (
-                      <Grid item lg={3} md={3} sm={4} xs={4} key={printer.id}>
+                      <Grid item lg={2} md={3} sm={4} xs={4} key={printer.id}>
                         <Typography
                           variant="subtitle1"
                           sx={{ fontWeight: 400, fontSize: 14 }}
@@ -710,6 +780,31 @@ const Category: React.FC = () => {
                         />
                       </Grid>
                     ))}
+                    <Grid item lg={3} md={3} sm={4} xs={4} textAlign={"end"}>
+                    <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                        onClick={() => {
+                          setOpenPrinter(true);
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
                   </Grid>
 
                   <Grid
@@ -817,6 +912,127 @@ const Category: React.FC = () => {
                       </Box>
                     </Grid>
                   </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Button Color
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "#d3d3d3",
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                          padding: 1,
+                        }}
+                      >
+                        <Grid container>
+                          <Grid item lg={6} md={9} sm={12} xs={12}>
+                            <Box
+                              sx={{
+                                marginLeft: 1,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  // borderRadius: "50%",
+                                  backgroundColor: selectedColor,
+                                  marginLeft: 1,
+                                  border: "1px solid #d3d3d3",
+                                }}
+                              />
+                            </Box>
+                          </Grid>
+                          <Grid
+                            item
+                            lg={6}
+                            md={9}
+                            sm={12}
+                            xs={12}
+                            alignItems={"flex-end"}
+                            textAlign={"end"}
+                          >
+                            <IconButton
+                              color="primary"
+                              component="span"
+                              onClick={toggleColorPicker}
+                            >
+                              <ColorLensIcon
+                                sx={{ fontSize: 45, color: "green" }}
+                              />
+                            </IconButton>
+                            {showColorPicker && (
+                              <HexColorPicker
+                                color={selectedColor}
+                                onChange={handleColorChange}
+                              />
+                            )}
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Long Description
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        placeholder="Enter Long Description"
+                        size="small"
+                        {...formik.getFieldProps("productLongDescription")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        multiline
+                        rows={5}
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
 
                 <Grid
@@ -892,6 +1108,13 @@ const Category: React.FC = () => {
           <NewProductTag
             handleCloseDialog={() => setOpenProductTag(false)}
             openModel={openProductTag}
+          />
+        )}
+
+{openPrinter && (
+          <NewPrinter
+            handleCloseDialog={() => setOpenPrinter(false)}
+            openModel={openPrinter}
           />
         )}
       </Box>
