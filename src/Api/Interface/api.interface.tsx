@@ -102,10 +102,10 @@ export interface IApiResponse {
     productName: string;
     productShortDescription: string;
     productLongDescription: string;
-    productConversionUnit: string;
+    productConversionUnit: number[];
     productBrandId: number | null;
     productCategoryId: number | null;
-    productTagIds: number[] | null;
+    productTagIds: number[];
     productViewOnline: boolean; // Assuming this should be a boolean
     productPrinterIds: number[];
     productIcon: string;

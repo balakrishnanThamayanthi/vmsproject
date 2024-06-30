@@ -8,14 +8,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import DomainAddIcon from "@mui/icons-material/DomainAdd";
 import { useFormik } from "formik";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import { useNotifier } from "../../../Core/Notifier";
-import { ICategory } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import { useCreateProductBrandMutation } from "../../../Api/attoDeskApi";
 

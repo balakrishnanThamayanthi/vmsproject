@@ -10,6 +10,7 @@ import {
   IconButton,
   ImageList,
   ImageListItem,
+  MenuItem,
   TextField,
   Tooltip,
   Typography,
@@ -21,7 +22,7 @@ import { styled } from "@mui/material/styles";
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  useCreateCategoryMutation,
+  useCreateProductMutation,
   useGetPrinterQuery,
   useGetProductBrandQuery,
   useGetProductCategoryQuery,
@@ -44,6 +45,8 @@ import NewProductTag from "./Components/NewProductTag";
 import NewPrinter from "./Components/NewPrinter";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
 import { HexColorPicker } from "react-colorful";
+import Barcode from "react-barcode";
+import { SizeOfLevelType } from "../../Core/Enum/enum";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -127,7 +130,7 @@ const isPrinterArray = (data: any): data is IPrinter[] => {
 };
 
 const Category: React.FC = () => {
-  const [newCategory, { isLoading }] = useCreateCategoryMutation();
+  const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const { data: productCategoryData, isLoading: departmentLoading } =
     useGetProductCategoryQuery();
@@ -146,6 +149,7 @@ const Category: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [showBarcode, setShowBarcode] = useState(false);
 
   const productList = useMemo(() => {
     return productCategoryData?.data as IProductCategory[];
@@ -171,10 +175,10 @@ const Category: React.FC = () => {
       productName: "",
       productShortDescription: "",
       productLongDescription: "",
-      productConversionUnit: "",
+      productConversionUnit: [],
       productBrandId: null,
       productCategoryId: null,
-      productTagIds: null,
+      productTagIds: [],
       productViewOnline: false,
       isActive: false,
       productPrinterIds: [],
@@ -202,9 +206,9 @@ const Category: React.FC = () => {
           productBarcode: values.productBarcode,
         };
 
-        const addCategoryResponse = await newCategory(temData).unwrap();
-        if (!addCategoryResponse.status) {
-          showErrorMessage(addCategoryResponse.message);
+        const addProductResponse = await newProduct(temData).unwrap();
+        if (!addProductResponse.status) {
+          showErrorMessage(addProductResponse.message);
         } else {
           showMessage("Product Created successfully");
           resetForm();
@@ -562,23 +566,35 @@ const Category: React.FC = () => {
                       <TextField
                         select
                         size="small"
-                        sx={{ flexGrow: 1 }}
+                        sx={{ width: "100%" }}
                         SelectProps={{
-                          native: true,
+                          multiple: true,
+                          native: false,
                         }}
-                        defaultValue=""
+                        defaultValue={[]}
                         InputLabelProps={{ shrink: true }}
                         {...formik.getFieldProps("productTagIds")}
+                        onChange={(event) => {
+                          const {
+                            target: { value },
+                          } = event;
+                          formik.setFieldValue(
+                            "productTagIds",
+                            typeof value === "string" ? value.split(",") : value
+                          );
+                        }}
                       >
-                        <option value="" disabled style={{ color: "gray" }}>
-                          Select an option
-                        </option>
-                        {productTagList &&
-                          productTagList.map((productTag) => (
-                            <option key={productTag.id} value={productTag.id}>
+                        {productTagList && productTagList.length > 0 ? (
+                          productTagList.map((productTag: IProductTag) => (
+                            <MenuItem key={productTag.id} value={productTag.id}>
                               {productTag.tagName}
-                            </option>
-                          ))}
+                            </MenuItem>
+                          ))
+                        ) : (
+                          <MenuItem value="" disabled style={{ color: "gray" }}>
+                            Select an option
+                          </MenuItem>
+                        )}
                       </TextField>
 
                       <Button
@@ -626,21 +642,30 @@ const Category: React.FC = () => {
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                       <TextField
-                        placeholder="Enter Conversion unit"
+                        select
                         size="small"
-                        {...formik.getFieldProps("productConversionUnit")}
                         sx={{ width: "100%" }}
-                        InputProps={{
-                          sx: {
-                            fontSize: 14,
-                          },
+                        SelectProps={{
+                          multiple: true,
+                          native: false,
                         }}
-                        InputLabelProps={{
-                          sx: {
-                            fontSize: 14,
-                          },
-                        }}
-                      />
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("productConversionUnit")}
+                      >
+                        {!formik.values.productConversionUnit.length && (
+                          <MenuItem value="" disabled>
+                            Select some option
+                          </MenuItem>
+                        )}
+                        {Object.entries(SizeOfLevelType).map(
+                          ([key, value], index) => (
+                            <MenuItem key={index} value={value}>
+                              {key}
+                            </MenuItem>
+                          )
+                        )}
+                      </TextField>
                     </Grid>
                   </Grid>
                   <Grid
@@ -763,7 +788,14 @@ const Category: React.FC = () => {
                       </Typography>
                     </Grid>
                     {printerList.map((printer) => (
-                      <Grid item lg={2} md={3} sm={4} xs={4} key={printer.id}>
+                      <Grid
+                        item
+                        lg={2}
+                        md={12}
+                        sm={12}
+                        xs={12}
+                        key={printer.id}
+                      >
                         <Typography
                           variant="subtitle1"
                           sx={{ fontWeight: 400, fontSize: 14 }}
@@ -781,7 +813,7 @@ const Category: React.FC = () => {
                       </Grid>
                     ))}
                     <Grid item lg={3} md={3} sm={4} xs={4} textAlign={"end"}>
-                    <Button
+                      <Button
                         variant="contained"
                         size="small"
                         sx={{
@@ -1009,6 +1041,93 @@ const Category: React.FC = () => {
                           fontSize: 14,
                         }}
                       >
+                        Barcode
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "#d3d3d3",
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                          padding: 1,
+                        }}
+                      >
+                        <Grid container spacing={2}>
+                          <Grid item lg={4} md={9} sm={12} xs={12}>
+                            <TextField
+                              placeholder="Enter Barcode"
+                              size="small"
+                              {...formik.getFieldProps("productBarcode")}
+                              sx={{ width: "100%" }}
+                              InputProps={{
+                                sx: { fontSize: 14 },
+                              }}
+                              InputLabelProps={{
+                                sx: { fontSize: 14 },
+                              }}
+                            />
+                            <Button
+                              variant="contained"
+                              size="small"
+                              sx={{
+                                backgroundColor: "green",
+                                color: "white",
+                                borderRadius: 0,
+
+                                mt: 2,
+                                border: 1,
+                                borderColor: "green",
+                                "&:hover": {
+                                  backgroundColor: "green",
+                                },
+                                "&:active": {
+                                  backgroundColor: "green",
+                                },
+                              }}
+                              onClick={() => setShowBarcode(true)}
+                            >
+                              Generate
+                            </Button>
+                          </Grid>
+
+                          <Grid
+                            item
+                            lg={8}
+                            md={9}
+                            sm={12}
+                            xs={12}
+                            textAlign={"end"}
+                          >
+                            {showBarcode && formik.values.productBarcode && (
+                              <Box mt={2}>
+                                <Barcode value={formik.values.productBarcode} />
+                              </Box>
+                            )}
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
                         Long Description
                       </Typography>
                     </Grid>
@@ -1111,7 +1230,7 @@ const Category: React.FC = () => {
           />
         )}
 
-{openPrinter && (
+        {openPrinter && (
           <NewPrinter
             handleCloseDialog={() => setOpenPrinter(false)}
             openModel={openPrinter}
