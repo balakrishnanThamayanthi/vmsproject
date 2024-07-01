@@ -29,7 +29,8 @@ export const attoDeskApi = createApi({
     "coursing",
     "tax",
     "product",
-    "printer"
+    "printer",
+    "productBrand"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -140,7 +141,7 @@ export const attoDeskApi = createApi({
           body: JSON.stringify(request),
         };
       },
-      invalidatesTags: ['product'],
+      invalidatesTags: ['productBrand','product'],
     }),
     createProductTag: builder.mutation<IApiResponse, Object>({
       query: (request) => {
@@ -209,7 +210,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['product'],
+      providesTags: ['productBrand','product'],
       keepUnusedDataFor: 0,
     }),
     getProductTag: builder.query<IApiResponse, void>({
@@ -263,6 +264,15 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['printer'],
     }),
+    deleteProductBrand: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/product/brand/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['productBrand'],
+    }),
   }),
 });
 
@@ -290,4 +300,5 @@ export const {
   useDeleteCoursingMutation,
   useDeleteDepartmentMutation,
   useDeletePrinterMutation,
+  useDeleteProductBrandMutation
 } = attoDeskApi;
