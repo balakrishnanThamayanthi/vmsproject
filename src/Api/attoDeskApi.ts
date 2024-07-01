@@ -180,7 +180,7 @@ export const attoDeskApi = createApi({
           body: JSON.stringify(request),
         };
       },
-      invalidatesTags: ['printer'],
+      invalidatesTags: ['printer', 'product'],
     }),
     getCategory: builder.query<IApiResponse, void>({
       query: () => {
@@ -229,7 +229,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['product'],
+      providesTags: ['printer', 'product' ],
       keepUnusedDataFor: 0,
     }),
     deleteCoursing: builder.mutation<IApiResponse, string>({
@@ -247,16 +247,21 @@ export const attoDeskApi = createApi({
     }),
     deleteDepartment: builder.mutation<IApiResponse, string>({
       query: (Id) => {
-        // return {
-        //   url: `/coursing/delete?Id=${Id}`,
-        //   method: 'DELETE',
-        // };
         return {
           url: `/department/${Id}`,
           method: 'DELETE',
         };
       },
       invalidatesTags: ['department'],
+    }),
+    deletePrinter: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/printer/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['printer'],
     }),
   }),
 });
@@ -283,5 +288,6 @@ export const {
   useGetProductTagQuery,
   useGetPrinterQuery,
   useDeleteCoursingMutation,
-  useDeleteDepartmentMutation
+  useDeleteDepartmentMutation,
+  useDeletePrinterMutation,
 } = attoDeskApi;
