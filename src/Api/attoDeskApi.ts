@@ -30,7 +30,8 @@ export const attoDeskApi = createApi({
     "tax",
     "product",
     "printer",
-    "productBrand"
+    "productBrand",
+    "productTag"
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -151,7 +152,7 @@ export const attoDeskApi = createApi({
           body: JSON.stringify(request),
         };
       },
-      invalidatesTags: ['product'],
+      invalidatesTags: ['productTag','product'],
     }),
     createProductCategory: builder.mutation<IApiResponse, Object>({
       query: (request) => {
@@ -220,7 +221,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['product'],
+      providesTags: ['productTag', 'product'],
       keepUnusedDataFor: 0,
     }),
     getPrinter: builder.query<IApiResponse, void>({
@@ -235,10 +236,6 @@ export const attoDeskApi = createApi({
     }),
     deleteCoursing: builder.mutation<IApiResponse, string>({
       query: (Id) => {
-        // return {
-        //   url: `/coursing/delete?Id=${Id}`,
-        //   method: 'DELETE',
-        // };
         return {
           url: `/coursing/${Id}`,
           method: 'DELETE',
@@ -273,6 +270,15 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['productBrand'],
     }),
+    deleteProductTag: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/product/tags/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['productTag'],
+    }),
   }),
 });
 
@@ -300,5 +306,6 @@ export const {
   useDeleteCoursingMutation,
   useDeleteDepartmentMutation,
   useDeletePrinterMutation,
-  useDeleteProductBrandMutation
+  useDeleteProductBrandMutation,
+  useDeleteProductTagMutation
 } = attoDeskApi;
