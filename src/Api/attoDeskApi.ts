@@ -232,6 +232,15 @@ export const attoDeskApi = createApi({
       providesTags: ['product'],
       keepUnusedDataFor: 0,
     }),
+    deleteCoursing: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/coursing/delete?Id=${Id}`,
+          method: 'GET',
+        };
+      },
+      invalidatesTags: ['coursing'],
+    }),
   }),
 });
 
@@ -255,5 +264,6 @@ export const {
   useGetProductCategoryQuery,
   useGetProductBrandQuery,
   useGetProductTagQuery,
-  useGetPrinterQuery
+  useGetPrinterQuery,
+  useDeleteCoursingMutation
 } = attoDeskApi;
