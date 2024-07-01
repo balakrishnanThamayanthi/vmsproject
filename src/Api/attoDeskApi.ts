@@ -234,9 +234,13 @@ export const attoDeskApi = createApi({
     }),
     deleteCoursing: builder.mutation<IApiResponse, string>({
       query: (Id) => {
+        // return {
+        //   url: `/coursing/delete?Id=${Id}`,
+        //   method: 'DELETE',
+        // };
         return {
-          url: `/coursing/delete?Id=${Id}`,
-          method: 'GET',
+          url: `/coursing/${Id}`,
+          method: 'DELETE',
         };
       },
       invalidatesTags: ['coursing'],
