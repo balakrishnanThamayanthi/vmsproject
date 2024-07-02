@@ -391,7 +391,7 @@ const ComponentTable: React.FC = () => {
             onConfirm={async () => {
               await handleDelete(coursingToDelete.id.toString());
             }}
-            title="Delete Coursing"
+            title="Delete Category"
             content={`Are you sure you want to delete "${coursingToDelete.categoryName}"?`}
           />
         )}

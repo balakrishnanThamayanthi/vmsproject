@@ -78,10 +78,10 @@ const ComponentTable: React.FC = () => {
         showMessage("Deleted successfully");
         setOpenDeleteCategory(false);
       } else {
-        showErrorMessage("Failed to delete the category");
+        showErrorMessage("Failed to delete the coursing");
       }
     } catch (error) {
-      showErrorMessage("Failed to delete the category");
+      showErrorMessage("Failed to delete the coursing");
     }
   };
 

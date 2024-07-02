@@ -78,10 +78,10 @@ const ComponentTable: React.FC = () => {
         showMessage("Deleted successfully");
         setOpenDeleteCategory(false);
       } else {
-        showErrorMessage("Failed to delete the category");
+        showErrorMessage("Failed to delete the printer");
       }
     } catch (error) {
-      showErrorMessage("Failed to delete the category");
+      showErrorMessage("Failed to delete the printer");
     }
   };
 
@@ -286,7 +286,7 @@ const ComponentTable: React.FC = () => {
           onConfirm={async () => {
             await handleDelete(coursingToDelete.id.toString());
           }}
-          title="Delete Coursing"
+          title="Delete Printer"
           content={`Are you sure you want to delete "${coursingToDelete.printerName}"?`}
         />
       )}
