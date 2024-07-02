@@ -102,7 +102,7 @@ export const attoDeskApi = createApi({
           body: JSON.stringify(request),
         };
       },
-      invalidatesTags: ['tax'],
+      invalidatesTags: ['tax', 'product', 'Category'],
     }),
     getDepartment: builder.query<IApiResponse, void>({
       query: () => {
@@ -131,7 +131,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['tax', "Category"],
+      providesTags: ['tax', "Category", 'product'],
       keepUnusedDataFor: 0,
     }),
     createProductBrand: builder.mutation<IApiResponse, Object>({
@@ -279,6 +279,15 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['productTag'],
     }),
+    deleteTax: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/tax/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['tax'],
+    }),
   }),
 });
 
@@ -307,5 +316,6 @@ export const {
   useDeleteDepartmentMutation,
   useDeletePrinterMutation,
   useDeleteProductBrandMutation,
-  useDeleteProductTagMutation
+  useDeleteProductTagMutation,
+  useDeleteTaxMutation
 } = attoDeskApi;
