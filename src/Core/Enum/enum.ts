@@ -32,8 +32,8 @@ export const SizeOfLevelType = Object.freeze({
   kg: 6 as const,
   Large: 7 as const,
   li: 8 as const,
-  lb: 5 as const,
-  Medium: 6 as const,
-  oz: 7 as const,
-  small: 8 as const,
+  lb: 9 as const,
+  Medium: 10 as const,
+  oz: 11 as const,
+  small: 12 as const,
 });

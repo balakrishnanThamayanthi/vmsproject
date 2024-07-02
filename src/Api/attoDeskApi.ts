@@ -23,7 +23,7 @@ export const attoDeskApi = createApi({
   }),
   tagTypes: [
     "User",
-    "Category",
+    "category",
     "company",
     "department",
     "coursing",
@@ -63,7 +63,7 @@ export const attoDeskApi = createApi({
           body: JSON.stringify(request),
         };
       },
-      invalidatesTags: ['Category'],
+      invalidatesTags: ['category'],
     }),
     createCompany: builder.mutation<IApiResponse, Object>({
       query: (request) => {
@@ -103,7 +103,7 @@ export const attoDeskApi = createApi({
           body: JSON.stringify(request),
         };
       },
-      invalidatesTags: ['tax', 'product', 'Category'],
+      invalidatesTags: ['tax', 'product', 'category'],
     }),
     getDepartment: builder.query<IApiResponse, void>({
       query: () => {
@@ -112,7 +112,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['department', "Category"],
+      providesTags: ['department', "category"],
       keepUnusedDataFor: 0,
     }),
     getCoursing: builder.query<IApiResponse, void>({
@@ -122,7 +122,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['coursing', "Category"],
+      providesTags: ['coursing', "category"],
       keepUnusedDataFor: 0,
     }),
     getTax: builder.query<IApiResponse, void>({
@@ -132,7 +132,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['tax', "Category", 'product'],
+      providesTags: ['tax', "category", 'product'],
       keepUnusedDataFor: 0,
     }),
     createProductBrand: builder.mutation<IApiResponse, Object>({
@@ -192,7 +192,7 @@ export const attoDeskApi = createApi({
           method: 'POST',
         };
       },
-      providesTags: ['product', "Category"],
+      providesTags: ['product', "category"],
       keepUnusedDataFor: 0,
     }),
     getProductCategory: builder.query<IApiResponse, void>({
@@ -298,6 +298,15 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['productCategory'],
     }),
+    deleteCategory: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/category/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['category'],
+    }),
   }),
 });
 
@@ -328,5 +337,6 @@ export const {
   useDeleteProductBrandMutation,
   useDeleteProductTagMutation,
   useDeleteTaxMutation,
-  useDeleteProductCategoryMutation
+  useDeleteProductCategoryMutation,
+  useDeleteCategoryMutation
 } = attoDeskApi;

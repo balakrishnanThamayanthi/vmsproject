@@ -55,7 +55,7 @@ const Coursing = ({
         if (!addCompanyResponse.status) {
           showErrorMessage(addCompanyResponse.message);
         } else {
-          showMessage("Company Updated successfully");
+          showMessage(addCompanyResponse.message);
           handleClose();
         }
       } catch (error) {
