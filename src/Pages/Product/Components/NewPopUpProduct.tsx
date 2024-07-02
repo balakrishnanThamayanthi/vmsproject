@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -21,31 +21,37 @@ import { styled } from "@mui/material/styles";
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
 import AppsIcon from "@mui/icons-material/Apps";
 import {
-  useCreateCategoryMutation,
-  useGetCoursingQuery,
-  useGetDepartmentQuery,
-  useGetTaxQuery,
+  useCreateProductMutation,
+  useGetPrinterQuery,
+  useGetProductBrandQuery,
+  useGetProductCategoryQuery,
+  useGetProductTagQuery,
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import {
-  ICategory,
-  ICoursing,
-  IDepartment,
-  ITaxes,
+  IPrinter,
+  IProductPopUP,
+  IProductBrand,
+  IProductCategory,
+  IProductTag,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import { RooleType, SizeOfLevelType } from "../../../Core/Enum/enum";
-import NewCoursing from "../../Coursing/Components/NewPopUpCoursing";
-import NewTax from "../../Tax/Components/NewPopUpTax";
-import NewDepartement from "../../Department/Components/NewPopUpCoursing";
+import { SizeOfLevelType } from "../../../Core/Enum/enum";
+import { HexColorPicker } from "react-colorful";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import Barcode from "react-barcode";
+import NewProductCategory from "../../ProductCategory/Components/NewPopUpProductTag";
+import NewProductBrand from "../../ProductBrand/Components/NewPopUpProductBrand";
+import NewPrinter from "../../Printer/Components/NewPopUpPrinter";
+import NewProductTag from "../../ProductTags/Components/NewPopUpProductTag";
 
-interface ICategorygpopup {
+interface IProductPopup {
   openModel?: boolean;
   handleCloseDialog: (close: boolean) => void;
-  data?: ICategory;
+  data?: IProductPopUP;
 }
 
 const IOSSwitch = styled((props: SwitchProps) => (
@@ -119,94 +125,113 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
-const Category = ({
+const isPrinterArray = (data: any): data is IPrinter[] => {
+  return (
+    Array.isArray(data) &&
+    data.every(
+      (item) =>
+        "id" in item && "printerName" in item && "printerDescription" in item
+    )
+  );
+};
+
+const Product = ({
   openModel = false,
   handleCloseDialog,
   data,
-}: ICategorygpopup) => {
+}: IProductPopup) => {
   const [open] = React.useState(openModel);
-  const [newCategory, { isLoading }] = useCreateCategoryMutation();
+  const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: departmentData, isLoading: departmentLoading } =
-    useGetDepartmentQuery();
-  const { data: coursingData, isLoading: coursingLoading } =
-    useGetCoursingQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: productCategoryData, isLoading: departmentLoading } =
+    useGetProductCategoryQuery();
+  const { data: productBrandData, isLoading: ProductBrandLoading } =
+    useGetProductBrandQuery();
+  const { data: productTagData, isLoading: ProductTagLoading } =
+    useGetProductTagQuery();
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
+
   const [image, setImage] = useState<string | null>(null);
   const [openGallery, setOpenGallery] = useState(false);
-  const [openDepartment, setOpenDepartment] = useState(false);
-  const [openCoursing, setOpenCoursing] = useState(false);
-  const [openTax, setOpenTax] = useState(false);
+  const [openProductCategory, setOpenProductCategory] = useState(false);
+  const [openProductBrand, setOpenProductBrand] = useState(false);
+  const [openProductTag, setOpenProductTag] = useState(false);
+  const [openPrinter, setOpenPrinter] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [showBarcode, setShowBarcode] = useState(false);
+
+  const productList = useMemo(() => {
+    return productCategoryData?.data as IProductCategory[];
+  }, [productCategoryData?.data]);
+
+  const productBrandList = useMemo(() => {
+    return productBrandData?.data as IProductBrand[];
+  }, [productBrandData?.data]);
+
+  const productTagList = useMemo(() => {
+    return productTagData?.data as IProductTag[];
+  }, [productTagData?.data]);
+
+  const printerList: IPrinter[] = useMemo(() => {
+    if (!printerData || !isPrinterArray(printerData.data)) {
+      return [];
+    }
+    return printerData.data;
+  }, [printerData]);
+
   const handleClose = () => {
     handleCloseDialog(false);
   };
-  const departmentList = useMemo(() => {
-    return departmentData?.data as IDepartment[];
-  }, [departmentData?.data]);
-
-  const coursingList = useMemo(() => {
-    return coursingData?.data as ICoursing[];
-  }, [coursingData?.data]);
-
-  const taxList = useMemo(() => {
-    return taxData?.data as ITaxes[];
-  }, [taxData?.data]);
 
   const formik = useFormik({
     initialValues: {
       id: data?.id,
-      categoryName: data?.categoryName,
-      departmentId: data?.departmentId,
-      roleId: data?.roleId || [],
-      coursingId: data?.coursingId,
-      servingSize: data?.servingSize || [],
-      hidePos: data?.hidePos,
-      hideOnlineOrder: data?.hideOnlineOrder
-        ? Boolean(data?.hideOnlineOrder)
+      productName: data?.productName,
+      productShortDescription: data?.productShortDescription,
+      productLongDescription: data?.productLongDescription,
+      productConversionUnit: data?.productConversionUnit || [],
+      productBrandId: data?.productBrandId,
+      productCategoryId: data?.productCategoryId,
+
+      productTagIds: data?.productTagIds || [],
+      productViewOnline: data?.productViewOnline
+        ? Boolean(data?.productViewOnline)
         : false,
-      hideKiosk: data?.hideKiosk ? Boolean(data?.hideKiosk) : false,
-      Conversational: data?.Conversational,
-      itemServiceCharge: data?.itemServiceCharge,
-      ageRestriction: data?.ageRestriction,
-      excludeCheckTax: data?.excludeCheckTax
-        ? Boolean(data?.excludeCheckTax)
-        : false,
-      kitchenPrinters: data?.kitchenPrinters
-        ? Boolean(data?.kitchenPrinters)
-        : false,
-      labelPrinters: data?.labelPrinters,
-      restrictPrinters: data?.restrictPrinters
-        ? Boolean(data?.restrictPrinters)
-        : false,
-      taxeId: data?.taxeId,
+      isActive: data?.isActive ? Boolean(data?.isActive) : false,
+      productPrinterIds: data?.productPrinterIds || [],
+      productIcon: data?.productIcon,
+      productImg: data?.productImg,
+      productButtonColor: data?.productButtonColor,
+      productBarcode: data?.productBarcode,
     },
     onSubmit: async (values) => {
       try {
         const temData = {
           id: values?.id,
-          categoryName: values.categoryName,
-          departmentId: values.departmentId,
-          roleId: values.roleId,
-          coursingId: values.coursingId,
-          servingSize: values.servingSize,
-          hidePos: values.hidePos,
-          hideOnlineOrder: Boolean(values.hideOnlineOrder),
-          hideKiosk: Boolean(values.hideKiosk),
-          Conversational: values.Conversational,
-          itemServiceCharge: values.itemServiceCharge,
-          ageRestriction: values.ageRestriction,
-          excludeCheckTax: Boolean(values.excludeCheckTax),
-          kitchenPrinters: Boolean(values.kitchenPrinters),
-          labelPrinters: values.labelPrinters,
-          restrictPrinters: Boolean(values.restrictPrinters),
-          taxeId: values.taxeId,
+
+          productName: values.productName,
+          productShortDescription: values.productShortDescription,
+          productLongDescription: values.productLongDescription,
+          productConversionUnit: values.productConversionUnit,
+          productBrandId: values.productBrandId,
+          productCategoryId: values.productCategoryId,
+          productTagIds: values.productTagIds,
+          productViewOnline: Boolean(values.productViewOnline),
+          isActive: Boolean(values.isActive),
+          productPrinterIds: values.productPrinterIds,
+          productIcon: values.productIcon,
+          productImg: values.productImg,
+          productButtonColor: values.productButtonColor,
+          productBarcode: values.productBarcode,
         };
 
         if (!data) {
           delete temData.id;
         }
 
-        const addCompanyResponse = await newCategory(temData).unwrap();
+        const addCompanyResponse = await newProduct(temData).unwrap();
         if (!addCompanyResponse.status) {
           showErrorMessage(addCompanyResponse.message);
         } else {
@@ -220,14 +245,10 @@ const Category = ({
   });
 
   const formValid = useMemo(() => {
-    return formik.values.categoryName === "" ||
-      formik.values.categoryName === undefined ||
-      formik.values.departmentId === null ||
-      formik.values.departmentId === undefined ||
-      formik.values.coursingId === null ||
-      formik.values.coursingId === undefined ||
-      formik.values.taxeId === null ||
-      formik.values.taxeId === undefined
+    return formik.values.productName === "" ||
+      formik.values.productName === undefined ||
+      formik.values.productCategoryId === null ||
+      formik.values.productCategoryId === undefined
       ? false
       : true;
   }, [formik]);
@@ -264,6 +285,40 @@ const Category = ({
     "/Images/dummy_image.webp",
     "/Images/user_login_photo.webp",
   ];
+
+  const handlePrinterToggle = (printerId: number) => {
+    const { productPrinterIds } = formik.values;
+    const updatedPrinterIds = productPrinterIds.includes(printerId)
+      ? productPrinterIds.filter((id) => id !== printerId)
+      : [...productPrinterIds, printerId];
+    formik.setFieldValue("productPrinterIds", updatedPrinterIds);
+  };
+
+  const handleColorChange = (newColor: string) => {
+    setSelectedColor(newColor);
+    formik.setFieldValue("productButtonColor", newColor);
+  };
+
+  const toggleColorPicker = () => {
+    setShowColorPicker(!showColorPicker);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowColorPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -313,7 +368,7 @@ const Category = ({
                       color: appColor.black,
                     }}
                   >
-                    New Category
+                    New Product
                   </Typography>
                 </Grid>
 
@@ -339,7 +394,7 @@ const Category = ({
                       <TextField
                         placeholder="Enter Category Name"
                         size="small"
-                        {...formik.getFieldProps("categoryName")}
+                        {...formik.getFieldProps("productName")}
                         sx={{ width: "100%" }}
                         InputProps={{
                           sx: {
@@ -369,7 +424,7 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Department
+                        Product Category
                       </Typography>
                     </Grid>
                     <Grid
@@ -390,15 +445,15 @@ const Category = ({
                         }}
                         defaultValue=""
                         InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("departmentId")}
+                        {...formik.getFieldProps("productCategoryId")}
                       >
                         <option value="" disabled style={{ color: "gray" }}>
                           Select an option
                         </option>
-                        {departmentList &&
-                          departmentList.map((department) => (
-                            <option key={department.id} value={department.id}>
-                              {department.departmentName}
+                        {productList &&
+                          productList.map((productCat) => (
+                            <option key={productCat.id} value={productCat.id}>
+                              {productCat.productCatName}
                             </option>
                           ))}
                       </TextField>
@@ -421,7 +476,7 @@ const Category = ({
                           },
                         }}
                         onClick={() => {
-                          setOpenDepartment(true);
+                          setOpenProductCategory(true);
                         }}
                       >
                         <AddIcon sx={{ fontSize: 30 }} />
@@ -443,10 +498,95 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Roles
+                        Product Brand
                       </Typography>
                     </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("productBrandId")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {productBrandList &&
+                          productBrandList.map((productBrand) => (
+                            <option
+                              key={productBrand.id}
+                              value={productBrand.id}
+                            >
+                              {productBrand.productBrandName}
+                            </option>
+                          ))}
+                      </TextField>
+
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          borderRadius: 0,
+                          ml: 2,
+                          border: 1,
+                          borderColor: "green",
+                          "&:hover": {
+                            backgroundColor: "green",
+                          },
+                          "&:active": {
+                            backgroundColor: "green",
+                          },
+                        }}
+                        onClick={() => {
+                          setOpenProductBrand(true);
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Product Tag
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
                       <TextField
                         select
                         size="small"
@@ -457,73 +597,30 @@ const Category = ({
                         }}
                         defaultValue={[]}
                         InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("roleId")}
+                        {...formik.getFieldProps("productTagIds")}
+                        onChange={(event) => {
+                          const {
+                            target: { value },
+                          } = event;
+                          formik.setFieldValue(
+                            "productTagIds",
+                            typeof value === "string" ? value.split(",") : value
+                          );
+                        }}
                       >
-                        {Array.isArray(formik.values.roleId) &&
-                          !formik.values.roleId.length && (
-                            <MenuItem value="" disabled>
-                              Select some option
+                        {productTagList && productTagList.length > 0 ? (
+                          productTagList.map((productTag: IProductTag) => (
+                            <MenuItem key={productTag.id} value={productTag.id}>
+                              {productTag.tagName}
                             </MenuItem>
-                          )}
-
-                        {Object.entries(RooleType).map(
-                          ([key, value], index) => (
-                            <MenuItem key={index} value={value}>
-                              {key}
-                            </MenuItem>
-                          )
+                          ))
+                        ) : (
+                          <MenuItem value="" disabled style={{ color: "gray" }}>
+                            Select an option
+                          </MenuItem>
                         )}
                       </TextField>
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Coursing
-                      </Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      lg={9}
-                      md={9}
-                      sm={12}
-                      xs={12}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ flexGrow: 1 }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("coursingId")}
-                      >
-                        <option value="" disabled style={{ color: "gray" }}>
-                          Select an option
-                        </option>
-                        {coursingList &&
-                          coursingList.map((coursing) => (
-                            <option key={coursing.id} value={coursing.id}>
-                              {coursing.coursingName}
-                            </option>
-                          ))}
-                      </TextField>
+
                       <Button
                         variant="contained"
                         size="small"
@@ -542,7 +639,7 @@ const Category = ({
                           },
                         }}
                         onClick={() => {
-                          setOpenCoursing(true);
+                          setOpenProductTag(true);
                         }}
                       >
                         <AddIcon sx={{ fontSize: 30 }} />
@@ -564,7 +661,7 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Serving Size Levels
+                        Conversion unit
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -576,17 +673,15 @@ const Category = ({
                           multiple: true,
                           native: false,
                         }}
-                        defaultValue={[]}
+                        defaultValue=""
                         InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("servingSize")}
+                        {...formik.getFieldProps("productConversionUnit")}
                       >
-                        {Array.isArray(formik.values.servingSize) &&
-                          !formik.values.servingSize.length && (
-                            <MenuItem value="" disabled>
-                              Select some option
-                            </MenuItem>
-                          )}
-
+                        {!formik.values.productConversionUnit.length && (
+                          <MenuItem value="" disabled>
+                            Select some option
+                          </MenuItem>
+                        )}
                         {Object.entries(SizeOfLevelType).map(
                           ([key, value], index) => (
                             <MenuItem key={index} value={value}>
@@ -597,47 +692,6 @@ const Category = ({
                       </TextField>
                     </Grid>
                   </Grid>
-                  {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Tare Group
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select Target Group
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
-
                   <Grid
                     container
                     direction="row"
@@ -653,88 +707,25 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Item Service Charge
+                        Short Description
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                       <TextField
-                        select
+                        placeholder="Enter Short Description"
                         size="small"
+                        {...formik.getFieldProps("productShortDescription")}
                         sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select an option
-                        </option>
-                        <option>None</option>
-                        <option>Pay</option>
-                      </TextField>
-                    </Grid>
-                  </Grid>
-
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={3} xs={3}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
                         }}
-                      >
-                        Hide in POS
-                      </Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      lg={3}
-                      md={3}
-                      sm={3}
-                      xs={3}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("hidePos")}
-                        checked={formik.values.hidePos}
-                      />
-                    </Grid>
-                    <Grid item lg={3} md={3} sm={3} xs={3}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Hide in Online Order
-                      </Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      lg={3}
-                      md={3}
-                      sm={3}
-                      xs={3}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("hideOnlineOrder")}
-                        checked={formik.values.hideOnlineOrder}
                       />
                     </Grid>
                   </Grid>
@@ -753,7 +744,7 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Hide in Kiosk
+                        Active
                       </Typography>
                     </Grid>
                     <Grid
@@ -768,8 +759,8 @@ const Category = ({
                       <IOSSwitch
                         color="primary"
                         sx={{ mr: 2 }}
-                        {...formik.getFieldProps("hideKiosk")}
-                        checked={formik.values.hideKiosk}
+                        {...formik.getFieldProps("isActive")}
+                        checked={formik.values.isActive}
                       />
                     </Grid>
                     <Grid item lg={3} md={3} sm={3} xs={3}>
@@ -780,7 +771,7 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Conversational
+                        Product View Online
                       </Typography>
                     </Grid>
                     <Grid
@@ -795,70 +786,8 @@ const Category = ({
                       <IOSSwitch
                         color="primary"
                         sx={{ mr: 2 }}
-                        {...formik.getFieldProps("Conversational")}
-                        checked={formik.values.Conversational}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={3} xs={3}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Age Restriction
-                      </Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      lg={3}
-                      md={3}
-                      sm={3}
-                      xs={3}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("ageRestriction")}
-                        checked={formik.values.ageRestriction}
-                      />
-                    </Grid>
-                    <Grid item lg={3} md={3} sm={3} xs={3}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Exclude Check Tax
-                      </Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      lg={3}
-                      md={3}
-                      sm={3}
-                      xs={3}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("excludeCheckTax")}
-                        checked={formik.values.excludeCheckTax}
+                        {...formik.getFieldProps("productViewOnline")}
+                        checked={formik.values.productViewOnline}
                       />
                     </Grid>
                   </Grid>
@@ -882,106 +811,37 @@ const Category = ({
                         Include Default
                       </Typography>
                     </Grid>
-                    <Grid item lg={3} md={3} sm={4} xs={4}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Kitchen Printer
-                      </Typography>
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("kitchenPrinters")}
-                        checked={formik.values.kitchenPrinters}
-                      />
+                    <Grid item lg={7} md={7} sm={12} xs={12}>
+                      <Grid container spacing={2}>
+                        {printerList.map((printer) => (
+                          <Grid
+                            item
+                            lg={4}
+                            md={12}
+                            sm={12}
+                            xs={12}
+                            key={printer.id}
+                          >
+                            <Typography
+                              variant="subtitle1"
+                              sx={{ fontWeight: 400, fontSize: 14 }}
+                            >
+                              {printer.printerName}
+                            </Typography>
+                            <IOSSwitch
+                              color="primary"
+                              sx={{ mr: 2 }}
+                              checked={formik.values.productPrinterIds.includes(
+                                printer.id
+                              )}
+                              onChange={() => handlePrinterToggle(printer.id)}
+                            />
+                          </Grid>
+                        ))}
+                      </Grid>
                     </Grid>
-                    <Grid item lg={3} md={3} sm={4} xs={4}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Label Printers
-                      </Typography>
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("labelPrinters")}
-                        checked={formik.values.labelPrinters}
-                      />
-                    </Grid>
-                    <Grid item lg={3} md={3} sm={4} xs={4}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Restrict PRinters
-                      </Typography>
-                      <IOSSwitch
-                        color="primary"
-                        sx={{ mr: 2 }}
-                        {...formik.getFieldProps("restrictPrinters")}
-                        checked={formik.values.restrictPrinters}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Taxes
-                      </Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      lg={9}
-                      md={9}
-                      sm={12}
-                      xs={12}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ flexGrow: 1 }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("taxeId")}
-                      >
-                        <option value="" disabled style={{ color: "gray" }}>
-                          Select an option
-                        </option>
-                        {taxList &&
-                          taxList.map((tax) => (
-                            <option key={tax.id} value={tax.id}>
-                              {tax.taxName}
-                            </option>
-                          ))}
-                      </TextField>
+
+                    <Grid item lg={2} md={2} sm={4} xs={4} textAlign={"end"}>
                       <Button
                         variant="contained"
                         size="small"
@@ -1000,99 +860,14 @@ const Category = ({
                           },
                         }}
                         onClick={() => {
-                          setOpenTax(true);
+                          setOpenPrinter(true);
                         }}
                       >
                         <AddIcon sx={{ fontSize: 30 }} />
                       </Button>
                     </Grid>
                   </Grid>
-                  {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Kitchen Printers
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          multiple: true,
-                          native: false,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("kitchenPrintersTypes")}
-                      >
-                        {!formik.values.kitchenPrintersTypes.length && (
-                          <MenuItem value="" disabled>
-                            Select some option
-                          </MenuItem>
-                        )}
-                        {Object.entries(KitchenPrinterType).map(
-                          ([key, value], index) => (
-                            <MenuItem key={index} value={value}>
-                              {key}
-                            </MenuItem>
-                          )
-                        )}
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
-                  {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Restrict Printers
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select some option
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
+
                   <Grid
                     container
                     direction="row"
@@ -1108,7 +883,7 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Display Button
+                        Display Image
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -1198,7 +973,8 @@ const Category = ({
                       </Box>
                     </Grid>
                   </Grid>
-                  {/* <Grid
+
+                  <Grid
                     container
                     direction="row"
                     alignItems="center"
@@ -1213,31 +989,198 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Applicable Time Period
+                        Button Color
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "#d3d3d3",
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                          padding: 1,
+                        }}
+                      >
+                        <Grid container>
+                          <Grid item lg={6} md={9} sm={12} xs={12}>
+                            <Box
+                              sx={{
+                                marginLeft: 1,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  // borderRadius: "50%",
+                                  backgroundColor: selectedColor,
+                                  marginLeft: 1,
+                                  border: "1px solid #d3d3d3",
+                                }}
+                              />
+                            </Box>
+                          </Grid>
+                          <Grid
+                            item
+                            lg={6}
+                            md={9}
+                            sm={12}
+                            xs={12}
+                            alignItems={"flex-end"}
+                            textAlign={"end"}
+                          >
+                            <IconButton
+                              color="primary"
+                              component="span"
+                              onClick={toggleColorPicker}
+                            >
+                              <ColorLensIcon
+                                sx={{ fontSize: 45, color: "green" }}
+                              />
+                            </IconButton>
+                            {showColorPicker && (
+                              <HexColorPicker
+                                color={selectedColor}
+                                onChange={handleColorChange}
+                              />
+                            )}
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Barcode
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "#d3d3d3",
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                          padding: 1,
+                        }}
+                      >
+                        <Grid container spacing={2}>
+                          <Grid item lg={4} md={9} sm={12} xs={12}>
+                            <TextField
+                              placeholder="Enter Barcode"
+                              size="small"
+                              {...formik.getFieldProps("productBarcode")}
+                              sx={{ width: "100%" }}
+                              InputProps={{
+                                sx: { fontSize: 14 },
+                              }}
+                              InputLabelProps={{
+                                sx: { fontSize: 14 },
+                              }}
+                            />
+                            <Button
+                              variant="contained"
+                              size="small"
+                              sx={{
+                                backgroundColor: "green",
+                                color: "white",
+                                borderRadius: 0,
+
+                                mt: 2,
+                                border: 1,
+                                borderColor: "green",
+                                "&:hover": {
+                                  backgroundColor: "green",
+                                },
+                                "&:active": {
+                                  backgroundColor: "green",
+                                },
+                              }}
+                              onClick={() => setShowBarcode(true)}
+                            >
+                              Generate
+                            </Button>
+                          </Grid>
+
+                          <Grid
+                            item
+                            lg={8}
+                            md={9}
+                            sm={12}
+                            xs={12}
+                            textAlign={"end"}
+                          >
+                            {showBarcode && formik.values.productBarcode && (
+                              <Box mt={2}>
+                                <Barcode value={formik.values.productBarcode} />
+                              </Box>
+                            )}
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Long Description
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                       <TextField
-                        select
+                        placeholder="Enter Long Description"
                         size="small"
+                        {...formik.getFieldProps("productLongDescription")}
                         sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
                         }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select some option
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        multiline
+                        rows={5}
+                      />
                     </Grid>
-                  </Grid> */}
+                  </Grid>
                 </Grid>
 
                 <Grid
@@ -1290,49 +1233,36 @@ const Category = ({
                   >
                     Save
                   </Button>
-                  {/* <Box m={0.5}></Box>
-                <Button
-                  variant="contained"
-                  startIcon={<SaveAltIcon />}
-                  sx={{
-                    backgroundColor: "green",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                    "&:active": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Save and publish
-                </Button> */}
                 </Grid>
               </Grid>
             </Card>
           </Grid>
         </Grid>
-        {openDepartment && (
-          <NewDepartement
-            handleCloseDialog={() => setOpenDepartment(false)}
-            openModel={openDepartment}
+        {openProductCategory && (
+          <NewProductCategory
+            handleCloseDialog={() => setOpenProductCategory(false)}
+            openModel={openProductCategory}
           />
         )}
 
-        {openCoursing && (
-          <NewCoursing
-            handleCloseDialog={() => setOpenCoursing(false)}
-            openModel={openCoursing}
+        {openProductBrand && (
+          <NewProductBrand
+            handleCloseDialog={() => setOpenProductBrand(false)}
+            openModel={openProductBrand}
           />
         )}
 
-        {openTax && (
-          <NewTax
-            handleCloseDialog={() => setOpenTax(false)}
-            openModel={openTax}
+        {openProductTag && (
+          <NewProductTag
+            handleCloseDialog={() => setOpenProductTag(false)}
+            openModel={openProductTag}
+          />
+        )}
+
+        {openPrinter && (
+          <NewPrinter
+            handleCloseDialog={() => setOpenPrinter(false)}
+            openModel={openPrinter}
           />
         )}
       </Dialog>
@@ -1340,4 +1270,4 @@ const Category = ({
   );
 };
 
-export default Category;
+export default Product;

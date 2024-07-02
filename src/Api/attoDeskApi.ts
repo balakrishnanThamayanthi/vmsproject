@@ -307,6 +307,25 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['category'],
     }),
+    getProduct: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/product/getAll',
+          method: 'POST',
+        };
+      },
+      providesTags: ['productTag', 'product'],
+      keepUnusedDataFor: 0,
+    }),
+    deleteProduct: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/product/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['product'],
+    }),
   }),
 });
 
@@ -338,5 +357,7 @@ export const {
   useDeleteProductTagMutation,
   useDeleteTaxMutation,
   useDeleteProductCategoryMutation,
-  useDeleteCategoryMutation
+  useDeleteCategoryMutation,
+  useGetProductQuery,
+  useDeleteProductMutation
 } = attoDeskApi;

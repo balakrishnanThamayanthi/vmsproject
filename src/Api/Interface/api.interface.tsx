@@ -99,6 +99,25 @@ export interface IApiResponse {
   }
 
   export interface IProduct {
+
+    productName: string;
+    productShortDescription: string;
+    productLongDescription: string;
+    productConversionUnit: number[];
+    productBrandId: number | null;
+    productCategoryId: number | null;
+    productTagIds: number[];
+    productViewOnline: boolean; // Assuming this should be a boolean
+    productPrinterIds: number[];
+    productIcon: string;
+    productImg: string;
+    productButtonColor: string;
+    productBarcode: string;
+    isActive: boolean; // Assuming this should be a boolean
+  }
+
+  export interface IProductPopUP {
+    id: number;
     productName: string;
     productShortDescription: string;
     productLongDescription: string;

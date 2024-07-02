@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -21,25 +21,32 @@ import { styled } from "@mui/material/styles";
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFormik } from "formik";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
 import AppsIcon from "@mui/icons-material/Apps";
 import {
-  useCreateCategoryMutation,
-  useGetCoursingQuery,
-  useGetDepartmentQuery,
-  useGetTaxQuery,
+  useCreateProductMutation,
+  useGetPrinterQuery,
+  useGetProductBrandQuery,
+  useGetProductCategoryQuery,
+  useGetProductTagQuery,
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import {
-  ICoursing,
-  IDepartment,
-  ITaxes,
+  IPrinter,
+  IProduct,
+  IProductBrand,
+  IProductCategory,
+  IProductTag,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import { RooleType, SizeOfLevelType } from "../../../Core/Enum/enum";
-import NewCoursing from "../../Coursing/Components/NewPopUpCoursing";
-import NewTax from "../../Tax/Components/NewPopUpTax";
-import NewDepartement from "../../Department/Components/NewPopUpCoursing";
+import { SizeOfLevelType } from "../../../Core/Enum/enum";
+import { HexColorPicker } from "react-colorful";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import Barcode from "react-barcode";
+import NewProductCategory from "../../ProductCategory/Components/NewPopUpProductTag";
+import NewProductBrand from "../../ProductBrand/Components/NewPopUpProductBrand";
+import NewPrinter from "../../Printer/Components/NewPopUpPrinter";
+import NewProductTag from "../../ProductTags/Components/NewPopUpProductTag";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -112,81 +119,100 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
+const isPrinterArray = (data: any): data is IPrinter[] => {
+  return (
+    Array.isArray(data) &&
+    data.every(
+      (item) =>
+        "id" in item && "printerName" in item && "printerDescription" in item
+    )
+  );
+};
+
 const Category: React.FC = () => {
-  const [newCategory, { isLoading }] = useCreateCategoryMutation();
+  const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: departmentData, isLoading: departmentLoading } =
-    useGetDepartmentQuery();
-  const { data: coursingData, isLoading: coursingLoading } =
-    useGetCoursingQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: productCategoryData, isLoading: departmentLoading } =
+    useGetProductCategoryQuery();
+  const { data: productBrandData, isLoading: ProductBrandLoading } =
+    useGetProductBrandQuery();
+  const { data: productTagData, isLoading: ProductTagLoading } =
+    useGetProductTagQuery();
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
+
   const [image, setImage] = useState<string | null>(null);
   const [openGallery, setOpenGallery] = useState(false);
-  const [openDepartment, setOpenDepartment] = useState(false);
-  const [openCoursing, setOpenCoursing] = useState(false);
-  const [openTax, setOpenTax] = useState(false);
+  const [openProductCategory, setOpenProductCategory] = useState(false);
+  const [openProductBrand, setOpenProductBrand] = useState(false);
+  const [openProductTag, setOpenProductTag] = useState(false);
+  const [openPrinter, setOpenPrinter] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [showBarcode, setShowBarcode] = useState(false);
 
-  const departmentList = useMemo(() => {
-    return departmentData?.data as IDepartment[];
-  }, [departmentData?.data]);
+  const productList = useMemo(() => {
+    return productCategoryData?.data as IProductCategory[];
+  }, [productCategoryData?.data]);
 
-  const coursingList = useMemo(() => {
-    return coursingData?.data as ICoursing[];
-  }, [coursingData?.data]);
+  const productBrandList = useMemo(() => {
+    return productBrandData?.data as IProductBrand[];
+  }, [productBrandData?.data]);
 
-  const taxList = useMemo(() => {
-    return taxData?.data as ITaxes[];
-  }, [taxData?.data]);
+  const productTagList = useMemo(() => {
+    return productTagData?.data as IProductTag[];
+  }, [productTagData?.data]);
 
-  const formik = useFormik({
+  const printerList: IPrinter[] = useMemo(() => {
+    if (!printerData || !isPrinterArray(printerData.data)) {
+      return [];
+    }
+    return printerData.data;
+  }, [printerData]);
+
+  const formik = useFormik<IProduct>({
     initialValues: {
-      categoryName: "",
-      departmentId: null,
-      roleId: [],
-      coursingId: null,
-      servingSize: [],
-      hidePos: false,
-      hideOnlineOrder: false,
-      hideKiosk: false,
-      Conversational: false,
-      itemServiceCharge: "",
-      ageRestriction: false,
-      excludeCheckTax: false,
-      kitchenPrinters: false,
-      labelPrinters: false,
-      restrictPrinters: false,
-      taxeId: null,
-      // kitchenPrintersTypes: [],
+      productName: "",
+      productShortDescription: "",
+      productLongDescription: "",
+      productConversionUnit: [],
+      productBrandId: null,
+      productCategoryId: null,
+      productTagIds: [],
+      productViewOnline: false,
+      isActive: false,
+      productPrinterIds: [],
+      productIcon: "",
+      productImg: "",
+      productButtonColor: "",
+      productBarcode: "",
     },
     onSubmit: async (values, { resetForm }) => {
       try {
         const temData = {
-          categoryName: values.categoryName,
-          departmentId: values.departmentId,
-          roleId: values.roleId,
-          coursingId: values.coursingId,
-          servingSize: values.servingSize,
-          hidePos: values.hidePos,
-          hideOnlineOrder: values.hideOnlineOrder,
-          hideKiosk: values.hideKiosk,
-          Conversational: values.Conversational,
-          itemServiceCharge: values.itemServiceCharge,
-          ageRestriction: values.ageRestriction,
-          excludeCheckTax: values.excludeCheckTax,
-          kitchenPrinters: values.kitchenPrinters,
-          labelPrinters: values.labelPrinters,
-          restrictPrinters: values.restrictPrinters,
-          taxeId: values.taxeId,
-          // kitchenPrintersTypes: values.kitchenPrintersTypes,
+          productName: values.productName,
+          productShortDescription: values.productShortDescription,
+          productLongDescription: values.productLongDescription,
+          productConversionUnit: values.productConversionUnit,
+          productBrandId: values.productBrandId,
+          productCategoryId: values.productCategoryId,
+          productTagIds: values.productTagIds,
+          productViewOnline: values.productViewOnline,
+          isActive: values.isActive,
+          productPrinterIds: values.productPrinterIds,
+          productIcon: values.productIcon,
+          productImg: values.productImg,
+          productButtonColor: values.productButtonColor,
+          productBarcode: values.productBarcode,
         };
 
-        const addCategoryResponse = await newCategory(temData).unwrap();
-        if (!addCategoryResponse.status) {
-          showErrorMessage(addCategoryResponse.message);
+        const addProductResponse = await newProduct(temData).unwrap();
+        if (!addProductResponse.status) {
+          showErrorMessage(addProductResponse.message);
         } else {
-          showMessage(addCategoryResponse.message);
+          showMessage(addProductResponse.message);
           resetForm();
-          window.location.reload();
+          // window.location.reload();
         }
       } catch (error) {
         showErrorMessage("Something went wrong");
@@ -195,14 +221,10 @@ const Category: React.FC = () => {
   });
 
   const formValid = useMemo(() => {
-    return formik.values.categoryName === "" ||
-      formik.values.categoryName === undefined ||
-      formik.values.departmentId === null ||
-      formik.values.departmentId === undefined ||
-      formik.values.coursingId === null ||
-      formik.values.coursingId === undefined ||
-      formik.values.taxeId === null ||
-      formik.values.taxeId === undefined
+    return formik.values.productName === "" ||
+      formik.values.productName === undefined ||
+      formik.values.productCategoryId === null ||
+      formik.values.productCategoryId === undefined
       ? false
       : true;
   }, [formik]);
@@ -239,6 +261,40 @@ const Category: React.FC = () => {
     "/Images/dummy_image.webp",
     "/Images/user_login_photo.webp",
   ];
+
+  const handlePrinterToggle = (printerId: number) => {
+    const { productPrinterIds } = formik.values;
+    const updatedPrinterIds = productPrinterIds.includes(printerId)
+      ? productPrinterIds.filter((id) => id !== printerId)
+      : [...productPrinterIds, printerId];
+    formik.setFieldValue("productPrinterIds", updatedPrinterIds);
+  };
+
+  const handleColorChange = (newColor: string) => {
+    setSelectedColor(newColor);
+    formik.setFieldValue("productButtonColor", newColor);
+  };
+
+  const toggleColorPicker = () => {
+    setShowColorPicker(!showColorPicker);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowColorPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -280,7 +336,7 @@ const Category: React.FC = () => {
                     color: appColor.black,
                   }}
                 >
-                  New Category
+                  New Product
                 </Typography>
               </Grid>
 
@@ -301,7 +357,7 @@ const Category: React.FC = () => {
                     <TextField
                       placeholder="Enter Category Name"
                       size="small"
-                      {...formik.getFieldProps("categoryName")}
+                      {...formik.getFieldProps("productName")}
                       sx={{ width: "100%" }}
                       InputProps={{
                         sx: {
@@ -331,7 +387,7 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Department
+                      Product Category
                     </Typography>
                   </Grid>
                   <Grid
@@ -352,15 +408,15 @@ const Category: React.FC = () => {
                       }}
                       defaultValue=""
                       InputLabelProps={{ shrink: true }}
-                      {...formik.getFieldProps("departmentId")}
+                      {...formik.getFieldProps("productCategoryId")}
                     >
                       <option value="" disabled style={{ color: "gray" }}>
                         Select an option
                       </option>
-                      {departmentList &&
-                        departmentList.map((department) => (
-                          <option key={department.id} value={department.id}>
-                            {department.departmentName}
+                      {productList &&
+                        productList.map((productCat) => (
+                          <option key={productCat.id} value={productCat.id}>
+                            {productCat.productCatName}
                           </option>
                         ))}
                     </TextField>
@@ -383,7 +439,7 @@ const Category: React.FC = () => {
                         },
                       }}
                       onClick={() => {
-                        setOpenDepartment(true);
+                        setOpenProductCategory(true);
                       }}
                     >
                       <AddIcon sx={{ fontSize: 30 }} />
@@ -405,51 +461,7 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Roles
-                    </Typography>
-                  </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ width: "100%" }}
-                      SelectProps={{
-                        multiple: true,
-                        native: false,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                      {...formik.getFieldProps("roleId")}
-                    >
-                      {!formik.values.roleId.length && (
-                        <MenuItem value="" disabled>
-                          Select some option
-                        </MenuItem>
-                      )}
-                      {Object.entries(RooleType).map(([key, value], index) => (
-                        <MenuItem key={index} value={value}>
-                          {key}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Coursing
+                      Product Brand
                     </Typography>
                   </Grid>
                   <Grid
@@ -470,18 +482,19 @@ const Category: React.FC = () => {
                       }}
                       defaultValue=""
                       InputLabelProps={{ shrink: true }}
-                      {...formik.getFieldProps("coursingId")}
+                      {...formik.getFieldProps("productBrandId")}
                     >
                       <option value="" disabled style={{ color: "gray" }}>
                         Select an option
                       </option>
-                      {coursingList &&
-                        coursingList.map((coursing) => (
-                          <option key={coursing.id} value={coursing.id}>
-                            {coursing.coursingName}
+                      {productBrandList &&
+                        productBrandList.map((productBrand) => (
+                          <option key={productBrand.id} value={productBrand.id}>
+                            {productBrand.productBrandName}
                           </option>
                         ))}
                     </TextField>
+
                     <Button
                       variant="contained"
                       size="small"
@@ -500,7 +513,7 @@ const Category: React.FC = () => {
                         },
                       }}
                       onClick={() => {
-                        setOpenCoursing(true);
+                        setOpenProductBrand(true);
                       }}
                     >
                       <AddIcon sx={{ fontSize: 30 }} />
@@ -522,7 +535,93 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Serving Size Levels
+                      Product Tag
+                    </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    lg={9}
+                    md={9}
+                    sm={12}
+                    xs={12}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ width: "100%" }}
+                      SelectProps={{
+                        multiple: true,
+                        native: false,
+                      }}
+                      defaultValue={[]}
+                      InputLabelProps={{ shrink: true }}
+                      {...formik.getFieldProps("productTagIds")}
+                      onChange={(event) => {
+                        const {
+                          target: { value },
+                        } = event;
+                        formik.setFieldValue(
+                          "productTagIds",
+                          typeof value === "string" ? value.split(",") : value
+                        );
+                      }}
+                    >
+                      {productTagList && productTagList.length > 0 ? (
+                        productTagList.map((productTag: IProductTag) => (
+                          <MenuItem key={productTag.id} value={productTag.id}>
+                            {productTag.tagName}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </MenuItem>
+                      )}
+                    </TextField>
+
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{
+                        backgroundColor: "green",
+                        color: "white",
+                        borderRadius: 0,
+                        ml: 2,
+                        border: 1,
+                        borderColor: "green",
+                        "&:hover": {
+                          backgroundColor: "green",
+                        },
+                        "&:active": {
+                          backgroundColor: "green",
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenProductTag(true);
+                      }}
+                    >
+                      <AddIcon sx={{ fontSize: 30 }} />
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Conversion unit
                     </Typography>
                   </Grid>
                   <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -536,9 +635,9 @@ const Category: React.FC = () => {
                       }}
                       defaultValue=""
                       InputLabelProps={{ shrink: true }}
-                      {...formik.getFieldProps("servingSize")}
+                      {...formik.getFieldProps("productConversionUnit")}
                     >
-                      {!formik.values.servingSize.length && (
+                      {!formik.values.productConversionUnit.length && (
                         <MenuItem value="" disabled>
                           Select some option
                         </MenuItem>
@@ -553,47 +652,6 @@ const Category: React.FC = () => {
                     </TextField>
                   </Grid>
                 </Grid>
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Tare Group
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select Target Group
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
-
                 <Grid
                   container
                   direction="row"
@@ -609,88 +667,25 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Item Service Charge
+                      Short Description
                     </Typography>
                   </Grid>
                   <Grid item lg={9} md={9} sm={12} xs={12}>
                     <TextField
-                      select
+                      placeholder="Enter Short Description"
                       size="small"
+                      {...formik.getFieldProps("productShortDescription")}
                       sx={{ width: "100%" }}
-                      SelectProps={{
-                        native: true,
+                      InputProps={{
+                        sx: {
+                          fontSize: 14,
+                        },
                       }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="" disabled color="gray">
-                        Select an option
-                      </option>
-                      <option>None</option>
-                      <option>Pay</option>
-                    </TextField>
-                  </Grid>
-                </Grid>
-
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
+                      InputLabelProps={{
+                        sx: {
+                          fontSize: 14,
+                        },
                       }}
-                    >
-                      Hide in POS
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("hidePos")}
-                      checked={formik.values.hidePos}
-                    />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Hide in Online Order
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("hideOnlineOrder")}
-                      checked={formik.values.hideOnlineOrder}
                     />
                   </Grid>
                 </Grid>
@@ -709,7 +704,7 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Hide in Kiosk
+                      Active
                     </Typography>
                   </Grid>
                   <Grid
@@ -724,8 +719,8 @@ const Category: React.FC = () => {
                     <IOSSwitch
                       color="primary"
                       sx={{ mr: 2 }}
-                      {...formik.getFieldProps("hideKiosk")}
-                      checked={formik.values.hideKiosk}
+                      {...formik.getFieldProps("isActive")}
+                      checked={formik.values.isActive}
                     />
                   </Grid>
                   <Grid item lg={3} md={3} sm={3} xs={3}>
@@ -736,7 +731,7 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Conversational
+                      Product View Online
                     </Typography>
                   </Grid>
                   <Grid
@@ -751,70 +746,8 @@ const Category: React.FC = () => {
                     <IOSSwitch
                       color="primary"
                       sx={{ mr: 2 }}
-                      {...formik.getFieldProps("Conversational")}
-                      checked={formik.values.Conversational}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Age Restriction
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("ageRestriction")}
-                      checked={formik.values.ageRestriction}
-                    />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={3} xs={3}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Exclude Check Tax
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={3}
-                    md={3}
-                    sm={3}
-                    xs={3}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("excludeCheckTax")}
-                      checked={formik.values.excludeCheckTax}
+                      {...formik.getFieldProps("productViewOnline")}
+                      checked={formik.values.productViewOnline}
                     />
                   </Grid>
                 </Grid>
@@ -833,106 +766,37 @@ const Category: React.FC = () => {
                       Include Default
                     </Typography>
                   </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Kitchen Printer
-                    </Typography>
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("kitchenPrinters")}
-                      checked={formik.values.kitchenPrinters}
-                    />
+                  <Grid item lg={7} md={7} sm={12} xs={12}>
+                    <Grid container spacing={2}>
+                      {printerList.map((printer) => (
+                        <Grid
+                          item
+                          lg={4}
+                          md={12}
+                          sm={12}
+                          xs={12}
+                          key={printer.id}
+                        >
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 400, fontSize: 14 }}
+                          >
+                            {printer.printerName}
+                          </Typography>
+                          <IOSSwitch
+                            color="primary"
+                            sx={{ mr: 2 }}
+                            checked={formik.values.productPrinterIds.includes(
+                              printer.id
+                            )}
+                            onChange={() => handlePrinterToggle(printer.id)}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
                   </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Label Printers
-                    </Typography>
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("labelPrinters")}
-                      checked={formik.values.labelPrinters}
-                    />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Restrict PRinters
-                    </Typography>
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("restrictPrinters")}
-                      checked={formik.values.restrictPrinters}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Taxes
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={9}
-                    md={9}
-                    sm={12}
-                    xs={12}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ flexGrow: 1 }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                      {...formik.getFieldProps("taxeId")}
-                    >
-                      <option value="" disabled style={{ color: "gray" }}>
-                        Select an option
-                      </option>
-                      {taxList &&
-                        taxList.map((tax) => (
-                          <option key={tax.id} value={tax.id}>
-                            {tax.taxName}
-                          </option>
-                        ))}
-                    </TextField>
+
+                  <Grid item lg={2} md={2} sm={4} xs={4} textAlign={"end"}>
                     <Button
                       variant="contained"
                       size="small"
@@ -951,99 +815,14 @@ const Category: React.FC = () => {
                         },
                       }}
                       onClick={() => {
-                        setOpenTax(true);
+                        setOpenPrinter(true);
                       }}
                     >
                       <AddIcon sx={{ fontSize: 30 }} />
                     </Button>
                   </Grid>
                 </Grid>
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Kitchen Printers
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          multiple: true,
-                          native: false,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("kitchenPrintersTypes")}
-                      >
-                        {!formik.values.kitchenPrintersTypes.length && (
-                          <MenuItem value="" disabled>
-                            Select some option
-                          </MenuItem>
-                        )}
-                        {Object.entries(KitchenPrinterType).map(
-                          ([key, value], index) => (
-                            <MenuItem key={index} value={value}>
-                              {key}
-                            </MenuItem>
-                          )
-                        )}
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Restrict Printers
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select some option
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
+
                 <Grid
                   container
                   direction="row"
@@ -1059,7 +838,7 @@ const Category: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Display Button
+                      Display Image
                     </Typography>
                   </Grid>
                   <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -1149,46 +928,214 @@ const Category: React.FC = () => {
                     </Box>
                   </Grid>
                 </Grid>
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
+
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Button Color
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={9} md={9} sm={12} xs={12}>
+                    <Box
+                      sx={{
+                        border: 1,
+                        borderColor: "#d3d3d3",
+                        borderRadius: 1,
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        padding: 1,
+                      }}
+                    >
+                      <Grid container>
+                        <Grid item lg={6} md={9} sm={12} xs={12}>
+                          <Box
+                            sx={{
+                              marginLeft: 1,
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: 50,
+                                height: 50,
+                                // borderRadius: "50%",
+                                backgroundColor: selectedColor,
+                                marginLeft: 1,
+                                border: "1px solid #d3d3d3",
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+                        <Grid
+                          item
+                          lg={6}
+                          md={9}
+                          sm={12}
+                          xs={12}
+                          alignItems={"flex-end"}
+                          textAlign={"end"}
+                        >
+                          <IconButton
+                            color="primary"
+                            component="span"
+                            onClick={toggleColorPicker}
+                          >
+                            <ColorLensIcon
+                              sx={{ fontSize: 45, color: "green" }}
+                            />
+                          </IconButton>
+                          {showColorPicker && (
+                            <HexColorPicker
+                              color={selectedColor}
+                              onChange={handleColorChange}
+                            />
+                          )}
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Barcode
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={9} md={9} sm={12} xs={12}>
+                    <Box
+                      sx={{
+                        border: 1,
+                        borderColor: "#d3d3d3",
+                        borderRadius: 1,
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        padding: 1,
+                      }}
+                    >
+                      <Grid container spacing={2}>
+                        <Grid item lg={4} md={9} sm={12} xs={12}>
+                          <TextField
+                            placeholder="Enter Barcode"
+                            size="small"
+                            {...formik.getFieldProps("productBarcode")}
+                            sx={{ width: "100%" }}
+                            InputProps={{
+                              sx: { fontSize: 14 },
+                            }}
+                            InputLabelProps={{
+                              sx: { fontSize: 14 },
+                            }}
+                          />
+                          <Button
+                            variant="contained"
+                            size="small"
+                            sx={{
+                              backgroundColor: "green",
+                              color: "white",
+                              borderRadius: 0,
+
+                              mt: 2,
+                              border: 1,
+                              borderColor: "green",
+                              "&:hover": {
+                                backgroundColor: "green",
+                              },
+                              "&:active": {
+                                backgroundColor: "green",
+                              },
+                            }}
+                            onClick={() => setShowBarcode(true)}
+                          >
+                            Generate
+                          </Button>
+                        </Grid>
+
+                        <Grid
+                          item
+                          lg={8}
+                          md={9}
+                          sm={12}
+                          xs={12}
+                          textAlign={"end"}
+                        >
+                          {showBarcode && formik.values.productBarcode && (
+                            <Box mt={2}>
+                              <Barcode value={formik.values.productBarcode} />
+                            </Box>
+                          )}
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Long Description
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={9} md={9} sm={12} xs={12}>
+                    <TextField
+                      placeholder="Enter Long Description"
+                      size="small"
+                      {...formik.getFieldProps("productLongDescription")}
+                      sx={{ width: "100%" }}
+                      InputProps={{
+                        sx: {
                           fontSize: 14,
-                        }}
-                      >
-                        Applicable Time Period
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select some option
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
+                        },
+                      }}
+                      InputLabelProps={{
+                        sx: {
+                          fontSize: 14,
+                        },
+                      }}
+                      multiline
+                      rows={5}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
 
               <Grid
@@ -1241,49 +1188,36 @@ const Category: React.FC = () => {
                 >
                   Save
                 </Button>
-                {/* <Box m={0.5}></Box>
-                <Button
-                  variant="contained"
-                  startIcon={<SaveAltIcon />}
-                  sx={{
-                    backgroundColor: "green",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                    "&:active": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Save and publish
-                </Button> */}
               </Grid>
             </Grid>
           </Card>
         </Grid>
       </Grid>
-      {openDepartment && (
-        <NewDepartement
-          handleCloseDialog={() => setOpenDepartment(false)}
-          openModel={openDepartment}
+      {openProductCategory && (
+        <NewProductCategory
+          handleCloseDialog={() => setOpenProductCategory(false)}
+          openModel={openProductCategory}
         />
       )}
 
-      {openCoursing && (
-        <NewCoursing
-          handleCloseDialog={() => setOpenCoursing(false)}
-          openModel={openCoursing}
+      {openProductBrand && (
+        <NewProductBrand
+          handleCloseDialog={() => setOpenProductBrand(false)}
+          openModel={openProductBrand}
         />
       )}
 
-      {openTax && (
-        <NewTax
-          handleCloseDialog={() => setOpenTax(false)}
-          openModel={openTax}
+      {openProductTag && (
+        <NewProductTag
+          handleCloseDialog={() => setOpenProductTag(false)}
+          openModel={openProductTag}
+        />
+      )}
+
+      {openPrinter && (
+        <NewPrinter
+          handleCloseDialog={() => setOpenPrinter(false)}
+          openModel={openPrinter}
         />
       )}
     </form>
