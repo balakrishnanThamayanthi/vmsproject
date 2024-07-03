@@ -22,7 +22,7 @@ import {
   useGetProductBrandQuery,
   useGetProductTagQuery,
 } from "../../../Api/attoDeskApi";
-import { ICoursing, IDepartment, IProductPopUP, ITaxes } from "../../../Api/Interface/api.interface";
+import { ICoursing, IDepartment, IProductBrand, IProductCategory, IProductPopUP, IProductTag, ITaxes } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
@@ -51,22 +51,22 @@ const ComponentTable: React.FC = () => {
 
 
   const departmentList = useMemo(() => {
-    return departmentData?.data as IDepartment[];
+    return departmentData?.data as IProductBrand[];
   }, [departmentData?.data]);
 
   const coursingList = useMemo(() => {
-    return coursingData?.data as ICoursing[];
+    return coursingData?.data as IProductCategory[];
   }, [coursingData?.data]);
 
   const taxList = useMemo(() => {
-    return taxData?.data as ITaxes[];
+    return taxData?.data as IProductTag[];
   }, [taxData?.data]);
 
 
   const departmentMap = useMemo(() => {
     const map = new Map();
     departmentList?.forEach((category) => {
-      map.set(category.id, category.departmentName);
+      map.set(category.id, category.productBrandName);
     });
     return map;
   }, [departmentList]);
@@ -74,7 +74,7 @@ const ComponentTable: React.FC = () => {
   const coursingMap = useMemo(() => {
     const map = new Map();
     coursingList?.forEach((category) => {
-      map.set(category.id, category.coursingName);
+      map.set(category.id, category.productCatName);
     });
     return map;
   }, [coursingList]);
@@ -82,7 +82,7 @@ const ComponentTable: React.FC = () => {
   const taxMap = useMemo(() => {
     const map = new Map();
     taxList?.forEach((category) => {
-      map.set(category.id, category.taxName);
+      map.set(category.id, category.tagName);
     });
     return map;
   }, [taxList]);

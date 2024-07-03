@@ -326,6 +326,16 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['product'],
     }),
+    getLastProductId: builder.query<IApiResponse, void>({
+      query: () => {
+        return {
+          url: '/product/last-id',
+          method: 'GET',
+        };
+      },
+      providesTags: ['product' ],
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -359,5 +369,6 @@ export const {
   useDeleteProductCategoryMutation,
   useDeleteCategoryMutation,
   useGetProductQuery,
-  useDeleteProductMutation
+  useDeleteProductMutation,
+  useGetLastProductIdQuery
 } = attoDeskApi;
