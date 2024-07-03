@@ -25,6 +25,7 @@ import ColorLensIcon from "@mui/icons-material/ColorLens";
 import AppsIcon from "@mui/icons-material/Apps";
 import {
   useCreateProductMutation,
+  useGetLastProductIdQuery,
   useGetPrinterQuery,
   useGetProductBrandQuery,
   useGetProductCategoryQuery,
@@ -32,6 +33,7 @@ import {
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import {
+  ILastProductId,
   IPrinter,
   IProduct,
   IProductBrand,
@@ -149,7 +151,13 @@ const Category: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const { data: newLastProductIdData, isLoading: lastProductIdIsLoading } =
+    useGetLastProductIdQuery();
   const [showBarcode, setShowBarcode] = useState(false);
+
+  const lastProductId = useMemo(() => {
+    return (newLastProductIdData?.data as ILastProductId)?.lastInsertedId ?? 0;
+  }, [newLastProductIdData?.data]);
 
   const productList = useMemo(() => {
     return productCategoryData?.data as IProductCategory[];
@@ -162,6 +170,10 @@ const Category: React.FC = () => {
   const productTagList = useMemo(() => {
     return productTagData?.data as IProductTag[];
   }, [productTagData?.data]);
+
+  const lastProductIdList = useMemo(() => {
+    return productCategoryData?.data as IProductCategory[];
+  }, [productCategoryData?.data]);
 
   const printerList: IPrinter[] = useMemo(() => {
     if (!printerData || !isPrinterArray(printerData.data)) {
@@ -270,9 +282,13 @@ const Category: React.FC = () => {
     formik.setFieldValue("productPrinterIds", updatedPrinterIds);
   };
 
+  useEffect(() => {
+    setSelectedColor(formik.values.productButtonColor ?? "#ffffff");
+  }, [formik.values.productButtonColor]);
+
   const handleColorChange = (newColor: string) => {
     setSelectedColor(newColor);
-    formik.setFieldValue("productButtonColor", newColor);
+    formik.setFieldValue("productButtonColor", newColor); 
   };
 
   const toggleColorPicker = () => {
@@ -295,6 +311,12 @@ const Category: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (lastProductId) {
+      formik.setFieldValue('productBarcode', String(lastProductId + 1));
+    }
+  }, [lastProductId]);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -1049,6 +1071,7 @@ const Category: React.FC = () => {
                             sx={{ width: "100%" }}
                             InputProps={{
                               sx: { fontSize: 14 },
+                              readOnly: true,
                             }}
                             InputLabelProps={{
                               sx: { fontSize: 14 },

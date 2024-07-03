@@ -294,10 +294,16 @@ const Product = ({
     formik.setFieldValue("productPrinterIds", updatedPrinterIds);
   };
 
+  useEffect(() => {
+    // Update selectedColor when formik.values.productButtonColor changes
+    setSelectedColor(formik.values.productButtonColor ?? "#ffffff");
+  }, [formik.values.productButtonColor]);
+
   const handleColorChange = (newColor: string) => {
     setSelectedColor(newColor);
-    formik.setFieldValue("productButtonColor", newColor);
+    formik.setFieldValue("productButtonColor", newColor); // Update formik value
   };
+
 
   const toggleColorPicker = () => {
     setShowColorPicker(!showColorPicker);
@@ -1094,6 +1100,7 @@ const Product = ({
                               sx={{ width: "100%" }}
                               InputProps={{
                                 sx: { fontSize: 14 },
+                                readOnly: true,
                               }}
                               InputLabelProps={{
                                 sx: { fontSize: 14 },

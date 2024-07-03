@@ -133,5 +133,9 @@ export interface IApiResponse {
     productBarcode: string;
     isActive: boolean; // Assuming this should be a boolean
   }
+
+  export interface ILastProductId {
+    lastInsertedId: number, 
+  }
   
   
