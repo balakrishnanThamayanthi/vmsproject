@@ -112,6 +112,8 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
+
+
 const Category: React.FC = () => {
   const [newCategory, { isLoading }] = useCreateCategoryMutation();
   const { showErrorMessage, showMessage } = useNotifier();
@@ -141,9 +143,9 @@ const Category: React.FC = () => {
   const formik = useFormik({
     initialValues: {
       categoryName: "",
-      departmentId: null,
+      departmentId: "",
       roleId: [],
-      coursingId: null,
+      coursingId: "",
       servingSize: [],
       hidePos: false,
       hideOnlineOrder: false,
@@ -155,7 +157,7 @@ const Category: React.FC = () => {
       kitchenPrinters: false,
       labelPrinters: false,
       restrictPrinters: false,
-      taxeId: null,
+      taxeId: '',
       // kitchenPrintersTypes: [],
     },
     onSubmit: async (values, { resetForm }) => {
@@ -186,7 +188,7 @@ const Category: React.FC = () => {
         } else {
           showMessage(addCategoryResponse.message);
           resetForm();
-          window.location.reload();
+          // window.location.reload();
         }
       } catch (error) {
         showErrorMessage("Something went wrong");
