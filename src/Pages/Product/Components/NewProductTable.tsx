@@ -47,15 +47,15 @@ const ProductTable: React.FC = () => {
     null
   );
 
-  const { data: departmentData, isLoading: departmentLoading } =
+  const { data: productBrandData, isLoading: productBrandLoading } =
     useGetProductBrandQuery();
   const { data: coursingData, isLoading: coursingLoading } =
     useGetProductCategoryQuery();
   const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery();
 
-  const departmentList = useMemo(() => {
-    return departmentData?.data as IProductBrand[];
-  }, [departmentData?.data]);
+  const productBrandList = useMemo(() => {
+    return productBrandData?.data as IProductBrand[];
+  }, [productBrandData?.data]);
 
   const coursingList = useMemo(() => {
     return coursingData?.data as IProductCategory[];
@@ -65,13 +65,13 @@ const ProductTable: React.FC = () => {
     return taxData?.data as IProductTag[];
   }, [taxData?.data]);
 
-  const departmentMap = useMemo(() => {
+  const productBrandMap = useMemo(() => {
     const map = new Map();
-    departmentList?.forEach((category) => {
-      map.set(category.id, category.productBrandName);
+    productBrandList?.forEach((brand) => {
+      map.set(brand.id, brand.productBrandName);
     });
     return map;
-  }, [departmentList]);
+  }, [productBrandList]);
 
   const coursingMap = useMemo(() => {
     const map = new Map();
@@ -83,8 +83,8 @@ const ProductTable: React.FC = () => {
 
   const taxMap = useMemo(() => {
     const map = new Map();
-    taxList?.forEach((category) => {
-      map.set(category.id, category.tagName);
+    taxList?.forEach((tag) => {
+      map.set(tag.id, tag.tagName);
     });
     return map;
   }, [taxList]);
@@ -135,7 +135,7 @@ const ProductTable: React.FC = () => {
     }
   };
 
-  if (isLoading)
+  if (isLoading || productBrandLoading || coursingLoading || taxLoading) {
     return (
       <Box
         display="flex"
@@ -146,10 +146,11 @@ const ProductTable: React.FC = () => {
         <CircularProgress />
       </Box>
     );
+  }
 
   const coursings: IProductPopUP[] = Array.isArray(data?.data)
-  ? (data?.data as IProductPopUP[])
-  : [];
+    ? (data?.data as IProductPopUP[])
+    : [];
 
   return (
     <Box>
@@ -222,7 +223,7 @@ const ProductTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Product Tag</strong>
+                  <strong>Product Description</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -253,122 +254,123 @@ const ProductTable: React.FC = () => {
                 </TableRow>
               ) : (
                 coursings
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: IProductPopUP, index) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row: IProductPopUP, index) => (
+                    <TableRow
+                      key={row.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.productName}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {departmentMap.get(row.productBrandId) || ""}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {coursingMap.get(row.productCategoryId) || ""}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.productShortDescription}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.productViewOnline ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell>
-                      <Grid
-                        container
-                        spacing={1}
-                        sx={{ display: "flex", justifyContent: "flex-end" }}
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
                       >
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDialog(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <EditIcon sx={{ p: "2px", color: "green" }} />
-                            Edit
-                          </Button>
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.productName}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {productBrandMap.get(row.productBrandId) || ""}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {coursingMap.get(row.productCategoryId) || ""}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.productShortDescription}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.productViewOnline ? "Yes" : "No"}
+                      </TableCell>
+                      <TableCell>
+                        <Grid
+                          container
+                          spacing={1}
+                          sx={{ display: "flex", justifyContent: "flex-end" }}
+                        >
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDialog(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <EditIcon sx={{ p: "2px", color: "green" }} />
+                              Edit
+                            </Button>
+                          </Grid>
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDeletePopup(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <DeleteIcon sx={{ p: "2px", color: "green" }} />
+                              Delete
+                            </Button>
+                          </Grid>
                         </Grid>
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDeletePopup(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <DeleteIcon sx={{ p: "2px", color: "green" }} />
-                            Delete
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
-                )))}
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
             </TableBody>
           </Table>
           <TablePagination
