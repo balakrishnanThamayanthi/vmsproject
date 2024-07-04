@@ -22,33 +22,36 @@ import {
   useGetProductBrandQuery,
   useGetProductTagQuery,
 } from "../../../Api/attoDeskApi";
-import { ICoursing, IDepartment, IProductBrand, IProductCategory, IProductPopUP, IProductTag, ITaxes } from "../../../Api/Interface/api.interface";
+import {
+  IProductBrand,
+  IProductCategory,
+  IProductPopUP,
+  IProductTag,
+} from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
-import NewPopUpCategory from "./NewPopUpProduct";
+import NewPopUpProduct from "./NewPopUpProduct";
 
-const ComponentTable: React.FC = () => {
+const ProductTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
   const { data, isLoading, isError } = useGetProductQuery();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedCoursing, setSelectedCoursing] = useState<IProductPopUP | null>(
+  const [selectedProduct, setSelectedProduct] = useState<IProductPopUP | null>(
     null
   );
   const [openDialog, setOpenDialog] = useState(false);
-  const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
-  const [coursingToDelete, setCoursingToDelete] = useState<IProductPopUP | null>(
+  const [openDeleteProduct, setOpenDeleteProduct] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<IProductPopUP | null>(
     null
   );
 
   const { data: departmentData, isLoading: departmentLoading } =
-  useGetProductBrandQuery();
+    useGetProductBrandQuery();
   const { data: coursingData, isLoading: coursingLoading } =
-  useGetProductCategoryQuery();
-  const { data: taxData, isLoading: taxLoading } =
-  useGetProductTagQuery();
-
+    useGetProductCategoryQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery();
 
   const departmentList = useMemo(() => {
     return departmentData?.data as IProductBrand[];
@@ -61,7 +64,6 @@ const ComponentTable: React.FC = () => {
   const taxList = useMemo(() => {
     return taxData?.data as IProductTag[];
   }, [taxData?.data]);
-
 
   const departmentMap = useMemo(() => {
     const map = new Map();
@@ -87,7 +89,6 @@ const ComponentTable: React.FC = () => {
     return map;
   }, [taxList]);
 
-  
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -99,24 +100,24 @@ const ComponentTable: React.FC = () => {
     setPage(0);
   };
 
-  const handleOpenDialog = (coursing: IProductPopUP) => {
-    setSelectedCoursing(coursing);
+  const handleOpenDialog = (product: IProductPopUP) => {
+    setSelectedProduct(product);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
-    setSelectedCoursing(null);
+    setSelectedProduct(null);
     setOpenDialog(false);
   };
 
-  const handleOpenDeletePopup = (coursing: IProductPopUP) => {
-    setCoursingToDelete(coursing);
-    setOpenDeleteCategory(true);
+  const handleOpenDeletePopup = (product: IProductPopUP) => {
+    setProductToDelete(product);
+    setOpenDeleteProduct(true);
   };
 
   const handleCloseDeletePopup = () => {
-    setCoursingToDelete(null);
-    setOpenDeleteCategory(false);
+    setProductToDelete(null);
+    setOpenDeleteProduct(false);
   };
 
   const [deleteCategory] = useDeleteProductMutation();
@@ -125,7 +126,7 @@ const ComponentTable: React.FC = () => {
       const response = await deleteCategory(id).unwrap();
       if (response.status) {
         showMessage("Deleted successfully");
-        setOpenDeleteCategory(false);
+        setOpenDeleteProduct(false);
       } else {
         showErrorMessage("Failed to delete the product");
       }
@@ -377,22 +378,22 @@ const ComponentTable: React.FC = () => {
             }}
           />
         </TableContainer>
-        {selectedCoursing && (
-          <NewPopUpCategory
+        {selectedProduct && (
+          <NewPopUpProduct
             openModel={openDialog}
             handleCloseDialog={handleCloseDialog}
-            data={selectedCoursing}
+            data={selectedProduct}
           />
         )}
-        {coursingToDelete && (
+        {productToDelete && (
           <DeletePopup
-            open={openDeleteCategory}
+            open={openDeleteProduct}
             handleCloseDelete={handleCloseDeletePopup}
             onConfirm={async () => {
-              await handleDelete(coursingToDelete.id.toString());
+              await handleDelete(productToDelete.id.toString());
             }}
             title="Delete Product"
-            content={`Are you sure you want to delete "${coursingToDelete.productName}"?`}
+            content={`Are you sure you want to delete "${productToDelete.productName}"?`}
           />
         )}
       </Paper>
@@ -400,4 +401,4 @@ const ComponentTable: React.FC = () => {
   );
 };
 
-export default ComponentTable;
+export default ProductTable;

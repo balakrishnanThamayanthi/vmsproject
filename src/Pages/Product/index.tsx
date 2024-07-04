@@ -1,9 +1,17 @@
-import { Box } from "@mui/material";
-import React from "react";
+import { Box, Button } from "@mui/material";
+import React, { useState } from "react";
 import NewPrinter from "./Components/NewProduct";
 import NewPrinterTable from "./Components/NewCategoryTable";
+import AddIcon from "@mui/icons-material/Add";
+import TableViewIcon from '@mui/icons-material/TableView';
 
-const Category: React.FC = () => {
+const Product: React.FC = () => {
+  const [showNewPrinter, setShowNewPrinter] = useState(false);
+
+  const handleToggle = () => {
+    setShowNewPrinter(!showNewPrinter);
+  };
+
   return (
     <Box
       sx={{
@@ -13,11 +21,42 @@ const Category: React.FC = () => {
         width: "100%",
       }}
     >
-      <NewPrinter />
-      <Box sx={{ height: "75px" }} /> 
-      <NewPrinterTable />
+      <Box
+        sx={{
+          textAlign: "end"
+        }}
+      >
+        <Button
+          variant="contained"
+          startIcon={showNewPrinter 
+            ? <TableViewIcon sx={{ fontSize: 40 }} /> 
+            : <AddIcon sx={{ fontSize: 40 }} />}
+          sx={{
+            backgroundColor: "green",
+            textTransform: "none",
+            boxShadow: "none",
+            fontSize: 16,
+            "& .MuiSvgIcon-root": {
+              fontSize: 26, 
+            },
+            "&:hover": {
+              backgroundColor: "green",
+              boxShadow: "none",
+            },
+            "&:active": {
+              backgroundColor: "green",
+              boxShadow: "none",
+            },
+          }}
+          onClick={handleToggle}
+        >
+          {showNewPrinter ? "Product Table" : "New Product"}
+        </Button>
+      </Box>
+      <Box sx={{ height: "40px" }} />{" "}
+      {showNewPrinter ? <NewPrinter /> : <NewPrinterTable />}
     </Box>
   );
 };
 
-export default Category;
+export default Product;

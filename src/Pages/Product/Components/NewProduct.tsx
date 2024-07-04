@@ -131,7 +131,7 @@ const isPrinterArray = (data: any): data is IPrinter[] => {
   );
 };
 
-const Category: React.FC = () => {
+const Product: React.FC = () => {
   const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const { data: productCategoryData, isLoading: departmentLoading } =
@@ -188,8 +188,8 @@ const Category: React.FC = () => {
       productShortDescription: "",
       productLongDescription: "",
       productConversionUnit: [],
-      productBrandId: null,
-      productCategoryId: null,
+      productBrandId: '',
+      productCategoryId: '',
       productTagIds: [],
       productViewOnline: false,
       isActive: false,
@@ -1247,4 +1247,4 @@ const Category: React.FC = () => {
   );
 };
 
-export default Category;
+export default Product;

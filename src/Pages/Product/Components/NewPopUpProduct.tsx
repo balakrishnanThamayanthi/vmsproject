@@ -135,7 +135,7 @@ const isPrinterArray = (data: any): data is IPrinter[] => {
   );
 };
 
-const Product = ({
+const ProductPopUP = ({
   openModel = false,
   handleCloseDialog,
   data,
@@ -231,11 +231,11 @@ const Product = ({
           delete temData.id;
         }
 
-        const addCompanyResponse = await newProduct(temData).unwrap();
-        if (!addCompanyResponse.status) {
-          showErrorMessage(addCompanyResponse.message);
+        const addProductResponse = await newProduct(temData).unwrap();
+        if (!addProductResponse.status) {
+          showErrorMessage(addProductResponse.message);
         } else {
-          showMessage(addCompanyResponse.message);
+          showMessage(addProductResponse.message);
           handleClose();
         }
       } catch (error) {
@@ -295,15 +295,13 @@ const Product = ({
   };
 
   useEffect(() => {
-    // Update selectedColor when formik.values.productButtonColor changes
     setSelectedColor(formik.values.productButtonColor ?? "#ffffff");
   }, [formik.values.productButtonColor]);
 
   const handleColorChange = (newColor: string) => {
     setSelectedColor(newColor);
-    formik.setFieldValue("productButtonColor", newColor); // Update formik value
+    formik.setFieldValue("productButtonColor", newColor); 
   };
-
 
   const toggleColorPicker = () => {
     setShowColorPicker(!showColorPicker);
@@ -1277,4 +1275,4 @@ const Product = ({
   );
 };
 
-export default Product;
+export default ProductPopUP;
