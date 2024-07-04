@@ -248,11 +248,14 @@ const ProductTag = ({
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <IOSSwitch
+                    <IOSSwitch
                         color="primary"
                         sx={{ mr: 2 }}
                         {...formik.getFieldProps("isActive")}
                         checked={formik.values.isActive}
+                        onChange={(event) =>
+                          formik.setFieldValue("isActive", event.target.checked)
+                        }
                       />
                     </Grid>
                   </Grid>

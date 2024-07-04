@@ -114,7 +114,7 @@ const ProductCategory: React.FC = () => {
       productCatImg: "",
       isActive: false,
       isMain: false,
-      mainCatId: null,
+      mainCatId: "",
     },
     onSubmit: async (values, { resetForm }) => {
       try {

@@ -16,44 +16,78 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  useDeleteProductCategoryMutation,
-  useGetCategoryQuery,
+  useDeleteProductMutation,
+  useGetProductQuery,
   useGetProductCategoryQuery,
+  useGetProductBrandQuery,
+  useGetProductTagQuery,
 } from "../../../Api/attoDeskApi";
 import {
-  ICategory,
+  IProductBrand,
   IProductCategory,
+  IProductPopUP,
+  IProductTag,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import Coursing from "./NewPopUpProductTag";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
+import NewPopUpProduct from "./NewPopUpProduct";
 
-const ComponentTable: React.FC = () => {
+const ProductTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data, isLoading, isError } = useGetProductCategoryQuery();
+  const { data, isLoading, isError } = useGetProductQuery();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedCoursing, setSelectedCoursing] =
-    useState<IProductCategory | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<IProductPopUP | null>(
+    null
+  );
   const [openDialog, setOpenDialog] = useState(false);
-  const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
-  const [coursingToDelete, setCoursingToDelete] =
-    useState<IProductCategory | null>(null);
-  const { data: categoryData, isLoading: departmentLoading } =
-    useGetCategoryQuery();
+  const [openDeleteProduct, setOpenDeleteProduct] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<IProductPopUP | null>(
+    null
+  );
 
-  const categoryList = useMemo(() => {
-    return categoryData?.data as ICategory[];
-  }, [categoryData?.data]);
+  const { data: departmentData, isLoading: departmentLoading } =
+    useGetProductBrandQuery();
+  const { data: coursingData, isLoading: coursingLoading } =
+    useGetProductCategoryQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery();
 
-  const categoryMap = useMemo(() => {
+  const departmentList = useMemo(() => {
+    return departmentData?.data as IProductBrand[];
+  }, [departmentData?.data]);
+
+  const coursingList = useMemo(() => {
+    return coursingData?.data as IProductCategory[];
+  }, [coursingData?.data]);
+
+  const taxList = useMemo(() => {
+    return taxData?.data as IProductTag[];
+  }, [taxData?.data]);
+
+  const departmentMap = useMemo(() => {
     const map = new Map();
-    categoryList?.forEach((category) => {
-      map.set(category.id, category.categoryName);
+    departmentList?.forEach((category) => {
+      map.set(category.id, category.productBrandName);
     });
     return map;
-  }, [categoryList]);
+  }, [departmentList]);
+
+  const coursingMap = useMemo(() => {
+    const map = new Map();
+    coursingList?.forEach((category) => {
+      map.set(category.id, category.productCatName);
+    });
+    return map;
+  }, [coursingList]);
+
+  const taxMap = useMemo(() => {
+    const map = new Map();
+    taxList?.forEach((category) => {
+      map.set(category.id, category.tagName);
+    });
+    return map;
+  }, [taxList]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -66,38 +100,38 @@ const ComponentTable: React.FC = () => {
     setPage(0);
   };
 
-  const handleOpenDialog = (coursing: IProductCategory) => {
-    setSelectedCoursing(coursing);
+  const handleOpenDialog = (product: IProductPopUP) => {
+    setSelectedProduct(product);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
-    setSelectedCoursing(null);
+    setSelectedProduct(null);
     setOpenDialog(false);
   };
 
-  const handleOpenDeletePopup = (coursing: IProductCategory) => {
-    setCoursingToDelete(coursing);
-    setOpenDeleteCategory(true);
+  const handleOpenDeletePopup = (product: IProductPopUP) => {
+    setProductToDelete(product);
+    setOpenDeleteProduct(true);
   };
 
   const handleCloseDeletePopup = () => {
-    setCoursingToDelete(null);
-    setOpenDeleteCategory(false);
+    setProductToDelete(null);
+    setOpenDeleteProduct(false);
   };
 
-  const [deleteCategory] = useDeleteProductCategoryMutation();
+  const [deleteCategory] = useDeleteProductMutation();
   const handleDelete = async (id: string) => {
     try {
       const response = await deleteCategory(id).unwrap();
       if (response.status) {
         showMessage("Deleted successfully");
-        setOpenDeleteCategory(false);
+        setOpenDeleteProduct(false);
       } else {
-        showErrorMessage("Failed to delete the product category");
+        showErrorMessage("Failed to delete the product");
       }
     } catch (error) {
-      showErrorMessage("Failed to delete the product category");
+      showErrorMessage("Failed to delete the product");
     }
   };
 
@@ -113,11 +147,9 @@ const ComponentTable: React.FC = () => {
       </Box>
     );
 
-  if (isError || !data) return <div>Error fetching data</div>;
-
-  const coursings: IProductCategory[] = Array.isArray(data.data)
-    ? data.data
-    : [];
+  const coursings: IProductPopUP[] = Array.isArray(data?.data)
+  ? (data?.data as IProductPopUP[])
+  : [];
 
   return (
     <Box>
@@ -163,7 +195,7 @@ const ComponentTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Name</strong>
+                  <strong>Product Name</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -172,7 +204,7 @@ const ComponentTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Maim Category</strong>
+                  <strong>Product Brand</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -181,7 +213,7 @@ const ComponentTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Main Active</strong>
+                  <strong>Product Category</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -190,7 +222,7 @@ const ComponentTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Active</strong>
+                  <strong>Product Tag</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -199,7 +231,7 @@ const ComponentTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Description</strong>
+                  <strong>View Online</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -213,9 +245,16 @@ const ComponentTable: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {coursings
+              {isError || coursings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={20} align="center">
+                    {isError ? "Error fetching data" : "No data available"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                coursings
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: IProductCategory, index) => (
+                .map((row: IProductPopUP, index) => (
                   <TableRow
                     key={row.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -238,7 +277,7 @@ const ComponentTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {row.productCatName}
+                      {row.productName}
                     </TableCell>
                     <TableCell
                       component="th"
@@ -248,7 +287,7 @@ const ComponentTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {categoryMap.get(row.mainCatId) || ""}
+                      {departmentMap.get(row.productBrandId) || ""}
                     </TableCell>
                     <TableCell
                       component="th"
@@ -258,7 +297,7 @@ const ComponentTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {row.isMain ? "Active" : "Inactive"}
+                      {coursingMap.get(row.productCategoryId) || ""}
                     </TableCell>
                     <TableCell
                       component="th"
@@ -268,7 +307,7 @@ const ComponentTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {row.isActive ? "Active" : "Inactive"}
+                      {row.productShortDescription}
                     </TableCell>
                     <TableCell
                       component="th"
@@ -278,7 +317,7 @@ const ComponentTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {row.productCatDescription}
+                      {row.productViewOnline ? "Yes" : "No"}
                     </TableCell>
                     <TableCell>
                       <Grid
@@ -329,7 +368,7 @@ const ComponentTable: React.FC = () => {
                       </Grid>
                     </TableCell>
                   </TableRow>
-                ))}
+                )))}
             </TableBody>
           </Table>
           <TablePagination
@@ -346,27 +385,27 @@ const ComponentTable: React.FC = () => {
             }}
           />
         </TableContainer>
-        {selectedCoursing && (
-          <Coursing
+        {selectedProduct && (
+          <NewPopUpProduct
             openModel={openDialog}
             handleCloseDialog={handleCloseDialog}
-            data={selectedCoursing}
+            data={selectedProduct}
+          />
+        )}
+        {productToDelete && (
+          <DeletePopup
+            open={openDeleteProduct}
+            handleCloseDelete={handleCloseDeletePopup}
+            onConfirm={async () => {
+              await handleDelete(productToDelete.id.toString());
+            }}
+            title="Delete Product"
+            content={`Are you sure you want to delete "${productToDelete.productName}"?`}
           />
         )}
       </Paper>
-      {coursingToDelete && (
-        <DeletePopup
-          open={openDeleteCategory}
-          handleCloseDelete={handleCloseDeletePopup}
-          onConfirm={async () => {
-            await handleDelete(coursingToDelete.id.toString());
-          }}
-          title="Delete Product Category"
-          content={`Are you sure you want to delete "${coursingToDelete.productCatName}"?`}
-        />
-      )}
     </Box>
   );
 };
 
-export default ComponentTable;
+export default ProductTable;

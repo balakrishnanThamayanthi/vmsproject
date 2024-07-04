@@ -1,7 +1,7 @@
 import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import NewPrinter from "./Components/NewProduct";
-import NewPrinterTable from "./Components/NewCategoryTable";
+import NewProductTable from "./Components/NewProductTable";
 import AddIcon from "@mui/icons-material/Add";
 import TableViewIcon from '@mui/icons-material/TableView';
 
@@ -54,7 +54,7 @@ const Product: React.FC = () => {
         </Button>
       </Box>
       <Box sx={{ height: "40px" }} />{" "}
-      {showNewPrinter ? <NewPrinter /> : <NewPrinterTable />}
+      {showNewPrinter ? <NewPrinter /> : <NewProductTable />}
     </Box>
   );
 };

@@ -95,9 +95,9 @@ const ComponentTable: React.FC = () => {
       </Box>
     );
 
-  if (isError || !data) return <div>Error fetching data</div>;
-
-  const coursings: IProductBrand[] = Array.isArray(data.data) ? data.data : [];
+  const coursings: IProductBrand[] = Array.isArray(data?.data)
+    ? (data?.data as IProductBrand[])
+    : [];
 
   return (
     <Box>
@@ -166,7 +166,14 @@ const ComponentTable: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {coursings
+            {isError || coursings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={20} align="center">
+                    {isError ? "Error fetching data" : "No data available"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                coursings
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row: IProductBrand, index) => (
                   <TableRow
@@ -253,7 +260,7 @@ const ComponentTable: React.FC = () => {
                       </Grid>
                     </TableCell>
                   </TableRow>
-                ))}
+                )))}
             </TableBody>
           </Table>
           <TablePagination

@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import React from "react";
 import NewPrinter from "./Components/NewProductTag";
-import NewPrinterTable from "./Components/NewPrinterTable";
+import NewProductCategoryTable from "./Components/NewProductCategoryTable";
 
 const Category: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const Category: React.FC = () => {
     >
       <NewPrinter />
       <Box sx={{ height: "75px" }} /> 
-      <NewPrinterTable />
+      <NewProductCategoryTable />
     </Box>
   );
 };

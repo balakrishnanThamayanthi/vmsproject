@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -16,78 +16,26 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  useDeleteProductMutation,
-  useGetProductQuery,
-  useGetProductCategoryQuery,
-  useGetProductBrandQuery,
+  useDeleteProductTagMutation,
   useGetProductTagQuery,
 } from "../../../Api/attoDeskApi";
-import {
-  IProductBrand,
-  IProductCategory,
-  IProductPopUP,
-  IProductTag,
-} from "../../../Api/Interface/api.interface";
+import { IProductTag } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
+import Coursing from "./NewPopUpProductTag";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
-import NewPopUpProduct from "./NewPopUpProduct";
 
-const ProductTable: React.FC = () => {
+const ComponentTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data, isLoading, isError } = useGetProductQuery();
+  const { data, isLoading, isError } = useGetProductTagQuery();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedProduct, setSelectedProduct] = useState<IProductPopUP | null>(
-    null
-  );
+  const [selectedCoursing, setSelectedCoursing] =
+    useState<IProductTag | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [openDeleteProduct, setOpenDeleteProduct] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<IProductPopUP | null>(
-    null
-  );
-
-  const { data: departmentData, isLoading: departmentLoading } =
-    useGetProductBrandQuery();
-  const { data: coursingData, isLoading: coursingLoading } =
-    useGetProductCategoryQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery();
-
-  const departmentList = useMemo(() => {
-    return departmentData?.data as IProductBrand[];
-  }, [departmentData?.data]);
-
-  const coursingList = useMemo(() => {
-    return coursingData?.data as IProductCategory[];
-  }, [coursingData?.data]);
-
-  const taxList = useMemo(() => {
-    return taxData?.data as IProductTag[];
-  }, [taxData?.data]);
-
-  const departmentMap = useMemo(() => {
-    const map = new Map();
-    departmentList?.forEach((category) => {
-      map.set(category.id, category.productBrandName);
-    });
-    return map;
-  }, [departmentList]);
-
-  const coursingMap = useMemo(() => {
-    const map = new Map();
-    coursingList?.forEach((category) => {
-      map.set(category.id, category.productCatName);
-    });
-    return map;
-  }, [coursingList]);
-
-  const taxMap = useMemo(() => {
-    const map = new Map();
-    taxList?.forEach((category) => {
-      map.set(category.id, category.tagName);
-    });
-    return map;
-  }, [taxList]);
+  const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
+  const [coursingToDelete, setCoursingToDelete] =
+    useState<IProductTag | null>(null);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -100,38 +48,38 @@ const ProductTable: React.FC = () => {
     setPage(0);
   };
 
-  const handleOpenDialog = (product: IProductPopUP) => {
-    setSelectedProduct(product);
+  const handleOpenDialog = (coursing: IProductTag) => {
+    setSelectedCoursing(coursing);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
-    setSelectedProduct(null);
+    setSelectedCoursing(null);
     setOpenDialog(false);
   };
 
-  const handleOpenDeletePopup = (product: IProductPopUP) => {
-    setProductToDelete(product);
-    setOpenDeleteProduct(true);
+  const handleOpenDeletePopup = (coursing: IProductTag) => {
+    setCoursingToDelete(coursing);
+    setOpenDeleteCategory(true);
   };
 
   const handleCloseDeletePopup = () => {
-    setProductToDelete(null);
-    setOpenDeleteProduct(false);
+    setCoursingToDelete(null);
+    setOpenDeleteCategory(false);
   };
 
-  const [deleteCategory] = useDeleteProductMutation();
+  const [deleteCategory] = useDeleteProductTagMutation();
   const handleDelete = async (id: string) => {
     try {
       const response = await deleteCategory(id).unwrap();
       if (response.status) {
         showMessage("Deleted successfully");
-        setOpenDeleteProduct(false);
+        setOpenDeleteCategory(false);
       } else {
-        showErrorMessage("Failed to delete the product");
+        showErrorMessage("Failed to delete the product tag");
       }
     } catch (error) {
-      showErrorMessage("Failed to delete the product");
+      showErrorMessage("Failed to delete the product tag");
     }
   };
 
@@ -147,9 +95,9 @@ const ProductTable: React.FC = () => {
       </Box>
     );
 
-  if (isError || !data) return <div>Error fetching data</div>;
-
-  const coursings: IProductPopUP[] = Array.isArray(data.data) ? data.data : [];
+  const coursings: IProductTag[] = Array.isArray(data?.data)
+    ? (data?.data as IProductTag[])
+    : [];
 
   return (
     <Box>
@@ -195,7 +143,7 @@ const ProductTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Product Name</strong>
+                  <strong>Product Tag Name</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -204,34 +152,7 @@ const ProductTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong>Product Brand</strong>
-                </TableCell>
-                <TableCell
-                  style={{
-                    fontSize: "1.1rem",
-                    color: appColor.white,
-                    textAlign: "left",
-                  }}
-                >
-                  <strong>Product Category</strong>
-                </TableCell>
-                <TableCell
-                  style={{
-                    fontSize: "1.1rem",
-                    color: appColor.white,
-                    textAlign: "left",
-                  }}
-                >
-                  <strong>Product Tag</strong>
-                </TableCell>
-                <TableCell
-                  style={{
-                    fontSize: "1.1rem",
-                    color: appColor.white,
-                    textAlign: "left",
-                  }}
-                >
-                  <strong>View Online</strong>
+                  <strong>Active</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -245,9 +166,16 @@ const ProductTable: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {coursings
+              {isError || coursings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={20} align="center">
+                    {isError ? "Error fetching data" : "No data available"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                coursings
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: IProductPopUP, index) => (
+                .map((row: IProductTag, index) => (
                   <TableRow
                     key={row.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -270,7 +198,7 @@ const ProductTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {row.productName}
+                      {row.tagName}
                     </TableCell>
                     <TableCell
                       component="th"
@@ -280,38 +208,9 @@ const ProductTable: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {departmentMap.get(row.productBrandId) || ""}
+                      {row.isActive ? "Active" : "Inactive"}
                     </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {coursingMap.get(row.productCategoryId) || ""}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.productShortDescription}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.productViewOnline ? "Yes" : "No"}
-                    </TableCell>
+
                     <TableCell>
                       <Grid
                         container
@@ -361,7 +260,7 @@ const ProductTable: React.FC = () => {
                       </Grid>
                     </TableCell>
                   </TableRow>
-                ))}
+                )))}
             </TableBody>
           </Table>
           <TablePagination
@@ -378,27 +277,27 @@ const ProductTable: React.FC = () => {
             }}
           />
         </TableContainer>
-        {selectedProduct && (
-          <NewPopUpProduct
+        {selectedCoursing && (
+          <Coursing
             openModel={openDialog}
             handleCloseDialog={handleCloseDialog}
-            data={selectedProduct}
-          />
-        )}
-        {productToDelete && (
-          <DeletePopup
-            open={openDeleteProduct}
-            handleCloseDelete={handleCloseDeletePopup}
-            onConfirm={async () => {
-              await handleDelete(productToDelete.id.toString());
-            }}
-            title="Delete Product"
-            content={`Are you sure you want to delete "${productToDelete.productName}"?`}
+            data={selectedCoursing}
           />
         )}
       </Paper>
+      {coursingToDelete && (
+        <DeletePopup
+          open={openDeleteCategory}
+          handleCloseDelete={handleCloseDeletePopup}
+          onConfirm={async () => {
+            await handleDelete(coursingToDelete.id.toString());
+          }}
+          title="Delete Product Tag"
+          content={`Are you sure you want to delete "${coursingToDelete.tagName}"?`}
+        />
+      )}
     </Box>
   );
 };
 
-export default ProductTable;
+export default ComponentTable;
