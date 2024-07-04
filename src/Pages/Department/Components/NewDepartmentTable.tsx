@@ -19,7 +19,7 @@ import {
   useDeleteDepartmentMutation,
   useGetDepartmentQuery,
 } from "../../../Api/attoDeskApi";
-import { ICoursing, IDepartment } from "../../../Api/Interface/api.interface";
+import { IDepartment } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import Coursing from "./NewPopUpCoursing";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
@@ -78,10 +78,10 @@ const ComponentTable: React.FC = () => {
         showMessage("Deleted successfully");
         setOpenDeleteCategory(false);
       } else {
-        showErrorMessage("Failed to delete the departement");
+        showErrorMessage("Failed to delete the department");
       }
     } catch (error) {
-      showErrorMessage("Failed to delete the departement");
+      showErrorMessage("Failed to delete the department");
     }
   };
 
@@ -97,9 +97,9 @@ const ComponentTable: React.FC = () => {
       </Box>
     );
 
-  if (isError || !data) return <div>Error fetching data</div>;
-
-  const coursings: IDepartment[] = Array.isArray(data.data) ? data.data : [];
+  const coursings: IDepartment[] = Array.isArray(data?.data)
+    ? (data?.data as IDepartment[])
+    : [];
 
   return (
     <Box>
@@ -145,7 +145,7 @@ const ComponentTable: React.FC = () => {
                     textAlign: "left",
                   }}
                 >
-                  <strong> Name</strong>
+                  <strong>Name</strong>
                 </TableCell>
                 <TableCell
                   style={{
@@ -168,95 +168,104 @@ const ComponentTable: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {coursings
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: IDepartment, index) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
+              {isError || coursings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={20} align="center">
+                    {isError ? "Error fetching data" : "No data available"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                coursings
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row: IDepartment, index) => (
+                    <TableRow
+                      key={row.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.departmentName}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.description}
-                    </TableCell>
-                    <TableCell>
-                      <Grid
-                        container
-                        spacing={1}
-                        sx={{ display: "flex", justifyContent: "flex-end" }}
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
                       >
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDialog(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <EditIcon sx={{ p: "2px", color: "green" }} />
-                            Edit
-                          </Button>
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.departmentName}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.description}
+                      </TableCell>
+                      <TableCell>
+                        <Grid
+                          container
+                          spacing={1}
+                          sx={{ display: "flex", justifyContent: "flex-end" }}
+                        >
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDialog(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <EditIcon sx={{ p: "2px", color: "green" }} />
+                              Edit
+                            </Button>
+                          </Grid>
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDeletePopup(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <DeleteIcon sx={{ p: "2px", color: "green" }} />
+                              Delete
+                            </Button>
+                          </Grid>
                         </Grid>
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDeletePopup(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <DeleteIcon sx={{ p: "2px", color: "green" }} />
-                            Delete
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
             </TableBody>
           </Table>
+
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
@@ -286,7 +295,7 @@ const ComponentTable: React.FC = () => {
           onConfirm={async () => {
             await handleDelete(coursingToDelete.id.toString());
           }}
-          title="Delete Departement"
+          title="Delete Department"
           content={`Are you sure you want to delete "${coursingToDelete.departmentName}"?`}
         />
       )}

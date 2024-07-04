@@ -22,7 +22,12 @@ import {
   useGetDepartmentQuery,
   useGetTaxQuery,
 } from "../../../Api/attoDeskApi";
-import { ICategory, ICoursing, IDepartment, ITaxes } from "../../../Api/Interface/api.interface";
+import {
+  ICategory,
+  ICoursing,
+  IDepartment,
+  ITaxes,
+} from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
@@ -43,12 +48,10 @@ const ComponentTable: React.FC = () => {
   );
 
   const { data: departmentData, isLoading: departmentLoading } =
-  useGetDepartmentQuery();
+    useGetDepartmentQuery();
   const { data: coursingData, isLoading: coursingLoading } =
-  useGetCoursingQuery();
-  const { data: taxData, isLoading: taxLoading } =
-  useGetTaxQuery();
-
+    useGetCoursingQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
 
   const departmentList = useMemo(() => {
     return departmentData?.data as IDepartment[];
@@ -61,7 +64,6 @@ const ComponentTable: React.FC = () => {
   const taxList = useMemo(() => {
     return taxData?.data as ITaxes[];
   }, [taxData?.data]);
-
 
   const departmentMap = useMemo(() => {
     const map = new Map();
@@ -87,7 +89,6 @@ const ComponentTable: React.FC = () => {
     return map;
   }, [taxList]);
 
-  
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -145,10 +146,11 @@ const ComponentTable: React.FC = () => {
         <CircularProgress />
       </Box>
     );
+  // const coursings: ICategory[] = Array.isArray(data.data) ? data.data : [];
 
-  if (isError || !data) return <div>Error fetching data</div>;
-
-  const coursings: ICategory[] = Array.isArray(data.data) ? data.data : [];
+  const coursings: ICategory[] = Array.isArray(data?.data)
+    ? (data?.data as ICategory[])
+    : [];
 
   return (
     <Box>
@@ -244,10 +246,17 @@ const ComponentTable: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {coursings
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: ICategory, index) => (
-                  <TableRow
+              {isError || coursings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={20} align="center">
+                    {isError ? "Error fetching data" : "No data available"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                coursings
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row: ICategory, index) => (
+                    <TableRow
                     key={row.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
@@ -360,9 +369,11 @@ const ComponentTable: React.FC = () => {
                       </Grid>
                     </TableCell>
                   </TableRow>
-                ))}
+                  ))
+              )}
             </TableBody>
           </Table>
+
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
