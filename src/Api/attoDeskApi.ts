@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "../config";
-import { IApiResponse, IProductPayload, IUser } from "./Interface/api.interface";
+import { IApiResponse, ICategoryPayload, IProductPayload, IUser } from "./Interface/api.interface";
 ;
 
 /**
@@ -195,6 +195,17 @@ export const attoDeskApi = createApi({
       providesTags: ['product', "category"],
       keepUnusedDataFor: 0,
     }),
+    getAddCategory: builder.query<IApiResponse, ICategoryPayload>({
+      query: (request) => {
+        return {
+          url: '/category/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags: ['product', "category"],
+      keepUnusedDataFor: 0,
+    }),
     getProductCategory: builder.query<IApiResponse, void>({
       query: () => {
         return {
@@ -367,6 +378,7 @@ export const {
   useCreateProductMutation,
   useCreatePrinterMutation,
   useGetCategoryQuery,
+  useGetAddCategoryQuery,
   useGetProductCategoryQuery,
   useGetProductBrandQuery,
   useGetProductTagQuery,

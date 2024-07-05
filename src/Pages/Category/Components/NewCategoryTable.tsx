@@ -12,12 +12,16 @@ import {
   Grid,
   Box,
   Button,
+  FormControl,
+  Typography,
+  TextField,
+  MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   useDeleteCategoryMutation,
-  useGetCategoryQuery,
+  useGetAddCategoryQuery,
   useGetCoursingQuery,
   useGetDepartmentQuery,
   useGetTaxQuery,
@@ -32,10 +36,35 @@ import { appColor } from "../../../theme/appColor";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
 import NewPopUpCategory from "./NewPopUpCategory";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import dayjs, { Dayjs } from "dayjs";
+import { RooleType } from "../../../Core/Enum/enum";
 
 const ComponentTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data, isLoading, isError } = useGetCategoryQuery();
+  const [selectedCoursingId, setSelectedCousingId] =
+    useState<string>("");
+  const [selectedProductTaxId, setSelectedProductTaxId] =
+    useState<string>("");
+  const [selectedProductRoles, setSelectedProducRoles] = useState<string[]>(
+    []
+  );
+  const [selectedDepartment, setSelectedDepartment] =
+    useState<string>("");
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const startDateAsDate = startDate?.toDate() || null;
+  const endDateAsDate = endDate?.toDate() || null;
+
+  const { data, isLoading, isError } = useGetAddCategoryQuery({
+    departmentId: selectedDepartment,
+    coursingId: selectedCoursingId,
+    roleId: selectedProductRoles,
+    taxeId: selectedProductTaxId,
+    createdDateStart: startDateAsDate as Date,
+    createdDateEnd: endDateAsDate as Date,
+  });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedCoursing, setSelectedCoursing] = useState<ICategory | null>(
@@ -120,6 +149,44 @@ const ComponentTable: React.FC = () => {
     setOpenDeleteCategory(false);
   };
 
+  const handleCoursing = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedValues = event.target.value;
+    setSelectedCousingId(selectedValues);
+  };
+
+  const handleDepartment = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedValues = event.target.value;
+    setSelectedDepartment(selectedValues);
+  };
+
+  const handleProductTax = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedValues = event.target.value;
+    setSelectedProductTaxId(selectedValues);
+  };
+
+  const handleStartDateChange = (newValue: Dayjs | null) => {
+    setStartDate(newValue);
+  };
+
+  const handleEndDateChange = (newValue: Dayjs | null) => {
+    setEndDate(newValue);
+  };
+
+  const handleProductRoals = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedProducRoles(
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
   const [deleteCategory] = useDeleteCategoryMutation();
   const handleDelete = async (id: string) => {
     try {
@@ -154,6 +221,226 @@ const ComponentTable: React.FC = () => {
 
   return (
     <Box>
+      <Paper
+        sx={{
+          borderRadius: 2,
+          maxWidth: "100%",
+          p: 2,
+          py: 5,
+        }}
+      >
+        <Grid container spacing={2}>
+          <Grid item lg={3} md={12} sm={12} xs={12}>
+            <Grid container>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 400, fontSize: 14 }}
+                >
+                  Product Department
+                </Typography>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <TextField
+                  select
+                  size="small"
+                  sx={{ flexGrow: 1, width: "100%" }}
+                  SelectProps={{ native: true }}
+                  value={selectedDepartment || ""}
+                  onChange={handleDepartment}
+                  InputLabelProps={{ shrink: true }}
+                >
+                  <option value="" style={{ color: "gray" }}>
+                    Select an option
+                  </option>
+                  {departmentList &&
+                    departmentList.map((department) => (
+                      <option key={department.id} value={department.id}>
+                        {department.departmentName}
+                      </option>
+                    ))}
+                </TextField>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item lg={3} md={12} sm={12} xs={12}>
+            <Grid container>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 400, fontSize: 14 }}
+                >
+                  Product Coursing
+                </Typography>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <TextField
+                  select
+                  size="small"
+                  sx={{ flexGrow: 1, width: "100%" }}
+                  SelectProps={{ native: true }}
+                  value={selectedCoursingId || ""}
+                  onChange={handleCoursing}
+                  InputLabelProps={{ shrink: true }}
+                >
+                  <option value="" style={{ color: "gray" }}>
+                    Select an option
+                  </option>
+                  {coursingList &&
+                    coursingList.map((coursing) => (
+                      <option key={coursing.id} value={coursing.id}>
+                        {coursing.coursingName}
+                      </option>
+                    ))}
+                </TextField>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item lg={3} md={12} sm={12} xs={12}>
+            <Grid container>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 400, fontSize: 14 }}
+                >
+                  Product Tax
+                </Typography>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <TextField
+                  select
+                  size="small"
+                  sx={{ flexGrow: 1, width: "100%" }}
+                  SelectProps={{ native: true }}
+                  value={selectedProductTaxId || ""}
+                  onChange={handleProductTax}
+                  InputLabelProps={{ shrink: true }}
+                >
+                  <option value="" style={{ color: "gray" }}>
+                    Select an option
+                  </option>
+                  {taxList &&
+                    taxList.map((tax) => (
+                      <option key={tax.id} value={tax.id}>
+                        {tax.taxName}
+                      </option>
+                    ))}
+                </TextField>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item lg={3} md={12} sm={12} xs={12}>
+            <Grid container>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 400, fontSize: 14 }}
+                >
+                  Product Roles
+                </Typography>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <TextField
+                  select
+                  size="small"
+                  sx={{ width: "100%" }}
+                  SelectProps={{
+                    multiple: true,
+                    native: false,
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  value={selectedProductRoles || ""}
+                  onChange={handleProductRoals}
+                >
+                  {Object.entries(RooleType).map(([key, value], index) => (
+                    <MenuItem key={index} value={value}>
+                      {key}
+                    </MenuItem>
+                  ))}
+                  {Object.keys(RooleType).length === 0 && (
+                    <MenuItem value="" style={{ color: "gray" }}>
+                      Select an option
+                    </MenuItem>
+                  )}
+                </TextField>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item lg={3} md={12} sm={12} xs={12}>
+            <Grid container>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 400, fontSize: 14 }}
+                >
+                  Start Date
+                </Typography>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <FormControl fullWidth sx={{ width: "100%" }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      views={["year", "month", "day"]}
+                      onChange={handleStartDateChange}
+                      value={startDate}
+                      // renderInput={(params) => (
+                      //   <TextField
+                      //     {...params}
+                      //     InputProps={{ sx: { height: "32px" } }} // Adjust height here
+                      //   />
+                      // )}
+                    />
+                  </LocalizationProvider>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item lg={3} md={12} sm={12} xs={12}>
+            <Grid container>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 400, fontSize: 14 }}
+                >
+                  End Date
+                </Typography>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <FormControl fullWidth sx={{ width: "100%" }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      views={["year", "month", "day"]}
+                      onChange={handleEndDateChange}
+                      value={endDate}
+                      // renderInput={(params: TextFieldProps) => (
+                      //   <TextField
+                      //     {...params}
+                      //     InputProps={{ sx: { height: "40px" } }}
+                      //   />
+                      // )}
+                    />
+                  </LocalizationProvider>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid item lg={12} md={12} sm={12} xs={12}>
+            <Box display="flex" justifyContent="flex-end">
+              <Button
+                variant="contained"
+                sx={{ mt: 1, backgroundColor: "green" }}
+                onClick={() => setPage(0)}
+              >
+                Search
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <Box sx={{ height: "25px" }} />
+
       <Paper
         sx={{
           borderRadius: 2,
@@ -257,118 +544,118 @@ const ComponentTable: React.FC = () => {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row: ICategory, index) => (
                     <TableRow
-                    key={row.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
+                      key={row.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.categoryName}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {departmentMap.get(row.departmentId) || ""}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {coursingMap.get(row.coursingId) || ""}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {taxMap.get(row.taxeId) || ""}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.ageRestriction ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell>
-                      <Grid
-                        container
-                        spacing={1}
-                        sx={{ display: "flex", justifyContent: "flex-end" }}
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
                       >
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDialog(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <EditIcon sx={{ p: "2px", color: "green" }} />
-                            Edit
-                          </Button>
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.categoryName}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {departmentMap.get(row.departmentId) || ""}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {coursingMap.get(row.coursingId) || ""}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {taxMap.get(row.taxeId) || ""}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.ageRestriction ? "Yes" : "No"}
+                      </TableCell>
+                      <TableCell>
+                        <Grid
+                          container
+                          spacing={1}
+                          sx={{ display: "flex", justifyContent: "flex-end" }}
+                        >
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDialog(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <EditIcon sx={{ p: "2px", color: "green" }} />
+                              Edit
+                            </Button>
+                          </Grid>
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDeletePopup(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <DeleteIcon sx={{ p: "2px", color: "green" }} />
+                              Delete
+                            </Button>
+                          </Grid>
                         </Grid>
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDeletePopup(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <DeleteIcon sx={{ p: "2px", color: "green" }} />
-                            Delete
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                    </TableRow>
                   ))
               )}
             </TableBody>

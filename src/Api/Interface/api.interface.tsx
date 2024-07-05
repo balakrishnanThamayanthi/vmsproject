@@ -146,3 +146,12 @@ export interface IApiResponse {
     createdDateEnd: Date;
     createdDateStart: Date;
   }
+
+  export interface ICategoryPayload {
+    departmentId: string;
+    coursingId: string;
+    roleId: string[];
+    taxeId: string;
+    createdDateEnd: Date;
+    createdDateStart: Date;
+  }
