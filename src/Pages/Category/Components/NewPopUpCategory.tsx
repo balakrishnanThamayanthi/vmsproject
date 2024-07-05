@@ -1352,6 +1352,9 @@ const Category = ({
                         SelectProps={{
                           native: true,
                         }}
+                        InputProps={{
+                          readOnly: true,
+                        }}
                         defaultValue=""
                         InputLabelProps={{ shrink: true }}
                         {...formik.getFieldProps("categoryIsLooping")}
@@ -1359,8 +1362,8 @@ const Category = ({
                         <option value="" disabled style={{ color: "gray" }}>
                           Select an option
                         </option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
+                        <option value="1" disabled>Yes</option>
+                        <option value="0" disabled>No</option>
                       </TextField>
                     </Grid>
                   </Grid>
