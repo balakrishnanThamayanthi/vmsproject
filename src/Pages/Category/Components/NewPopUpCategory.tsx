@@ -40,7 +40,7 @@ import { appColor } from "../../../theme/appColor";
 import { RooleType, SizeOfLevelType } from "../../../Core/Enum/enum";
 import NewCoursing from "../../Coursing/Components/NewPopUpCoursing";
 import NewTax from "../../Tax/Components/NewPopUpTax";
-import NewDepartement from "../../Department/Components/NewPopUpCoursing";
+import NewDepartement from "../../Department/Components/NewPopUpDepartment";
 
 interface ICategorygpopup {
   openModel?: boolean;

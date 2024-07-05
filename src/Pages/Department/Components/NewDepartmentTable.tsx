@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,10 +18,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {
   useDeleteDepartmentMutation,
   useGetDepartmentQuery,
+  useGetPrinterQuery,
 } from "../../../Api/attoDeskApi";
-import { IDepartment } from "../../../Api/Interface/api.interface";
+import { IDepartment, IPrinter } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import Coursing from "./NewPopUpCoursing";
+import NewPopUpDepartment from "./NewPopUpDepartment";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
 
@@ -33,12 +34,27 @@ const ComponentTable: React.FC = () => {
   const [selectedCoursing, setSelectedCoursing] = useState<IDepartment | null>(
     null
   );
+  const { data: printerData, isLoading: printerLoading } =
+  useGetPrinterQuery();
+
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
   const [coursingToDelete, setCoursingToDelete] = useState<IDepartment | null>(
     null
   );
 
+  const printerList = useMemo(() => {
+    return printerData?.data as IPrinter[];
+  }, [printerData?.data]);
+  
+  const printerBrandMap = useMemo(() => {
+    const map = new Map();
+    printerList?.forEach((printer) => {
+      map.set(printer.id, printer.printerName);
+    });
+    return map;
+  }, [printerList]);
+  
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -160,6 +176,15 @@ const ComponentTable: React.FC = () => {
                   style={{
                     fontSize: "1.1rem",
                     color: appColor.white,
+                    textAlign: "left",
+                  }}
+                >
+                  <strong>Printers</strong>
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontSize: "1.1rem",
+                    color: appColor.white,
                     textAlign: "right",
                   }}
                 >
@@ -201,6 +226,17 @@ const ComponentTable: React.FC = () => {
                         }}
                       >
                         {row.departmentName}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.DepartmentPrinterIds?.map((id) => 
+                          printerBrandMap.get(id) || "").join(", ")}
                       </TableCell>
                       <TableCell
                         component="th"
@@ -281,7 +317,7 @@ const ComponentTable: React.FC = () => {
           />
         </TableContainer>
         {selectedCoursing && (
-          <Coursing
+          <NewPopUpDepartment
             openModel={openDialog}
             handleCloseDialog={handleCloseDialog}
             data={selectedCoursing}

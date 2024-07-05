@@ -1,33 +1,45 @@
-import React, { useMemo } from "react";
-import { Box, Button, Card, Grid, TextField, Typography } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import { Box, Button, Card, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import CloseIcon from "@mui/icons-material/Close";
-import { useCreateDepartmentMutation } from "../../../Api/attoDeskApi";
+import { useCreateDepartmentMutation, useGetPrinterQuery } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import { appColor } from "../../../theme/appColor";
+import { IPrinter } from "../../../Api/Interface/api.interface";
+import NewPrinter from "../../Printer/Components/NewPopUpPrinter";
+import AddIcon from "@mui/icons-material/Add";
 
 const Department: React.FC = () => {
   const [newDepartment, { isLoading }] = useCreateDepartmentMutation();
   const { showErrorMessage, showMessage } = useNotifier();
+  const [openPrinter, setOpenPrinter] = useState(false);
+  const { data: printerData, isLoading: printerLoading } =
+    useGetPrinterQuery();
+    
+  const printerList = useMemo(() => {
+    return printerData?.data as IPrinter[];
+  }, [printerData?.data]);
 
   const formik = useFormik({
     initialValues: {
       departmentName: "",
       description: "",
+      DepartmentPrinterIds: [],
     },
     onSubmit: async (values, { resetForm }) => {
       try {
         const temData = {
           departmentName: values.departmentName,
           description: values.description,
+          DepartmentPrinterIds: values.DepartmentPrinterIds,
         };
 
         const addCompanyResponse = await newDepartment(temData).unwrap();
         if (!addCompanyResponse.status) {
           showErrorMessage(addCompanyResponse.message);
         } else {
-          showMessage("Company Created successfully");
+          showMessage(addCompanyResponse.message);
           resetForm();
         }
       } catch (error) {
@@ -128,6 +140,92 @@ const Department: React.FC = () => {
                   direction="row"
                   alignItems="center"
                   spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Department Printers
+                    </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    lg={9}
+                    md={9}
+                    sm={12}
+                    xs={12}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ width: "100%" }}
+                      SelectProps={{
+                        multiple: true,
+                        native: false,
+                      }}
+                      defaultValue={[]}
+                      InputLabelProps={{ shrink: true }}
+                      {...formik.getFieldProps("DepartmentPrinterIds")}
+                      onChange={(event) => {
+                        const {
+                          target: { value },
+                        } = event;
+                        formik.setFieldValue(
+                          "DepartmentPrinterIds",
+                          typeof value === "string" ? value.split(",") : value
+                        );
+                      }}
+                    >
+                      {printerList && printerList.length > 0 ? (
+                        printerList.map((printer: IPrinter) => (
+                          <MenuItem key={printer.id} value={printer.id}>
+                            {printer.printerName}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </MenuItem>
+                      )}
+                    </TextField>
+
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{
+                        backgroundColor: "green",
+                        color: "white",
+                        borderRadius: 0,
+                        ml: 2,
+                        border: 1,
+                        borderColor: "green",
+                        "&:hover": {
+                          backgroundColor: "green",
+                        },
+                        "&:active": {
+                          backgroundColor: "green",
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenPrinter(true);
+                      }}
+                    >
+                      <AddIcon sx={{ fontSize: 30 }} />
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
                   sx={{ mt: 1 }}
                 >
                   <Grid item lg={3} md={3} sm={12} xs={12}>
@@ -216,6 +314,12 @@ const Department: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+      {openPrinter && (
+        <NewPrinter
+          handleCloseDialog={() => setOpenPrinter(false)}
+          openModel={openPrinter}
+        />
+      )}
     </form>
   );
 };

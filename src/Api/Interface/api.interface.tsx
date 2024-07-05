@@ -53,6 +53,7 @@ export interface IApiResponse {
     id: number, 
     departmentName: string;
     description: string;
+    DepartmentPrinterIds: number[];
   }
 
   export interface ICoursing {
