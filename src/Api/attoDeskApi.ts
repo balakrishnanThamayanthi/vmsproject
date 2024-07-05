@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "../config";
-import { IApiResponse, IUser } from "./Interface/api.interface";
+import { IApiResponse, IProductPayload, IUser } from "./Interface/api.interface";
 ;
 
 /**
@@ -307,15 +307,26 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['category'],
     }),
-    getProduct: builder.query<IApiResponse, void>({
-      query: () => {
+    getProduct: builder.query<IApiResponse, IProductPayload>({
+      query: (request) => {
         return {
           url: '/product/getAll',
-          method: 'POST',
+          method: "POST",
+          body: request,
         };
       },
       providesTags: ['productTag', 'product'],
       keepUnusedDataFor: 0,
+    }),
+    createGetAllProduct: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/product/getAll',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['productTag', 'product'],
     }),
     deleteProduct: builder.mutation<IApiResponse, string>({
       query: (Id) => {
@@ -369,6 +380,7 @@ export const {
   useDeleteProductCategoryMutation,
   useDeleteCategoryMutation,
   useGetProductQuery,
+  useCreateGetAllProductMutation,
   useDeleteProductMutation,
   useGetLastProductIdQuery
 } = attoDeskApi;

@@ -138,4 +138,11 @@ export interface IApiResponse {
     lastInsertedId: number, 
   }
   
-  
+  export interface IProductPayload {
+    productBrandId: string;
+    productCategoryId: string;
+    productTagIds: string[];
+    productViewOnline: string;
+    createdDateEnd: Date;
+    createdDateStart: Date;
+  }
