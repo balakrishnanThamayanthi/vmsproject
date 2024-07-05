@@ -81,6 +81,7 @@ export interface IApiResponse {
     isMain: boolean;
     isActive: boolean;
     mainCatId: number
+    productCategoryIsLooping: boolean;
   }
 
   export interface IProductTag {

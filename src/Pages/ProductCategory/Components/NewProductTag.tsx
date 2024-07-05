@@ -115,9 +115,13 @@ const ProductCategory: React.FC = () => {
       isActive: false,
       isMain: false,
       mainCatId: "",
+      productCategoryIsLooping: false,
     },
     onSubmit: async (values, { resetForm }) => {
       try {
+        const selectedCategory = categoryList.find(
+          (category) => category.id === Number(values.mainCatId)
+        );
         const temData = {
           productCatName: values.productCatName,
           productCatDescription: values.productCatDescription,
@@ -125,6 +129,7 @@ const ProductCategory: React.FC = () => {
           isActive: values.isActive,
           isMain: values.isMain,
           mainCatId: values.mainCatId,
+          productCategoryIsLooping: selectedCategory?.categoryIsLooping,
         };
 
         const addProductCategory = await newProductCategory(temData).unwrap();

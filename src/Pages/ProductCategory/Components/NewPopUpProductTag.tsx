@@ -134,9 +134,14 @@ const ProductCategory = ({
       mainCatId: data?.mainCatId || null,
       isActive: data?.isActive || false,
       isMain: data?.isMain || false,
+      productCategoryIsLooping: data?.productCategoryIsLooping || false,
     },
     onSubmit: async (values) => {
       try {
+        const selectedCategory = categoryList.find(
+          (category) => category.id === Number(values.mainCatId)
+        );
+
         const temData = {
           id: values?.id,
           productCatName: values.productCatName,
@@ -145,6 +150,7 @@ const ProductCategory = ({
           isActive: values.isActive,
           isMain: values.isMain,
           mainCatId: values.mainCatId,
+          productCategoryIsLooping: selectedCategory?.categoryIsLooping,
         };
         if (!data) {
           delete temData.id;
