@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -41,6 +41,8 @@ import { RooleType, SizeOfLevelType } from "../../../Core/Enum/enum";
 import NewCoursing from "../../Coursing/Components/NewPopUpCoursing";
 import NewTax from "../../Tax/Components/NewPopUpTax";
 import NewDepartement from "../../Department/Components/NewPopUpDepartment";
+import { HexColorPicker } from "react-colorful";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
 
 interface ICategorygpopup {
   openModel?: boolean;
@@ -137,6 +139,10 @@ const Category = ({
   const [openDepartment, setOpenDepartment] = useState(false);
   const [openCoursing, setOpenCoursing] = useState(false);
   const [openTax, setOpenTax] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+
   const handleClose = () => {
     handleCloseDialog(false);
   };
@@ -179,6 +185,8 @@ const Category = ({
         ? Boolean(data?.restrictPrinters)
         : false,
       taxeId: data?.taxeId,
+      categoryButtonColor: data?.categoryButtonColor,
+      categoryIsLooping: data?.categoryIsLooping,
     },
     onSubmit: async (values) => {
       try {
@@ -200,6 +208,8 @@ const Category = ({
           labelPrinters: values.labelPrinters,
           restrictPrinters: Boolean(values.restrictPrinters),
           taxeId: values.taxeId,
+          categoryButtonColor: values.categoryButtonColor,
+          categoryIsLooping: values.categoryIsLooping,
         };
 
         if (!data) {
@@ -264,6 +274,36 @@ const Category = ({
     "/Images/dummy_image.webp",
     "/Images/user_login_photo.webp",
   ];
+
+  useEffect(() => {
+    setSelectedColor(formik.values.categoryButtonColor ?? "#ffffff");
+  }, [formik.values.categoryButtonColor]);
+
+  const handleColorChange = (newColor: string) => {
+    setSelectedColor(newColor);
+    formik.setFieldValue("categoryButtonColor", newColor);
+  };
+
+  const toggleColorPicker = () => {
+    setShowColorPicker(!showColorPicker);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowColorPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -1108,7 +1148,7 @@ const Category = ({
                           fontSize: 14,
                         }}
                       >
-                        Display Button
+                        Image
                       </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -1196,6 +1236,132 @@ const Category = ({
                           </DialogContent>
                         </Dialog>
                       </Box>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Button Color
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <Box
+                        sx={{
+                          border: 1,
+                          borderColor: "#d3d3d3",
+                          borderRadius: 1,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                          padding: 1,
+                        }}
+                      >
+                        <Grid container>
+                          <Grid item lg={6} md={9} sm={12} xs={12}>
+                            <Box
+                              sx={{
+                                marginLeft: 1,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  // borderRadius: "50%",
+                                  backgroundColor: selectedColor,
+                                  marginLeft: 1,
+                                  border: "1px solid #d3d3d3",
+                                }}
+                              />
+                            </Box>
+                          </Grid>
+                          <Grid
+                            item
+                            lg={6}
+                            md={9}
+                            sm={12}
+                            xs={12}
+                            alignItems={"flex-end"}
+                            textAlign={"end"}
+                          >
+                            <IconButton
+                              color="primary"
+                              component="span"
+                              onClick={toggleColorPicker}
+                            >
+                              <ColorLensIcon
+                                sx={{ fontSize: 45, color: "green" }}
+                              />
+                            </IconButton>
+                            {showColorPicker && (
+                              <HexColorPicker
+                                color={selectedColor}
+                                onChange={handleColorChange}
+                              />
+                            )}
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Looping
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("categoryIsLooping")}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                      </TextField>
                     </Grid>
                   </Grid>
                   {/* <Grid

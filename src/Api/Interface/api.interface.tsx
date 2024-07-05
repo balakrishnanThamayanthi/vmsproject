@@ -36,6 +36,8 @@ export interface IApiResponse {
     restrictPrinters: boolean;
     taxeId: number;
     kitchenPrintersTypes: string;
+    categoryButtonColor: string;
+    categoryIsLooping: string;
   }
   
   export interface ICompany {
