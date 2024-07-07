@@ -221,6 +221,7 @@ const ProductPopUP = ({
       computerRam: data?.computerLoopingDetails?.computerModel,
       productDetailsIsLooping: data?.productDetailsIsLooping,
       productsDetailsLoopingConstant: data?.productsDetailsLoopingConstant,
+      productCanSell: data?.productCanSell ? Boolean(data?.productCanSell) : false,
     },
     onSubmit: async (values) => {
       try {
@@ -240,12 +241,9 @@ const ProductPopUP = ({
           productImg: values.productImg,
           productButtonColor: values.productButtonColor,
           productBarcode: values.productBarcode,
-          // phoneType: values.phoneType,
-          // phoneColor: values.phoneColor,
-          // computerModel: values.computerModel,
-          // computerRam: values.computerRam,
           productDetailsIsLooping: values.productDetailsIsLooping,
           productsDetailsLoopingConstant: values.productsDetailsLoopingConstant,
+          productCanSell: Boolean(values.productCanSell),
         };
 
         if (!data) {
@@ -299,10 +297,7 @@ const ProductPopUP = ({
     }
 
     return true;
-  }, [
-    formik.values,
-    productCategoryData,
-  ]);
+  }, [formik.values, productCategoryData]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -375,8 +370,6 @@ const ProductPopUP = ({
     };
   }, []);
 
-
-
   const handleSaveAdditionalQuestions = async () => {
     try {
       const temData: any = {
@@ -399,6 +392,7 @@ const ProductPopUP = ({
           selectedProductIsLoading?.productCategoryIsLooping || false,
         productsDetailsLoopingConstant:
           selectedProductIsLoading?.productCategoryIsLoopingConstant || "",
+        productCanSell: formik.values.productCanSell,
       };
 
       if (selectedProductIsLoading?.productCategoryIsLoopingConstant == 1) {
@@ -575,7 +569,11 @@ const ProductPopUP = ({
                         </option>
                         {productList &&
                           productList.map((productCat) => (
-                            <option key={productCat.id} value={productCat.id} disabled>
+                            <option
+                              key={productCat.id}
+                              value={productCat.id}
+                              disabled
+                            >
                               {productCat.productCatName}
                             </option>
                           ))}
@@ -911,6 +909,41 @@ const ProductPopUP = ({
                         sx={{ mr: 2 }}
                         {...formik.getFieldProps("productViewOnline")}
                         checked={formik.values.productViewOnline}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={3} xs={3}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Can Sell
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={3}
+                      md={3}
+                      sm={3}
+                      xs={3}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("productCanSell")}
+                        checked={formik.values.productCanSell}
                       />
                     </Grid>
                   </Grid>

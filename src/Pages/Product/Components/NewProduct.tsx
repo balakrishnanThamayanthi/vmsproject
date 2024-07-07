@@ -215,6 +215,7 @@ const Product: React.FC = () => {
       computerRam: "",
       productDetailsIsLooping: false,
       productsDetailsLoopingConstant: "",
+      productCanSell: true,
     },
     onSubmit: async (values, { resetForm }) => {
       try {
@@ -253,6 +254,7 @@ const Product: React.FC = () => {
           productImg: values.productImg,
           productButtonColor: values.productButtonColor,
           productBarcode: values.productBarcode,
+          productCanSell: values.productCanSell,
         };
 
         const addProductResponse = await newProduct(temData).unwrap();
@@ -389,7 +391,7 @@ const Product: React.FC = () => {
   const handleSaveAdditionalQuestions = async () => {
     try {
       const temData: any = {
-        productName: formik.values.productName,     
+        productName: formik.values.productName,
         productShortDescription: formik.values.productShortDescription,
         productLongDescription: formik.values.productLongDescription,
         productConversionUnit: formik.values.productConversionUnit,
@@ -407,6 +409,7 @@ const Product: React.FC = () => {
           selectedProductIsLoading?.productCategoryIsLooping || false,
         productsDetailsLoopingConstant:
           selectedProductIsLoading?.productCategoryIsLoopingConstant || "",
+        productCanSell: formik.values.productCanSell,
       };
 
       if (openPhoneQuestions) {
@@ -441,8 +444,15 @@ const Product: React.FC = () => {
         return "";
     }
   };
-  
-  if (isLoading || ProductBrandLoading || productCategoryLoading || ProductTagLoading || PrinterLoading || lastProductIdIsLoading) {
+
+  if (
+    isLoading ||
+    ProductBrandLoading ||
+    productCategoryLoading ||
+    ProductTagLoading ||
+    PrinterLoading ||
+    lastProductIdIsLoading
+  ) {
     return (
       <Box
         display="flex"
@@ -907,6 +917,41 @@ const Product: React.FC = () => {
                       sx={{ mr: 2 }}
                       {...formik.getFieldProps("productViewOnline")}
                       checked={formik.values.productViewOnline}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={3} xs={3}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Can Sell
+                    </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    lg={3}
+                    md={3}
+                    sm={3}
+                    xs={3}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <IOSSwitch
+                      color="primary"
+                      sx={{ mr: 2 }}
+                      {...formik.getFieldProps("productCanSell")}
+                      checked={formik.values.productCanSell}
                     />
                   </Grid>
                 </Grid>

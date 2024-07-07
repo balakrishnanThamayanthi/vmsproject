@@ -469,7 +469,8 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
                           size="small"
                           InputLabelProps={{ shrink: true }}
                           placeholder="Select start date"
-                          InputProps={{ sx: { height: "14px", p: "none", fontSize: "14px" } }}
+                          // sx={{ height: "14px", p: "none", fontSize: "10px" }}
+                          InputProps={{ sx: { height: "14px", p: "none", fontSize: "10px" } }}
                         />
                       )}
                       // renderInput={(params) => (

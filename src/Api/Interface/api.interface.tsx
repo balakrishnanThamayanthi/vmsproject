@@ -126,6 +126,7 @@ export interface IApiResponse {
     phoneColor: string;
     productDetailsIsLooping: boolean;
     productsDetailsLoopingConstant: string
+    productCanSell: boolean;
   }
 
   export interface IProductEx {
@@ -169,6 +170,7 @@ export interface IApiResponse {
       computerRam: string;
       computerLoopingId: number;
     };
+    productCanSell: boolean;
   }
 
   export interface ILastProductId {
