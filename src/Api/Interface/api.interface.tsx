@@ -146,7 +146,7 @@ export interface IApiResponse {
     productLongDescription: string;
     productConversionUnit: number[];
     productBrandId: number | null;
-    productCategoryId: string;
+    productCategoryId: number;
     productTagIds: number[];
     productViewOnline: boolean; // Assuming this should be a boolean
     productPrinterIds: number[];
@@ -156,7 +156,19 @@ export interface IApiResponse {
     productBarcode: string;
     isActive: boolean; 
     productDetailsIsLooping: boolean;
-    productsDetailsLoopingConstant: string
+    productsDetailsLoopingConstant: string;
+    phoneLoopingDetails?: {
+      productId: string;
+      phoneType: string;
+      phoneColor: string;
+      phoneLoopingId: number;
+    };
+    computerLoopingDetails?: {
+      productId: string;
+      computerModel: string;
+      computerRam: string;
+      computerLoopingId: number;
+    };
   }
 
   export interface ILastProductId {

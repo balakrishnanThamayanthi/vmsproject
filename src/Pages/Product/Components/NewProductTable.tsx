@@ -41,6 +41,7 @@ import dayjs, { Dayjs } from "dayjs";
 // import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 
 const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
   onDataLoaded,
@@ -220,12 +221,34 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
   };
 
   useEffect(() => {
-    if (!isLoading && !productBrandLoading && !coursingLoading && !taxLoading && !productCategoryLoading && !ProductTagLoading) {
+    if (
+      !isLoading &&
+      !productBrandLoading &&
+      !coursingLoading &&
+      !taxLoading &&
+      !productCategoryLoading &&
+      !ProductTagLoading
+    ) {
       onDataLoaded();
     }
-  }, [isLoading, productBrandLoading, coursingLoading, taxLoading, ProductTagLoading, productCategoryLoading, onDataLoaded]);
+  }, [
+    isLoading,
+    productBrandLoading,
+    coursingLoading,
+    taxLoading,
+    ProductTagLoading,
+    productCategoryLoading,
+    onDataLoaded,
+  ]);
 
-  if (isLoading || productBrandLoading || coursingLoading || taxLoading || productCategoryLoading || ProductTagLoading) {
+  if (
+    isLoading ||
+    productBrandLoading ||
+    coursingLoading ||
+    taxLoading ||
+    productCategoryLoading ||
+    ProductTagLoading
+  ) {
     return (
       <Box
         display="flex"
@@ -237,10 +260,19 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
       </Box>
     );
   }
-  
+
   const coursings: IProductPopUP[] = Array.isArray(data?.data)
     ? (data?.data as IProductPopUP[])
     : [];
+
+  const resetFields = () => {
+    setSelectedProductBrandId("");
+    setSelectedProductCategoryId("");
+    setSelectedProductViewOnline("");
+    setSelectedProductTagIds([]);
+    setStartDate(null);
+    setEndDate(null);
+  };
 
   return (
     <Box>
@@ -384,7 +416,7 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
+          <Grid item lg={2} md={12} sm={12} xs={12}>
             <Grid container>
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <Typography
@@ -413,7 +445,7 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
+          <Grid item lg={2} md={12} sm={12} xs={12}>
             <Grid container>
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <Typography
@@ -430,27 +462,47 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
                       views={["year", "month", "day"]}
                       onChange={handleEndDateChange}
                       value={endDate}
-                      // renderInput={(params: TextFieldProps) => (
-                      //   <TextField
-                      //     {...params}
-                      //     InputProps={{ sx: { height: "40px" } }}
-                      //   />
+                      // @ts-ignore
+                      renderInput={(params: any) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          InputLabelProps={{ shrink: true }}
+                          placeholder="Select start date"
+                          InputProps={{ sx: { height: "14px", p: "none", fontSize: "14px" } }}
+                        />
+                      )}
+                      // renderInput={(params) => (
+                      //   <TextField {...params} size="small" />
                       // )}
+                      // InputProps={{ sx: { height: "5px" } }}
                     />
                   </LocalizationProvider>
                 </FormControl>
               </Grid>
             </Grid>
           </Grid>
-
           <Grid item lg={12} md={12} sm={12} xs={12}>
             <Box display="flex" justifyContent="flex-end">
               <Button
                 variant="contained"
-                sx={{ mt: 1, backgroundColor: "green" }}
-                onClick={() => setPage(0)}
+                startIcon={<RotateLeftIcon />}
+                sx={{
+                  backgroundColor: appColor.grey[90],
+                  textTransform: "none",
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: appColor.grey[90],
+                    boxShadow: "none",
+                  },
+                  "&:active": {
+                    backgroundColor: appColor.grey[90],
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={resetFields}
               >
-                Search
+                Reset
               </Button>
             </Box>
           </Grid>

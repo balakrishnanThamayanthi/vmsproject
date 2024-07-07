@@ -40,6 +40,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { RooleType } from "../../../Core/Enum/enum";
+import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 
 const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
   onDataLoaded,
@@ -194,28 +195,12 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
   };
 
   useEffect(() => {
-    if (
-      !isLoading &&
-      !departmentLoading &&
-      !coursingLoading &&
-      !taxLoading 
-    ) {
+    if (!isLoading && !departmentLoading && !coursingLoading && !taxLoading) {
       onDataLoaded();
     }
-  }, [
-    isLoading,
-    departmentLoading,
-    coursingLoading,
-    taxLoading,
-    onDataLoaded,
-  ]);
+  }, [isLoading, departmentLoading, coursingLoading, taxLoading, onDataLoaded]);
 
-  if (
-    isLoading ||
-    departmentLoading ||
-    coursingLoading ||
-    taxLoading 
-  ) {
+  if (isLoading || departmentLoading || coursingLoading || taxLoading) {
     return (
       <Box
         display="flex"
@@ -227,10 +212,19 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
       </Box>
     );
   }
-  
+
   const coursings: ICategory[] = Array.isArray(data?.data)
     ? (data?.data as ICategory[])
     : [];
+
+  const resetFields = () => {
+    setSelectedDepartment("");
+    setSelectedCousingId("");
+    setSelectedProductTaxId("");
+    setSelectedProducRoles([]);
+    setStartDate(null);
+    setEndDate(null);
+  };
 
   return (
     <Box>
@@ -379,7 +373,7 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
+          <Grid item lg={2} md={12} sm={12} xs={12}>
             <Grid container>
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <Typography
@@ -408,7 +402,7 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
+          <Grid item lg={2} md={12} sm={12} xs={12}>
             <Grid container>
               <Grid item lg={12} md={12} sm={12} xs={12}>
                 <Typography
@@ -419,15 +413,20 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
                 </Typography>
               </Grid>
               <Grid item lg={12} md={12} sm={12} xs={12}>
-                <FormControl fullWidth sx={{ width: "100%" }}>
+                <FormControl
+                  fullWidth
+                  size={"small"}
+                  sx={{ width: "100%", height: "20px" }}
+                >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       views={["year", "month", "day"]}
                       onChange={handleEndDateChange}
                       value={endDate}
-                      // renderInput={(params: TextFieldProps) => (
+                      // renderInput={(params) => (
                       //   <TextField
                       //     {...params}
+                      //     size="small"
                       //     InputProps={{ sx: { height: "40px" } }}
                       //   />
                       // )}
@@ -442,10 +441,23 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
             <Box display="flex" justifyContent="flex-end">
               <Button
                 variant="contained"
-                sx={{ mt: 1, backgroundColor: "green" }}
-                onClick={() => setPage(0)}
+                startIcon={<RotateLeftIcon />}
+                sx={{
+                  backgroundColor: appColor.grey[90],
+                  textTransform: "none",
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: appColor.grey[90],
+                    boxShadow: "none",
+                  },
+                  "&:active": {
+                    backgroundColor: appColor.grey[90],
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={resetFields}
               >
-                Search
+                Reset
               </Button>
             </Box>
           </Grid>

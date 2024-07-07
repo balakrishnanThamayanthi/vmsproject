@@ -3,8 +3,11 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Grid,
   IconButton,
@@ -39,7 +42,7 @@ import {
   IProductTag,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import { SizeOfLevelType } from "../../../Core/Enum/enum";
+import { LoopingConst, SizeOfLevelType } from "../../../Core/Enum/enum";
 import { HexColorPicker } from "react-colorful";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Barcode from "react-barcode";
@@ -47,6 +50,8 @@ import NewProductCategory from "../../ProductCategory/Components/NewPopUpProduct
 import NewProductBrand from "../../ProductBrand/Components/NewPopUpProductBrand";
 import NewPrinter from "../../Printer/Components/NewPopUpPrinter";
 import NewProductTag from "../../ProductTags/Components/NewPopUpProductTag";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 
 interface IProductPopup {
   openModel?: boolean;
@@ -143,7 +148,7 @@ const ProductPopUP = ({
   const [open] = React.useState(openModel);
   const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: productCategoryData, isLoading: departmentLoading } =
+  const { data: productCategoryData, isLoading: productCategoryLoading } =
     useGetProductCategoryQuery();
   const { data: productBrandData, isLoading: ProductBrandLoading } =
     useGetProductBrandQuery();
@@ -161,6 +166,11 @@ const ProductPopUP = ({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const [showBarcode, setShowBarcode] = useState(false);
+
+  const [openPhoneQuestions, setOpenPhoneQuestions] = useState(false);
+  const [openComputerQuestions, setOpenComputerQuestions] = useState(false);
+  const [openLoopingCategoryDialog, setOpenLoopingCategoryDialog] =
+    useState(false);
 
   const productList = useMemo(() => {
     return productCategoryData?.data as IProductCategory[];
@@ -205,12 +215,17 @@ const ProductPopUP = ({
       productImg: data?.productImg,
       productButtonColor: data?.productButtonColor,
       productBarcode: data?.productBarcode,
+      phoneType: data?.phoneLoopingDetails?.phoneType,
+      phoneColor: data?.phoneLoopingDetails?.phoneColor,
+      computerModel: data?.computerLoopingDetails?.computerModel,
+      computerRam: data?.computerLoopingDetails?.computerModel,
+      productDetailsIsLooping: data?.productDetailsIsLooping,
+      productsDetailsLoopingConstant: data?.productsDetailsLoopingConstant,
     },
     onSubmit: async (values) => {
       try {
         const temData = {
           id: values?.id,
-
           productName: values.productName,
           productShortDescription: values.productShortDescription,
           productLongDescription: values.productLongDescription,
@@ -225,6 +240,12 @@ const ProductPopUP = ({
           productImg: values.productImg,
           productButtonColor: values.productButtonColor,
           productBarcode: values.productBarcode,
+          // phoneType: values.phoneType,
+          // phoneColor: values.phoneColor,
+          // computerModel: values.computerModel,
+          // computerRam: values.computerRam,
+          productDetailsIsLooping: values.productDetailsIsLooping,
+          productsDetailsLoopingConstant: values.productsDetailsLoopingConstant,
         };
 
         if (!data) {
@@ -244,14 +265,44 @@ const ProductPopUP = ({
     },
   });
 
+  const selectedProductIsLoading = useMemo(() => {
+    return productList.find(
+      (category) =>
+        category.id ===
+        parseInt(formik.values.productCategoryId?.toString() || "")
+    );
+  }, [formik.values.productCategoryId, productList]);
+
   const formValid = useMemo(() => {
-    return formik.values.productName === "" ||
-      formik.values.productName === undefined ||
-      formik.values.productCategoryId === null ||
-      formik.values.productCategoryId === undefined
-      ? false
-      : true;
-  }, [formik]);
+    const { productName, productCategoryId, phoneType, computerModel } =
+      formik.values;
+
+    if (
+      productName === "" ||
+      productName === undefined ||
+      productCategoryId === null ||
+      productCategoryId === undefined
+    ) {
+      return false;
+    }
+
+    if (selectedProductIsLoading?.productCategoryIsLoopingConstant == 1) {
+      if (phoneType === "" || phoneType === undefined) {
+        return false;
+      }
+    }
+
+    if (selectedProductIsLoading?.productCategoryIsLoopingConstant == 2) {
+      if (computerModel === "" || computerModel === undefined) {
+        return false;
+      }
+    }
+
+    return true;
+  }, [
+    formik.values,
+    productCategoryData,
+  ]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -300,7 +351,7 @@ const ProductPopUP = ({
 
   const handleColorChange = (newColor: string) => {
     setSelectedColor(newColor);
-    formik.setFieldValue("productButtonColor", newColor); 
+    formik.setFieldValue("productButtonColor", newColor);
   };
 
   const toggleColorPicker = () => {
@@ -323,6 +374,73 @@ const ProductPopUP = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+
+
+  const handleSaveAdditionalQuestions = async () => {
+    try {
+      const temData: any = {
+        id: formik.values.id,
+        productName: formik.values.productName,
+        productShortDescription: formik.values.productShortDescription,
+        productLongDescription: formik.values.productLongDescription,
+        productConversionUnit: formik.values.productConversionUnit,
+        productCategoryId: formik.values.productCategoryId,
+        productBrandId: formik.values.productBrandId,
+        productTagIds: formik.values.productTagIds,
+        productViewOnline: formik.values.productViewOnline,
+        isActive: formik.values.isActive,
+        productPrinterIds: formik.values.productPrinterIds,
+        productIcon: formik.values.productIcon,
+        productImg: formik.values.productImg,
+        productButtonColor: formik.values.productButtonColor,
+        productBarcode: formik.values.productBarcode,
+        productDetailsIsLooping:
+          selectedProductIsLoading?.productCategoryIsLooping || false,
+        productsDetailsLoopingConstant:
+          selectedProductIsLoading?.productCategoryIsLoopingConstant || "",
+      };
+
+      if (selectedProductIsLoading?.productCategoryIsLoopingConstant == 1) {
+        temData.phoneType = formik.values.phoneType;
+        temData.phoneColor = formik.values.phoneColor;
+      } else if (
+        selectedProductIsLoading?.productCategoryIsLoopingConstant == 2
+      ) {
+        temData.computerModel = formik.values.computerModel;
+        temData.computerRam = formik.values.computerRam;
+      }
+
+      const addProductResponse = await newProduct(temData).unwrap();
+      if (!addProductResponse.status) {
+        showErrorMessage(addProductResponse.message);
+      } else {
+        showMessage(addProductResponse.message);
+        handleClose();
+      }
+    } catch (error) {
+      showErrorMessage("Something went wrong");
+    }
+  };
+
+  if (
+    isLoading ||
+    ProductBrandLoading ||
+    productCategoryLoading ||
+    ProductTagLoading ||
+    PrinterLoading
+  ) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="10vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -446,6 +564,7 @@ const ProductPopUP = ({
                         sx={{ flexGrow: 1 }}
                         SelectProps={{
                           native: true,
+                          readOnly: true,
                         }}
                         defaultValue=""
                         InputLabelProps={{ shrink: true }}
@@ -456,7 +575,7 @@ const ProductPopUP = ({
                         </option>
                         {productList &&
                           productList.map((productCat) => (
-                            <option key={productCat.id} value={productCat.id}>
+                            <option key={productCat.id} value={productCat.id} disabled>
                               {productCat.productCatName}
                             </option>
                           ))}
@@ -1188,6 +1307,193 @@ const ProductPopUP = ({
                   </Grid>
                 </Grid>
 
+                {(selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                  1 ||
+                  selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                    2) && (
+                  <Grid
+                    item
+                    lg={12}
+                    md={12}
+                    sm={12}
+                    xs={12}
+                    sx={{
+                      borderBottom: 1,
+                      borderColor: appColor.greenSmoke[20],
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        fontWeight: 500,
+                        fontSize: "21px",
+                        color: appColor.black,
+                      }}
+                    >
+                      Add More Looping Details
+                    </Typography>
+                  </Grid>
+                )}
+
+                {selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                  1 && (
+                  <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Grid item lg={3} md={3} sm={12} xs={12}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          Phone Type
+                        </Typography>
+                      </Grid>
+                      <Grid item lg={9} md={9} sm={12} xs={12}>
+                        <TextField
+                          placeholder="Enter Phone Type"
+                          size="small"
+                          {...formik.getFieldProps("phoneType")}
+                          sx={{ width: "100%" }}
+                          InputProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                          InputLabelProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                      sx={{ mt: 2 }}
+                    >
+                      <Grid item lg={3} md={3} sm={12} xs={12}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          Phone Color
+                        </Typography>
+                      </Grid>
+                      <Grid item lg={9} md={9} sm={12} xs={12}>
+                        <TextField
+                          placeholder="Enter Phone Color"
+                          size="small"
+                          {...formik.getFieldProps("phoneColor")}
+                          sx={{ width: "100%" }}
+                          InputProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                          InputLabelProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                )}
+
+                {selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                  2 && (
+                  <Grid item lg={6} md={6} sm={12} xs={12} py={2}>
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Grid item lg={3} md={3} sm={12} xs={12}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          Computer Model
+                        </Typography>
+                      </Grid>
+                      <Grid item lg={9} md={9} sm={12} xs={12}>
+                        <TextField
+                          placeholder="Enter Computer Model"
+                          size="small"
+                          {...formik.getFieldProps("computerModel")}
+                          sx={{ width: "100%" }}
+                          InputProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                          InputLabelProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                      sx={{ mt: 2 }}
+                    >
+                      <Grid item lg={3} md={3} sm={12} xs={12}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          Computer RAM
+                        </Typography>
+                      </Grid>
+                      <Grid item lg={9} md={9} sm={12} xs={12}>
+                        <TextField
+                          placeholder="Enter Computer RAM"
+                          size="small"
+                          {...formik.getFieldProps("computerRam")}
+                          sx={{ width: "100%" }}
+                          InputProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                          InputLabelProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                )}
+
                 <Grid
                   item
                   lg={12}
@@ -1217,6 +1523,39 @@ const ProductPopUP = ({
                     Cancel
                   </Button>
                   <Box m={0.5}></Box>
+
+                  {/* {(selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                    1 ||
+                    selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                      2) && (
+                    <>
+                      <Button
+                        variant="contained"
+                        startIcon={<RotateLeftIcon />}
+                        sx={{
+                          backgroundColor: appColor.grey[90],
+                          textTransform: "none",
+                          boxShadow: "none",
+                          "&:hover": {
+                            backgroundColor: appColor.grey[90],
+                            boxShadow: "none",
+                          },
+                          "&:active": {
+                            backgroundColor: appColor.grey[90],
+                            boxShadow: "none",
+                          },
+                        }}
+                        onClick={() => {
+                          setOpenPhoneQuestions(false);
+                          setOpenComputerQuestions(false);
+                        }}
+                      >
+                        Reset Loop
+                      </Button>
+                      <Box m={0.5}></Box>
+                    </>
+                  )} */}
+
                   <Button
                     variant="contained"
                     startIcon={<SaveAltIcon />}
@@ -1233,7 +1572,18 @@ const ProductPopUP = ({
                         boxShadow: "none",
                       },
                     }}
-                    onClick={() => formik.handleSubmit()}
+                    onClick={() => {
+                      if (
+                        selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                          1 ||
+                        selectedProductIsLoading?.productCategoryIsLoopingConstant ==
+                          2
+                      ) {
+                        handleSaveAdditionalQuestions();
+                      } else {
+                        formik.handleSubmit();
+                      }
+                    }}
                     disabled={!formValid || isLoading}
                   >
                     Save
@@ -1270,6 +1620,50 @@ const ProductPopUP = ({
             openModel={openPrinter}
           />
         )}
+
+        <Dialog
+          open={openLoopingCategoryDialog}
+          onClose={() => setOpenLoopingCategoryDialog(false)}
+          sx={{ padding: 5, minWidth: 450 }}
+        >
+          <DialogTitle
+            sx={{
+              borderBottom: 1,
+              borderColor: appColor.greenSmoke[20],
+            }}
+          >
+            Additional Details Required
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ pt: 3 }}>
+              This is a looping product category (
+              {selectedProductIsLoading?.productCatName}). Please fill in
+              additional details.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setOpenLoopingCategoryDialog(false)}
+              variant="contained"
+              startIcon={<CheckCircleOutlineIcon />}
+              sx={{
+                backgroundColor: "green",
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: "green",
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: "green",
+                  boxShadow: "none",
+                },
+              }}
+            >
+              Done
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Dialog>
     </form>
   );
