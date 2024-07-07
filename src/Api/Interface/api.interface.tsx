@@ -38,6 +38,7 @@ export interface IApiResponse {
     kitchenPrintersTypes: string;
     categoryButtonColor: string;
     categoryIsLooping: string;
+    categoryLoopingConstant: string;
   }
   
   export interface ICompany {
@@ -82,6 +83,7 @@ export interface IApiResponse {
     isActive: boolean;
     mainCatId: number
     productCategoryIsLooping: boolean;
+    productCategoryIsLoopingConstant: number;
   }
 
   export interface IProductTag {
@@ -117,17 +119,34 @@ export interface IApiResponse {
     productImg: string;
     productButtonColor: string;
     productBarcode: string;
-    isActive: boolean; // Assuming this should be a boolean
+    isActive: boolean; 
+    phoneType: string;
+    computerModel: string;
+    computerRam: string;
+    phoneColor: string;
+    productDetailsIsLooping: boolean;
+    productsDetailsLoopingConstant: string
+  }
+
+  export interface IProductEx {
+
+    productName: string;
+    phoneType: string;
+    productCategoryId: string;
+    productDetailsIsLooping: boolean;
+    productsDetailsLoopingConstant: string
+    
   }
 
   export interface IProductPopUP {
     id: number;
     productName: string;
+    phoneType: string;
     productShortDescription: string;
     productLongDescription: string;
     productConversionUnit: number[];
     productBrandId: number | null;
-    productCategoryId: number | null;
+    productCategoryId: string;
     productTagIds: number[];
     productViewOnline: boolean; // Assuming this should be a boolean
     productPrinterIds: number[];
@@ -135,7 +154,9 @@ export interface IApiResponse {
     productImg: string;
     productButtonColor: string;
     productBarcode: string;
-    isActive: boolean; // Assuming this should be a boolean
+    isActive: boolean; 
+    productDetailsIsLooping: boolean;
+    productsDetailsLoopingConstant: string
   }
 
   export interface ILastProductId {

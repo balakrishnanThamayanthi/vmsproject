@@ -6,10 +6,15 @@ import AddIcon from "@mui/icons-material/Add";
 import TableViewIcon from '@mui/icons-material/TableView';
 
 const Product: React.FC = () => {
-  const [showNewPrinter, setShowNewPrinter] = useState(false);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const handleToggle = () => {
-    setShowNewPrinter(!showNewPrinter);
+    setShowNewCategory(!showNewCategory);
+  };
+
+  const handleDataLoaded = () => {
+    setIsDataLoaded(true);
   };
 
   return (
@@ -21,6 +26,7 @@ const Product: React.FC = () => {
         width: "100%",
       }}
     >
+      {isDataLoaded && (
       <Box
         sx={{
           textAlign: "end"
@@ -28,7 +34,7 @@ const Product: React.FC = () => {
       >
         <Button
           variant="contained"
-          startIcon={showNewPrinter 
+          startIcon={showNewCategory 
             ? <TableViewIcon sx={{ fontSize: 40 }} /> 
             : <AddIcon sx={{ fontSize: 40 }} />}
           sx={{
@@ -50,11 +56,12 @@ const Product: React.FC = () => {
           }}
           onClick={handleToggle}
         >
-          {showNewPrinter ? "Category Table" : "New Category"}
+          {showNewCategory ? "Category Table" : "New Category"}
         </Button>
       </Box>
+      )}
       <Box sx={{ height: "40px" }} />{" "}
-      {showNewPrinter ? <NewCategory /> : <NewCategoryTable />}
+      {showNewCategory ? <NewCategory /> : <NewCategoryTable onDataLoaded={handleDataLoaded} />}
     </Box>
   );
 };

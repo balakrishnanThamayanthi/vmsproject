@@ -2,6 +2,7 @@ export const appColor = {
   white: "#FFFFFF",
   primary: "#1976d2",
   black: " #000000",
+
   website: {
     100: "#005555",
     90: "#016B73",
@@ -14,8 +15,8 @@ export const appColor = {
     20: "#490B3D", //brown
     10: "#F1B814", //yellow
     0: "#E3E5E5",
-    // boxShadow: "0 0 15px #73BFB9",
   },
+
   greenSmoke: {
     100: "#717C7D",
     80: "#8D9697",
@@ -24,7 +25,16 @@ export const appColor = {
     40: "#C6CBCB",
     20: "#E3E5E5",
   },
+
   blue: {
     10: "#F0FEFF"
+  },
+
+  green: {
+    10: '#008000'
+  },
+
+  grey: {
+    90: '#757575'
   }
 };

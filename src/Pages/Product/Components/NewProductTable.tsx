@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -42,7 +42,9 @@ import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
-const ProductTable: React.FC = () => {
+const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
+  onDataLoaded,
+}) => {
   const { showErrorMessage, showMessage } = useNotifier();
 
   const [selectedProductBrandId, setSelectedProductBrandId] =
@@ -64,8 +66,8 @@ const ProductTable: React.FC = () => {
     productCategoryId: selectedProductCategoryId,
     productTagIds: selectedProductTagIds,
     productViewOnline: selectedProductViewOnline,
-    createdDateStart: startDateAsDate as Date, 
-    createdDateEnd: endDateAsDate as Date, 
+    createdDateStart: startDateAsDate as Date,
+    createdDateEnd: endDateAsDate as Date,
   });
 
   const [page, setPage] = useState(0);
@@ -84,7 +86,7 @@ const ProductTable: React.FC = () => {
   const { data: coursingData, isLoading: coursingLoading } =
     useGetProductCategoryQuery();
   const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery();
-  const { data: productCategoryData, isLoading: departmentLoading } =
+  const { data: productCategoryData, isLoading: productCategoryLoading } =
     useGetProductCategoryQuery();
   const { data: productTagData, isLoading: ProductTagLoading } =
     useGetProductTagQuery();
@@ -217,7 +219,13 @@ const ProductTable: React.FC = () => {
     }
   };
 
-  if (isLoading || productBrandLoading || coursingLoading || taxLoading) {
+  useEffect(() => {
+    if (!isLoading && !productBrandLoading && !coursingLoading && !taxLoading && !productCategoryLoading && !ProductTagLoading) {
+      onDataLoaded();
+    }
+  }, [isLoading, productBrandLoading, coursingLoading, taxLoading, ProductTagLoading, productCategoryLoading, onDataLoaded]);
+
+  if (isLoading || productBrandLoading || coursingLoading || taxLoading || productCategoryLoading || ProductTagLoading) {
     return (
       <Box
         display="flex"
@@ -229,7 +237,7 @@ const ProductTable: React.FC = () => {
       </Box>
     );
   }
-
+  
   const coursings: IProductPopUP[] = Array.isArray(data?.data)
     ? (data?.data as IProductPopUP[])
     : [];

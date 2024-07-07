@@ -48,10 +48,6 @@ const DeletePopup = ({
     <Dialog open={open} onClose={onClose} sx={{ padding: 5,minWidth: 450 }}>
       <DialogTitle
         sx={{
-          // paddingRight: "24px",
-          // p: 4,
-          // py: 3,
-          // gap: 2,
           borderBottom: 1,
           borderColor: appColor.greenSmoke[20],
         }}

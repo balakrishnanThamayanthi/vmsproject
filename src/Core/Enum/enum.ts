@@ -37,3 +37,9 @@ export const SizeOfLevelType = Object.freeze({
   oz: 11 as const,
   small: 12 as const,
 });
+
+
+export const LoopingConst = Object.freeze({
+  Mobile: 1 as const,
+  Computer: 2 as const,
+});

@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -36,7 +37,11 @@ import {
   ITaxes,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import { RooleType, SizeOfLevelType } from "../../../Core/Enum/enum";
+import {
+  LoopingConst,
+  RooleType,
+  SizeOfLevelType,
+} from "../../../Core/Enum/enum";
 import NewCoursing from "../../Coursing/Components/NewPopUpCoursing";
 import NewTax from "../../Tax/Components/NewPopUpTax";
 import NewDepartement from "../../Department/Components/NewPopUpDepartment";
@@ -162,7 +167,8 @@ const Category: React.FC = () => {
       restrictPrinters: false,
       taxeId: "",
       categoryButtonColor: "",
-      categoryIsLooping: "",
+      categoryIsLooping: false,
+      categoryLoopingConstant: "",
     },
     onSubmit: async (values, { resetForm }) => {
       try {
@@ -185,6 +191,7 @@ const Category: React.FC = () => {
           taxeId: values.taxeId,
           categoryButtonColor: values.categoryButtonColor,
           categoryIsLooping: values.categoryIsLooping,
+          categoryLoopingConstant: values.categoryLoopingConstant,
           // kitchenPrintersTypes: values.kitchenPrintersTypes,
         };
 
@@ -277,6 +284,24 @@ const Category: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  if (
+    isLoading ||
+    departmentLoading ||
+    coursingLoading ||
+    taxLoading 
+  ) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="10vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -1274,6 +1299,90 @@ const Category: React.FC = () => {
                   spacing={2}
                   sx={{ mt: 2 }}
                 >
+                  <Grid item lg={3} md={3} sm={3} xs={3}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Looping
+                    </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    lg={2}
+                    md={2}
+                    sm={2}
+                    xs={2}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <IOSSwitch
+                      color="primary"
+                      sx={{ mr: 2 }}
+                      {...formik.getFieldProps("categoryIsLooping")}
+                      checked={formik.values.categoryIsLooping}
+                    />
+                  </Grid>
+                  {formik.values.categoryIsLooping && (
+                    <>
+                      <Grid item lg={2} md={2} sm={2} xs={2}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          Looping Category
+                        </Typography>
+                      </Grid>
+                      <Grid
+                        item
+                        lg={5}
+                        md={5}
+                        sm={5}
+                        xs={5}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <TextField
+                          select
+                          size="small"
+                          sx={{ width: "100%" }}
+                          SelectProps={{
+                            native: false,
+                          }}
+                          defaultValue=""
+                          InputLabelProps={{ shrink: true }}
+                          {...formik.getFieldProps("categoryLoopingConstant")}
+                        >
+                          {!formik.values.categoryLoopingConstant.length && (
+                            <MenuItem value="" disabled>
+                              Select some option
+                            </MenuItem>
+                          )}
+                          {Object.entries(LoopingConst).map(
+                            ([key, value], index) => (
+                              <MenuItem key={index} value={value}>
+                                {key}
+                              </MenuItem>
+                            )
+                          )}
+                        </TextField>
+                      </Grid>
+                    </>
+                  )}
+                </Grid>
+                {/* <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
                   <Grid item lg={3} md={3} sm={12} xs={12}>
                     <Typography
                       variant="subtitle1"
@@ -1312,7 +1421,7 @@ const Category: React.FC = () => {
                       <option value="0">No</option>
                     </TextField>
                   </Grid>
-                </Grid>
+                </Grid> */}
                 {/* <Grid
                     container
                     direction="row"

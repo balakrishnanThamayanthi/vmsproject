@@ -25,7 +25,7 @@ import {
   IProductCategory,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import Coursing from "./NewPopUpProductTag";
+import NewPopUpProductCategory from "./NewPopUpProductCategory";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
 
@@ -352,7 +352,7 @@ const ComponentTable: React.FC = () => {
           />
         </TableContainer>
         {selectedCoursing && (
-          <Coursing
+          <NewPopUpProductCategory
             openModel={openDialog}
             handleCloseDialog={handleCloseDialog}
             data={selectedCoursing}

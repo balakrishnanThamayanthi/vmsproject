@@ -37,7 +37,11 @@ import {
   ITaxes,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
-import { RooleType, SizeOfLevelType } from "../../../Core/Enum/enum";
+import {
+  LoopingConst,
+  RooleType,
+  SizeOfLevelType,
+} from "../../../Core/Enum/enum";
 import NewCoursing from "../../Coursing/Components/NewPopUpCoursing";
 import NewTax from "../../Tax/Components/NewPopUpTax";
 import NewDepartement from "../../Department/Components/NewPopUpDepartment";
@@ -166,27 +170,35 @@ const Category = ({
       roleId: data?.roleId || [],
       coursingId: data?.coursingId,
       servingSize: data?.servingSize || [],
-      hidePos: data?.hidePos,
+      hidePos: data?.hidePos ? Boolean(data?.hidePos) : false,
       hideOnlineOrder: data?.hideOnlineOrder
         ? Boolean(data?.hideOnlineOrder)
         : false,
       hideKiosk: data?.hideKiosk ? Boolean(data?.hideKiosk) : false,
-      Conversational: data?.Conversational,
+      Conversational: data?.Conversational
+        ? Boolean(data?.Conversational)
+        : false,
       itemServiceCharge: data?.itemServiceCharge,
-      ageRestriction: data?.ageRestriction,
+      ageRestriction: data?.ageRestriction
+        ? Boolean(data?.ageRestriction)
+        : false,
       excludeCheckTax: data?.excludeCheckTax
         ? Boolean(data?.excludeCheckTax)
         : false,
       kitchenPrinters: data?.kitchenPrinters
         ? Boolean(data?.kitchenPrinters)
         : false,
-      labelPrinters: data?.labelPrinters,
+      labelPrinters: data?.labelPrinters ? Boolean(data?.labelPrinters) : false,
       restrictPrinters: data?.restrictPrinters
         ? Boolean(data?.restrictPrinters)
         : false,
       taxeId: data?.taxeId,
       categoryButtonColor: data?.categoryButtonColor,
-      categoryIsLooping: data?.categoryIsLooping,
+      // categoryIsLooping: data?.categoryIsLooping
+      //   ? Boolean(data?.categoryIsLooping)
+      //   : false,
+        categoryIsLooping: data?.categoryIsLooping,
+      categoryLoopingConstant: data?.categoryLoopingConstant || "",
     },
     onSubmit: async (values) => {
       try {
@@ -197,19 +209,21 @@ const Category = ({
           roleId: values.roleId,
           coursingId: values.coursingId,
           servingSize: values.servingSize,
-          hidePos: values.hidePos,
+          hidePos: Boolean(values.hidePos),
           hideOnlineOrder: Boolean(values.hideOnlineOrder),
           hideKiosk: Boolean(values.hideKiosk),
-          Conversational: values.Conversational,
+          Conversational: Boolean(values.Conversational),
           itemServiceCharge: values.itemServiceCharge,
-          ageRestriction: values.ageRestriction,
+          ageRestriction: Boolean(values.ageRestriction),
           excludeCheckTax: Boolean(values.excludeCheckTax),
           kitchenPrinters: Boolean(values.kitchenPrinters),
-          labelPrinters: values.labelPrinters,
+          labelPrinters: Boolean(values.labelPrinters),
           restrictPrinters: Boolean(values.restrictPrinters),
           taxeId: values.taxeId,
           categoryButtonColor: values.categoryButtonColor,
           categoryIsLooping: values.categoryIsLooping,
+          // categoryIsLooping: Boolean(values.categoryIsLooping),
+          categoryLoopingConstant: values.categoryLoopingConstant,
         };
 
         if (!data) {
@@ -1362,11 +1376,69 @@ const Category = ({
                         <option value="" disabled style={{ color: "gray" }}>
                           Select an option
                         </option>
-                        <option value="1" disabled>Yes</option>
-                        <option value="0" disabled>No</option>
+                        <option value="1" disabled>
+                          Yes
+                        </option>
+                        <option value="0" disabled>
+                          No
+                        </option>
+                      </TextField>
+                      {/* <IOSSwitch
+                        color="primary"
+                        sx={{ mr: 2 }}
+                        {...formik.getFieldProps("categoryIsLooping")}
+                        checked={formik.values.categoryIsLooping}
+                        disabled={true} // Make the switch read-only
+                      /> */}
+                    </Grid>
+                  </Grid>
+                  {/* {formik.values.categoryIsLooping && ( */}
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Looping Category
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ width: "100%" }}
+                        SelectProps={{
+                          native: false,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("categoryLoopingConstant")}
+                      >
+                        {!formik.values.categoryLoopingConstant.length && (
+                          <MenuItem value="" disabled>
+                            Select some option
+                          </MenuItem>
+                        )}
+                        {Object.entries(LoopingConst).map(
+                          ([key, value], index) => (
+                            <MenuItem key={index} value={value} disabled>
+                              {key}
+                            </MenuItem>
+                          )
+                        )}
                       </TextField>
                     </Grid>
                   </Grid>
+                  {/* )} */}
                   {/* <Grid
                     container
                     direction="row"

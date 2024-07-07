@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -41,17 +41,14 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { RooleType } from "../../../Core/Enum/enum";
 
-const ComponentTable: React.FC = () => {
+const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
+  onDataLoaded,
+}) => {
   const { showErrorMessage, showMessage } = useNotifier();
-  const [selectedCoursingId, setSelectedCousingId] =
-    useState<string>("");
-  const [selectedProductTaxId, setSelectedProductTaxId] =
-    useState<string>("");
-  const [selectedProductRoles, setSelectedProducRoles] = useState<string[]>(
-    []
-  );
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<string>("");
+  const [selectedCoursingId, setSelectedCousingId] = useState<string>("");
+  const [selectedProductTaxId, setSelectedProductTaxId] = useState<string>("");
+  const [selectedProductRoles, setSelectedProducRoles] = useState<string[]>([]);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const startDateAsDate = startDate?.toDate() || null;
@@ -149,23 +146,17 @@ const ComponentTable: React.FC = () => {
     setOpenDeleteCategory(false);
   };
 
-  const handleCoursing = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleCoursing = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValues = event.target.value;
     setSelectedCousingId(selectedValues);
   };
 
-  const handleDepartment = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleDepartment = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValues = event.target.value;
     setSelectedDepartment(selectedValues);
   };
 
-  const handleProductTax = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleProductTax = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValues = event.target.value;
     setSelectedProductTaxId(selectedValues);
   };
@@ -202,7 +193,29 @@ const ComponentTable: React.FC = () => {
     }
   };
 
-  if (isLoading)
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !departmentLoading &&
+      !coursingLoading &&
+      !taxLoading 
+    ) {
+      onDataLoaded();
+    }
+  }, [
+    isLoading,
+    departmentLoading,
+    coursingLoading,
+    taxLoading,
+    onDataLoaded,
+  ]);
+
+  if (
+    isLoading ||
+    departmentLoading ||
+    coursingLoading ||
+    taxLoading 
+  ) {
     return (
       <Box
         display="flex"
@@ -213,8 +226,8 @@ const ComponentTable: React.FC = () => {
         <CircularProgress />
       </Box>
     );
-  // const coursings: ICategory[] = Array.isArray(data.data) ? data.data : [];
-
+  }
+  
   const coursings: ICategory[] = Array.isArray(data?.data)
     ? (data?.data as ICategory[])
     : [];
@@ -698,4 +711,4 @@ const ComponentTable: React.FC = () => {
   );
 };
 
-export default ComponentTable;
+export default CategoryTable;

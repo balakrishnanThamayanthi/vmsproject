@@ -135,6 +135,7 @@ const ProductCategory = ({
       isActive: data?.isActive || false,
       isMain: data?.isMain || false,
       productCategoryIsLooping: data?.productCategoryIsLooping || false,
+      productCategoryIsLoopingConstant: data?.productCategoryIsLoopingConstant || null,
     },
     onSubmit: async (values) => {
       try {
@@ -151,6 +152,7 @@ const ProductCategory = ({
           isMain: values.isMain,
           mainCatId: values.mainCatId,
           productCategoryIsLooping: selectedCategory?.categoryIsLooping,
+          productCategoryIsLoopingConstant: selectedCategory?.categoryLoopingConstant,
         };
         if (!data) {
           delete temData.id;

@@ -43,7 +43,7 @@ import { SizeOfLevelType } from "../../../Core/Enum/enum";
 import { HexColorPicker } from "react-colorful";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Barcode from "react-barcode";
-import NewProductCategory from "../../ProductCategory/Components/NewPopUpProductTag";
+import NewProductCategory from "../../ProductCategory/Components/NewPopUpProductCategory";
 import NewProductBrand from "../../ProductBrand/Components/NewPopUpProductBrand";
 import NewPrinter from "../../Printer/Components/NewPopUpPrinter";
 import NewProductTag from "../../ProductTags/Components/NewPopUpProductTag";

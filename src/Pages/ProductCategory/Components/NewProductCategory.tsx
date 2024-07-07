@@ -116,6 +116,7 @@ const ProductCategory: React.FC = () => {
       isMain: false,
       mainCatId: "",
       productCategoryIsLooping: false,
+      productCategoryIsLoopingConstant: "",
     },
     onSubmit: async (values, { resetForm }) => {
       try {
@@ -130,6 +131,7 @@ const ProductCategory: React.FC = () => {
           isMain: values.isMain,
           mainCatId: values.mainCatId,
           productCategoryIsLooping: selectedCategory?.categoryIsLooping,
+          productCategoryIsLoopingConstant: selectedCategory?.categoryLoopingConstant,
         };
 
         const addProductCategory = await newProductCategory(temData).unwrap();
