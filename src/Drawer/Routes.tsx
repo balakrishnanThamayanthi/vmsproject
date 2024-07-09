@@ -14,6 +14,7 @@ import ProductCategory from "../Pages/ProductCategory";
 import ProductTags from "../Pages/ProductTags";
 import Product from "../Pages/Product";
 import Printer from "../Pages/Printer";
+import Modifiers from "../Pages/Modifiers";
 
 
 /**
@@ -114,6 +115,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<Loader />}>
             <Printer />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/modifier"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Modifiers />
           </Suspense>
         }
       />

@@ -51,6 +51,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import StyleIcon from '@mui/icons-material/Style';
 import ClassIcon from '@mui/icons-material/Class';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
 const drawerWidth = 240;
 
@@ -157,7 +158,7 @@ const menuList: {
     path: "/dashboard",
   },
   {
-    title: "Setting",
+    title: "Products",
     icon: <SettingsIcon />,
     path: "/setting",
     submenuOpen: true,
@@ -211,6 +212,11 @@ const menuList: {
         title: "Printer",
         icon: <PrintIcon />,
         path: "/printer",
+      },
+      {
+        title: "Modifier",
+        icon: <PostAddIcon />,
+        path: "/modifier",
       },
     ],
   },

@@ -27,7 +27,8 @@ export const appColor = {
   },
 
   blue: {
-    10: "#F0FEFF"
+    10: "#F0FEFF",
+    100: "#00b8d4"
   },
 
   green: {

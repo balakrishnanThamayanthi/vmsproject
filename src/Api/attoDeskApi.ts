@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "../config";
-import { IApiResponse, ICategoryPayload, IProductPayload, IUser } from "./Interface/api.interface";
+import { IApiResponse, ICategoryPayload, IProductPayload, ISearchPayload, IUser } from "./Interface/api.interface";
 ;
 
 /**
@@ -32,7 +32,8 @@ export const attoDeskApi = createApi({
     "printer",
     "productBrand",
     "productTag",
-    'productCategory'
+    'productCategory',
+    'modifier'
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -358,6 +359,36 @@ export const attoDeskApi = createApi({
       providesTags: ['product' ],
       keepUnusedDataFor: 0,
     }),
+    createModifier: builder.mutation<IApiResponse, Object>({
+      query: (request) => {
+        return {
+          url: '/modifier',
+          method: 'POST',
+          body: JSON.stringify(request),
+        };
+      },
+      invalidatesTags: ['modifier'],
+    }),
+    getAllModifier: builder.query<IApiResponse, ISearchPayload>({
+      query: (request) => {
+        return {
+          url: '/modifier/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags: ['modifier'],
+      keepUnusedDataFor: 0,
+    }),
+    deleteModifier: builder.mutation<IApiResponse, string>({
+      query: (Id) => {
+        return {
+          url: `/modifier/${Id}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: ['modifier'],
+    }),
   }),
 });
 
@@ -394,5 +425,8 @@ export const {
   useGetProductQuery,
   useCreateGetAllProductMutation,
   useDeleteProductMutation,
-  useGetLastProductIdQuery
+  useGetLastProductIdQuery,
+  useCreateModifierMutation,
+  useGetAllModifierQuery,
+  useDeleteModifierMutation
 } = attoDeskApi;

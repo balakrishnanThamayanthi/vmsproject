@@ -194,3 +194,17 @@ export interface IApiResponse {
     createdDateEnd: Date;
     createdDateStart: Date;
   }
+
+  export interface ISearchPayload {
+    searchText: string;
+  }
+
+  export interface IModifier {
+    id: number;
+    modifierName: string;
+    modifierTaxeIds: number[];
+    modifierPrinterIds: number[];
+    maxNoOfTimes: number;
+    setModifierPrice: boolean;
+    modifierPrice: number;
+  }
