@@ -12,6 +12,8 @@ import {
   Grid,
   Box,
   Button,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,17 +27,19 @@ import { appColor } from "../../../theme/appColor";
 import NewPopUpDepartment from "./NewPopUpDepartment";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
+import SearchIcon from "@mui/icons-material/Search";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 const ComponentTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data, isLoading, isError } = useGetDepartmentQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedCoursing, setSelectedCoursing] = useState<IDepartment | null>(
     null
   );
-  const { data: printerData, isLoading: printerLoading } =
-  useGetPrinterQuery();
+  const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
@@ -43,10 +47,14 @@ const ComponentTable: React.FC = () => {
     null
   );
 
+  const { data, isLoading, isError, refetch } = useGetDepartmentQuery({
+    searchText: currentSearchQuery,
+  });
+
   const printerList = useMemo(() => {
     return printerData?.data as IPrinter[];
   }, [printerData?.data]);
-  
+
   const printerBrandMap = useMemo(() => {
     const map = new Map();
     printerList?.forEach((printer) => {
@@ -54,7 +62,7 @@ const ComponentTable: React.FC = () => {
     });
     return map;
   }, [printerList]);
-  
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -101,7 +109,7 @@ const ComponentTable: React.FC = () => {
     }
   };
 
-  if (isLoading)
+  if (isLoading || printerLoading)
     return (
       <Box
         display="flex"
@@ -117,6 +125,16 @@ const ComponentTable: React.FC = () => {
     ? (data?.data as IDepartment[])
     : [];
 
+  const handleSearch = () => {
+    setCurrentSearchQuery(searchQuery);
+  };
+
+  const resetFields = () => {
+    setSearchQuery("");
+    setCurrentSearchQuery("");
+    refetch();
+  };
+
   return (
     <Box>
       <Paper
@@ -126,6 +144,80 @@ const ComponentTable: React.FC = () => {
           p: 2,
         }}
       >
+        <Grid container spacing={2} display={"flex"} justifyContent={"flex-end"}>         
+          <Grid
+            item
+            lg={4}
+            md={6}
+            sm={12}
+            xs={12}
+            sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}
+          >
+            <TextField
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Department Name"
+              sx={{ width: "100%" }}
+              InputLabelProps={{
+                sx: {
+                  fontSize: 14,
+                },
+              }}
+              size="small"
+            />
+            <Box m={0.5}></Box>
+            <Button
+              variant="contained"
+              // startIcon={<SearchIcon />}
+              sx={{
+                backgroundColor: appColor.blue[100],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={handleSearch}
+            >
+              <SearchIcon />
+            </Button>
+            <Box m={0.5}></Box>
+            <Button
+              variant="contained"
+              // startIcon={<RotateLeftIcon />}
+              sx={{
+                backgroundColor: appColor.grey[90],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.grey[90],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.grey[90],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={resetFields}
+            >
+              <RestartAltIcon />
+            </Button>
+          </Grid>
+        </Grid>
+
         <TableContainer
           sx={{
             borderRadius: 2,
@@ -235,8 +327,9 @@ const ComponentTable: React.FC = () => {
                           fontWeight: 600,
                         }}
                       >
-                        {row.DepartmentPrinterIds?.map((id) => 
-                          printerBrandMap.get(id) || "").join(", ")}
+                        {row.DepartmentPrinterIds?.map(
+                          (id) => printerBrandMap.get(id) || ""
+                        ).join(", ")}
                       </TableCell>
                       <TableCell
                         component="th"

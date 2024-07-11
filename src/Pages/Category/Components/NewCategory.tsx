@@ -123,10 +123,14 @@ const Category: React.FC = () => {
   const [newCategory, { isLoading }] = useCreateCategoryMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const { data: departmentData, isLoading: departmentLoading } =
-    useGetDepartmentQuery();
+    useGetDepartmentQuery({
+      searchText: "",
+    });
   const { data: coursingData, isLoading: coursingLoading } =
     useGetCoursingQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
+    searchText: "",
+  });
   const [image, setImage] = useState<string | null>(null);
   const [openGallery, setOpenGallery] = useState(false);
   const [openDepartment, setOpenDepartment] = useState(false);
@@ -285,12 +289,7 @@ const Category: React.FC = () => {
     };
   }, []);
 
-  if (
-    isLoading ||
-    departmentLoading ||
-    coursingLoading ||
-    taxLoading 
-  ) {
+  if (isLoading || departmentLoading || coursingLoading || taxLoading) {
     return (
       <Box
         display="flex"

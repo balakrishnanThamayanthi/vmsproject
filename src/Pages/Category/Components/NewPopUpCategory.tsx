@@ -134,10 +134,14 @@ const Category = ({
   const [newCategory, { isLoading }] = useCreateCategoryMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const { data: departmentData, isLoading: departmentLoading } =
-    useGetDepartmentQuery();
+    useGetDepartmentQuery({
+      searchText: "",
+    });
   const { data: coursingData, isLoading: coursingLoading } =
     useGetCoursingQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
+    searchText: "",
+  });
   const [image, setImage] = useState<string | null>(null);
   const [openGallery, setOpenGallery] = useState(false);
   const [openDepartment, setOpenDepartment] = useState(false);
@@ -197,7 +201,7 @@ const Category = ({
       // categoryIsLooping: data?.categoryIsLooping
       //   ? Boolean(data?.categoryIsLooping)
       //   : false,
-        categoryIsLooping: data?.categoryIsLooping,
+      categoryIsLooping: data?.categoryIsLooping,
       categoryLoopingConstant: data?.categoryLoopingConstant || "",
     },
     onSubmit: async (values) => {

@@ -75,10 +75,14 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
   );
 
   const { data: departmentData, isLoading: departmentLoading } =
-    useGetDepartmentQuery();
+    useGetDepartmentQuery({
+      searchText: "",
+    });
   const { data: coursingData, isLoading: coursingLoading } =
     useGetCoursingQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
+    searchText: "",
+  });
 
   const departmentList = useMemo(() => {
     return departmentData?.data as IDepartment[];

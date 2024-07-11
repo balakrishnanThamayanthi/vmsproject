@@ -12,32 +12,34 @@ import {
   Grid,
   Box,
   Button,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  useDeleteTaxMutation,
-  useGetTaxQuery,
-} from "../../../Api/attoDeskApi";
+import { useDeleteTaxMutation, useGetTaxQuery } from "../../../Api/attoDeskApi";
 import { ITaxes } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import Coursing from "./NewPopUpTax";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
+import SearchIcon from "@mui/icons-material/Search";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 const ComponentTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data, isLoading, isError } = useGetTaxQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selectedCoursing, setSelectedCoursing] = useState<ITaxes | null>(
-    null
-  );
+  const [selectedCoursing, setSelectedCoursing] = useState<ITaxes | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
-  const [coursingToDelete, setCoursingToDelete] = useState<ITaxes | null>(
-    null
-  );
+  const [coursingToDelete, setCoursingToDelete] = useState<ITaxes | null>(null);
+
+  const { data, isLoading, isError, refetch } = useGetTaxQuery({
+    searchText: currentSearchQuery,
+  });
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -98,8 +100,18 @@ const ComponentTable: React.FC = () => {
     );
 
   const coursings: ITaxes[] = Array.isArray(data?.data)
-  ? (data?.data as ITaxes[])
-  : [];
+    ? (data?.data as ITaxes[])
+    : [];
+
+  const handleSearch = () => {
+    setCurrentSearchQuery(searchQuery);
+  };
+
+  const resetFields = () => {
+    setSearchQuery("");
+    setCurrentSearchQuery("");
+    refetch();
+  };
 
   return (
     <Box>
@@ -110,6 +122,85 @@ const ComponentTable: React.FC = () => {
           p: 2,
         }}
       >
+        <Grid
+          container
+          spacing={2}
+          display={"flex"}
+          justifyContent={"flex-end"}
+        >
+          <Grid
+            item
+            lg={4}
+            md={6}
+            sm={12}
+            xs={12}
+            sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}
+          >
+            <TextField
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Department Name"
+              sx={{ width: "100%" }}
+              InputLabelProps={{
+                sx: {
+                  fontSize: 14,
+                },
+              }}
+              size="small"
+            />
+            <Box m={0.5}></Box>
+            <Button
+              variant="contained"
+              // startIcon={<SearchIcon />}
+              sx={{
+                backgroundColor: appColor.blue[100],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={handleSearch}
+            >
+              <SearchIcon />
+            </Button>
+            <Box m={0.5}></Box>
+            <Button
+              variant="contained"
+              // startIcon={<RotateLeftIcon />}
+              sx={{
+                backgroundColor: appColor.grey[90],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.grey[90],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.grey[90],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={resetFields}
+            >
+              <RestartAltIcon />
+            </Button>
+          </Grid>
+        </Grid>
+
         <TableContainer
           sx={{
             borderRadius: 2,
@@ -201,123 +292,125 @@ const ComponentTable: React.FC = () => {
                     {isError ? "Error fetching data" : "No data available"}
                   </TableCell>
                 </TableRow>
-              ) : (coursings
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: ITaxes, index) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
+              ) : (
+                coursings
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row: ITaxes, index) => (
+                    <TableRow
+                      key={row.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.taxName}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.taxType}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.applyTo}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.percentage}
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.taxCode}
-                    </TableCell>
-                    <TableCell>
-                      <Grid
-                        container
-                        spacing={1}
-                        sx={{ display: "flex", justifyContent: "flex-end" }}
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
                       >
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDialog(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <EditIcon sx={{ p: "2px", color: "green" }} />
-                            Edit
-                          </Button>
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.taxName}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.taxType}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.applyTo}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.percentage}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.taxCode}
+                      </TableCell>
+                      <TableCell>
+                        <Grid
+                          container
+                          spacing={1}
+                          sx={{ display: "flex", justifyContent: "flex-end" }}
+                        >
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDialog(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <EditIcon sx={{ p: "2px", color: "green" }} />
+                              Edit
+                            </Button>
+                          </Grid>
+                          <Grid item>
+                            <Button
+                              onClick={() => handleOpenDeletePopup(row)}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                border: `1px solid green`,
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                mr: 0.5,
+                                p: 0.5,
+                                minWidth: "45px",
+                                alignItems: "center",
+                                color: "green",
+                              }}
+                            >
+                              <DeleteIcon sx={{ p: "2px", color: "green" }} />
+                              Delete
+                            </Button>
+                          </Grid>
                         </Grid>
-                        <Grid item>
-                          <Button
-                            onClick={() => handleOpenDeletePopup(row)}
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              border: `1px solid green`,
-                              borderRadius: 2,
-                              cursor: "pointer",
-                              mr: 0.5,
-                              p: 0.5,
-                              minWidth: "45px",
-                              alignItems: "center",
-                              color: "green",
-                            }}
-                          >
-                            <DeleteIcon sx={{ p: "2px", color: "green" }} />
-                            Delete
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
-                )))}
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
             </TableBody>
           </Table>
           <TablePagination

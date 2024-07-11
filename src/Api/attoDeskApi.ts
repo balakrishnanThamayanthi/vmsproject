@@ -106,16 +106,6 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['tax', 'product', 'category'],
     }),
-    getDepartment: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/department/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['department', "category"],
-      keepUnusedDataFor: 0,
-    }),
     getCoursing: builder.query<IApiResponse, void>({
       query: () => {
         return {
@@ -124,16 +114,6 @@ export const attoDeskApi = createApi({
         };
       },
       providesTags: ['coursing', "category"],
-      keepUnusedDataFor: 0,
-    }),
-    getTax: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/tax/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['tax', "category", 'product'],
       keepUnusedDataFor: 0,
     }),
     createProductBrand: builder.mutation<IApiResponse, Object>({
@@ -389,6 +369,28 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['modifier'],
     }),
+    getDepartment: builder.query<IApiResponse, ISearchPayload>({
+      query: (request) => {
+        return {
+          url: '/department/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['department', "category"],
+      keepUnusedDataFor: 0,
+    }),
+    getTax: builder.query<IApiResponse, ISearchPayload>({
+      query: (request) => {
+        return {
+          url: '/tax/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['tax', "category", 'product'],
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -402,7 +404,6 @@ export const {
   useCreateTaxMutation,
   useGetDepartmentQuery,
   useGetCoursingQuery,
-  useGetTaxQuery,
   useCreateProductBrandMutation,
   useCreateProductTagMutation,
   useCreateProductCategoryMutation,
@@ -428,5 +429,6 @@ export const {
   useGetLastProductIdQuery,
   useCreateModifierMutation,
   useGetAllModifierQuery,
-  useDeleteModifierMutation
+  useDeleteModifierMutation,
+  useGetTaxQuery,
 } = attoDeskApi;

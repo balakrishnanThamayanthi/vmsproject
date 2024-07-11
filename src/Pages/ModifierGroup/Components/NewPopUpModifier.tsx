@@ -118,7 +118,9 @@ const Modifier = ({
   const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
   const [openPrinter, setOpenPrinter] = useState(false);
 
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
+    searchText: "",
+  });
   const [openTax, setOpenTax] = useState(false);
 
   const printerList = useMemo(() => {

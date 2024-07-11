@@ -21,10 +21,7 @@ import {
   useGetTaxQuery,
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
-import {
-  IPrinter,
-  ITaxes,
-} from "../../../Api/Interface/api.interface";
+import { IPrinter, ITaxes } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import NewTax from "../../Tax/Components/NewPopUpTax";
 import NewPopUpPrinter from "../../Printer/Components/NewPopUpPrinter";
@@ -94,7 +91,7 @@ const IOSSwitch = styled((props: SwitchProps) => (
     "&::after": {
       backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
         theme.palette.getContrastText(theme.palette.primary.main)
-      )}" d="M19,13H5V11H19V13Z" /></svg>')`, 
+      )}" d="M19,13H5V11H19V13Z" /></svg>')`,
       right: 12,
     },
   },
@@ -106,7 +103,9 @@ const Modifier: React.FC = () => {
   const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
   const [openPrinter, setOpenPrinter] = useState(false);
 
-  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
+    searchText: "",
+  });
   const [openTax, setOpenTax] = useState(false);
 
   const printerList = useMemo(() => {
