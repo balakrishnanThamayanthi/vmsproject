@@ -558,7 +558,7 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
               fullWidth
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Department Name"
+              placeholder="Search Category Name"
               sx={{ width: "100%" }}
               InputLabelProps={{
                 sx: {

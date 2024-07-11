@@ -154,7 +154,7 @@ const ComponentTable: React.FC = () => {
               fullWidth
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Department Name"
+              placeholder="Search Printer Name"
               sx={{ width: "100%" }}
               InputLabelProps={{
                 sx: {
