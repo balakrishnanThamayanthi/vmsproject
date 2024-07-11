@@ -154,7 +154,9 @@ const ProductPopUP = ({
     useGetProductBrandQuery();
   const { data: productTagData, isLoading: ProductTagLoading } =
     useGetProductTagQuery();
-  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery({
+    searchText: "",
+  });
 
   const [image, setImage] = useState<string | null>(null);
   const [openGallery, setOpenGallery] = useState(false);
@@ -221,7 +223,9 @@ const ProductPopUP = ({
       computerRam: data?.computerLoopingDetails?.computerModel,
       productDetailsIsLooping: data?.productDetailsIsLooping,
       productsDetailsLoopingConstant: data?.productsDetailsLoopingConstant,
-      productCanSell: data?.productCanSell ? Boolean(data?.productCanSell) : false,
+      productCanSell: data?.productCanSell
+        ? Boolean(data?.productCanSell)
+        : false,
     },
     onSubmit: async (values) => {
       try {

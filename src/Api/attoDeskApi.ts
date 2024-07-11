@@ -106,16 +106,7 @@ export const attoDeskApi = createApi({
       },
       invalidatesTags: ['tax', 'product', 'category'],
     }),
-    getCoursing: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/coursing/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['coursing', "category"],
-      keepUnusedDataFor: 0,
-    }),
+    
     createProductBrand: builder.mutation<IApiResponse, Object>({
       query: (request) => {
         return {
@@ -215,16 +206,6 @@ export const attoDeskApi = createApi({
         };
       },
       providesTags: ['productTag', 'product'],
-      keepUnusedDataFor: 0,
-    }),
-    getPrinter: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/printer/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['printer', 'product' ],
       keepUnusedDataFor: 0,
     }),
     deleteCoursing: builder.mutation<IApiResponse, string>({
@@ -391,6 +372,29 @@ export const attoDeskApi = createApi({
       providesTags:['tax', "category", 'product'],
       keepUnusedDataFor: 0,
     }),
+    getCoursing: builder.query<IApiResponse, ISearchPayload>({
+      query: (request) => {
+        return {
+          url: '/coursing/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['coursing', "category"],
+      keepUnusedDataFor: 0,
+    }),
+    getPrinter: builder.query<IApiResponse, ISearchPayload>({
+      query: (request) => {
+        return {
+          url: '/printer/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['printer', 'product' ],
+      keepUnusedDataFor: 0,
+    }),
+    
   }),
 });
 
@@ -403,7 +407,6 @@ export const {
   useCreateCoursingMutation,
   useCreateTaxMutation,
   useGetDepartmentQuery,
-  useGetCoursingQuery,
   useCreateProductBrandMutation,
   useCreateProductTagMutation,
   useCreateProductCategoryMutation,
@@ -414,7 +417,6 @@ export const {
   useGetProductCategoryQuery,
   useGetProductBrandQuery,
   useGetProductTagQuery,
-  useGetPrinterQuery,
   useDeleteCoursingMutation,
   useDeleteDepartmentMutation,
   useDeletePrinterMutation,
@@ -431,4 +433,6 @@ export const {
   useGetAllModifierQuery,
   useDeleteModifierMutation,
   useGetTaxQuery,
+  useGetCoursingQuery,
+  useGetPrinterQuery,
 } = attoDeskApi;

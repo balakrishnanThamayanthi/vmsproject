@@ -115,11 +115,13 @@ const Modifier = ({
   const [open] = React.useState(openModel);
   const [newModifier, { isLoading }] = useCreateModifierMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery({
+    searchText: "",
+  });
   const [openPrinter, setOpenPrinter] = useState(false);
 
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
-    searchText: '',
+    searchText: "",
   });
   const [openTax, setOpenTax] = useState(false);
 

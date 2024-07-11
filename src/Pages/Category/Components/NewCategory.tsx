@@ -127,7 +127,9 @@ const Category: React.FC = () => {
       searchText: "",
     });
   const { data: coursingData, isLoading: coursingLoading } =
-    useGetCoursingQuery();
+    useGetCoursingQuery({
+      searchText: "",
+    });
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
     searchText: "",
   });

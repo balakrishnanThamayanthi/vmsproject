@@ -1,9 +1,20 @@
 import React, { useMemo, useState } from "react";
-import { Box, Button, Card, Grid, MenuItem, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Grid,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useFormik } from "formik";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import CloseIcon from "@mui/icons-material/Close";
-import { useCreateDepartmentMutation, useGetPrinterQuery } from "../../../Api/attoDeskApi";
+import {
+  useCreateDepartmentMutation,
+  useGetPrinterQuery,
+} from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import { appColor } from "../../../theme/appColor";
 import { IPrinter } from "../../../Api/Interface/api.interface";
@@ -14,9 +25,10 @@ const Department: React.FC = () => {
   const [newDepartment, { isLoading }] = useCreateDepartmentMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const [openPrinter, setOpenPrinter] = useState(false);
-  const { data: printerData, isLoading: printerLoading } =
-    useGetPrinterQuery();
-    
+  const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery({
+    searchText: "",
+  });
+
   const printerList = useMemo(() => {
     return printerData?.data as IPrinter[];
   }, [printerData?.data]);

@@ -79,7 +79,9 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
       searchText: "",
     });
   const { data: coursingData, isLoading: coursingLoading } =
-    useGetCoursingQuery();
+    useGetCoursingQuery({
+      searchText: "",
+    });
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
     searchText: "",
   });

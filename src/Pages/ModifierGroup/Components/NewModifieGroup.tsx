@@ -100,7 +100,9 @@ const IOSSwitch = styled((props: SwitchProps) => (
 const Modifier: React.FC = () => {
   const [newModifier, { isLoading }] = useCreateModifierMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery();
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery({
+    searchText: "",
+  });
   const [openPrinter, setOpenPrinter] = useState(false);
 
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({

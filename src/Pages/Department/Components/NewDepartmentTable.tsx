@@ -28,7 +28,7 @@ import NewPopUpDepartment from "./NewPopUpDepartment";
 import DeletePopup from "../../../Components/Delete/DeletePopup";
 import { useNotifier } from "../../../Core/Notifier";
 import SearchIcon from "@mui/icons-material/Search";
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 const ComponentTable: React.FC = () => {
   const { showErrorMessage, showMessage } = useNotifier();
@@ -39,7 +39,9 @@ const ComponentTable: React.FC = () => {
   const [selectedCoursing, setSelectedCoursing] = useState<IDepartment | null>(
     null
   );
-  const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery();
+  const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery({
+    searchText: "",
+  });
 
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
@@ -144,7 +146,12 @@ const ComponentTable: React.FC = () => {
           p: 2,
         }}
       >
-        <Grid container spacing={2} display={"flex"} justifyContent={"flex-end"}>         
+        <Grid
+          container
+          spacing={2}
+          display={"flex"}
+          justifyContent={"flex-end"}
+        >
           <Grid
             item
             lg={4}

@@ -37,7 +37,9 @@ const Department = ({
   const [newDepartment, { isLoading }] = useCreateDepartmentMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const [openPrinter, setOpenPrinter] = useState(false);
-  const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery();
+  const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery({
+    searchText: "",
+  });
 
   const printerList = useMemo(() => {
     return printerData?.data as IPrinter[];
