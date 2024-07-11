@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ const Department: React.FC = () => {
   const [newDepartment, { isLoading }] = useCreateDepartmentMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const [openPrinter, setOpenPrinter] = useState(false);
+
   const { data: printerData, isLoading: printerLoading } = useGetPrinterQuery({
     searchText: "",
   });
@@ -32,6 +33,7 @@ const Department: React.FC = () => {
   const printerList = useMemo(() => {
     return printerData?.data as IPrinter[];
   }, [printerData?.data]);
+  
 
   const formik = useFormik({
     initialValues: {
@@ -59,14 +61,20 @@ const Department: React.FC = () => {
       }
     },
   });
+  const [newPrinterAdded, setNewPrinterAdded] = useState(false); 
+
+  useEffect(() => {
+    if (newPrinterAdded && printerList && printerList.length > 0) {
+      formik.setFieldValue("DepartmentPrinterIds", [printerList[0].id]);
+      setNewPrinterAdded(false);
+    }
+  }, [newPrinterAdded, printerList, formik]);
 
   const formValid = useMemo(() => {
-    return formik.values.departmentName === "" ||
-      formik.values.departmentName === undefined
-      ? false
-      : true;
+    return formik.values.departmentName !== "" && formik.values.departmentName !== undefined;
   }, [formik]);
 
+  
   return (
     <form onSubmit={formik.handleSubmit}>
       <Grid container>
@@ -110,7 +118,6 @@ const Department: React.FC = () => {
                     color: appColor.black,
                   }}
                 >
-                  {/* <DomainAddIcon sx={{ fontSize: 24, marginRight: "8px" }} /> */}
                   New Department
                 </Typography>
               </Grid>
@@ -328,7 +335,10 @@ const Department: React.FC = () => {
       </Grid>
       {openPrinter && (
         <NewPrinter
-          handleCloseDialog={() => setOpenPrinter(false)}
+          handleCloseDialog={() => {
+            setOpenPrinter(false);
+            setNewPrinterAdded(true); 
+          }}
           openModel={openPrinter}
         />
       )}

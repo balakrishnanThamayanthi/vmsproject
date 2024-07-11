@@ -22,11 +22,7 @@ interface ITaxpopup {
   data?: ITaxes;
 }
 
-const Taxes = ({
-  openModel = false,
-  handleCloseDialog,
-  data,
-}: ITaxpopup) => {
+const Taxes = ({ openModel = false, handleCloseDialog, data }: ITaxpopup) => {
   const [open] = React.useState(openModel);
   const [newCoursing, { isLoading }] = useCreateTaxMutation();
   const { showErrorMessage, showMessage } = useNotifier();
@@ -73,12 +69,6 @@ const Taxes = ({
   const formValid = useMemo(() => {
     return formik.values.taxName === "" ||
       formik.values.taxName === undefined ||
-      formik.values.taxType === "" ||
-      formik.values.taxType === undefined ||
-      formik.values.applyTo === "" ||
-      formik.values.applyTo === undefined ||
-      formik.values.percentage === "" ||
-      formik.values.percentage === undefined ||
       formik.values.taxCode === "" ||
       formik.values.taxCode === undefined
       ? false
@@ -129,7 +119,6 @@ const Taxes = ({
                       color: appColor.black,
                     }}
                   >
-                    {/* <DomainAddIcon sx={{ fontSize: 24, marginRight: "8px" }} /> */}
                     New Tax
                   </Typography>
                 </Grid>
@@ -171,6 +160,45 @@ const Taxes = ({
                       />
                     </Grid>
                   </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 1 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Tax Code
+                      </Typography>
+                    </Grid>
+                    <Grid item lg={9} md={9} sm={12} xs={12}>
+                      <TextField
+                        placeholder="Enter Tax Code"
+                        size="small"
+                        {...formik.getFieldProps("taxCode")}
+                        sx={{ width: "100%" }}
+                        InputProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: 14,
+                          },
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+
                   <Grid
                     container
                     direction="row"
@@ -208,6 +236,7 @@ const Taxes = ({
                       </TextField>
                     </Grid>
                   </Grid>
+
                   <Grid
                     container
                     direction="row"
@@ -246,6 +275,7 @@ const Taxes = ({
                       </TextField>
                     </Grid>
                   </Grid>
+
                   <Grid
                     container
                     direction="row"
@@ -269,43 +299,6 @@ const Taxes = ({
                         placeholder="Enter Percentage"
                         size="small"
                         {...formik.getFieldProps("percentage")}
-                        sx={{ width: "100%" }}
-                        InputProps={{
-                          sx: {
-                            fontSize: 14,
-                          },
-                        }}
-                        InputLabelProps={{
-                          sx: {
-                            fontSize: 14,
-                          },
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 1 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Tax Code
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        placeholder="Enter Tax Code"
-                        size="small"
-                        {...formik.getFieldProps("taxCode")}
                         sx={{ width: "100%" }}
                         InputProps={{
                           sx: {

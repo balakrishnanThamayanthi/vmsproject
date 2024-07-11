@@ -31,15 +31,37 @@ export interface IApiResponse {
     itemServiceCharge: string;
     ageRestriction: boolean;
     excludeCheckTax: boolean;
-    kitchenPrinters: boolean;
-    labelPrinters: boolean;
-    restrictPrinters: boolean;
     taxeId: number;
     kitchenPrintersTypes: string;
     categoryButtonColor: string;
     categoryIsLooping: string;
     categoryLoopingConstant: string;
+    categoryPrinterIds: number[];
+    itemServiceChargeId: string;
+    itemServiceChargePrice: string;
   }
+
+  export interface ICategoryNew { 
+    categoryName: string;
+    departmentId: string;
+    roleId: number[];
+    coursingId: string;
+    servingSize: number[];
+    hidePos: boolean;
+    hideOnlineOrder: boolean;
+    hideKiosk: boolean;
+    Conversational: boolean;
+    ageRestriction: boolean;
+    excludeCheckTax: boolean;
+    taxeId: string;
+    categoryButtonColor: string;
+    categoryIsLooping: boolean;
+    categoryLoopingConstant: string;
+    categoryPrinterIds: number[];
+    itemServiceChargeId: string;
+    itemServiceChargePrice: string;
+  }
+  
   
   export interface ICompany {
     id: number, 
@@ -193,6 +215,7 @@ export interface IApiResponse {
     taxeId: string;
     createdDateEnd: Date;
     createdDateStart: Date;
+    searchText: string;
   }
 
   export interface ISearchPayload {

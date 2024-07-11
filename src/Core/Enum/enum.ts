@@ -38,8 +38,12 @@ export const SizeOfLevelType = Object.freeze({
   small: 12 as const,
 });
 
-
 export const LoopingConst = Object.freeze({
   Mobile: 1 as const,
   Computer: 2 as const,
+});
+
+export const ItemServiceChargeType = Object.freeze({
+  None: 0 as const,
+  Pay: 1 as const,
 });

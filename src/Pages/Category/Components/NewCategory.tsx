@@ -28,16 +28,20 @@ import {
   useCreateCategoryMutation,
   useGetCoursingQuery,
   useGetDepartmentQuery,
+  useGetPrinterQuery,
   useGetTaxQuery,
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import {
+  ICategoryNew,
   ICoursing,
   IDepartment,
+  IPrinter,
   ITaxes,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import {
+  ItemServiceChargeType,
   LoopingConst,
   RooleType,
   SizeOfLevelType,
@@ -47,6 +51,7 @@ import NewTax from "../../Tax/Components/NewPopUpTax";
 import NewDepartement from "../../Department/Components/NewPopUpDepartment";
 import { HexColorPicker } from "react-colorful";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
+import NewPopUpPrinter from "../../Printer/Components/NewPopUpPrinter";
 
 const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -86,8 +91,8 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
   "& .MuiSwitch-thumb": {
     boxSizing: "border-box",
-    width: 30, // Increased thumb size
-    height: 30, // Increased thumb size
+    width: 30, 
+    height: 30,
   },
   "& .MuiSwitch-track": {
     borderRadius: 34 / 2,
@@ -119,9 +124,20 @@ const IOSSwitch = styled((props: SwitchProps) => (
   },
 }));
 
+const isPrinterArray = (data: any): data is IPrinter[] => {
+  return (
+    Array.isArray(data) &&
+    data.every(
+      (item) =>
+        "id" in item && "printerName" in item && "printerDescription" in item
+    )
+  );
+};
+
 const Category: React.FC = () => {
   const [newCategory, { isLoading }] = useCreateCategoryMutation();
   const { showErrorMessage, showMessage } = useNotifier();
+  const [openPrinter, setOpenPrinter] = useState(false);
   const { data: departmentData, isLoading: departmentLoading } =
     useGetDepartmentQuery({
       searchText: "",
@@ -131,6 +147,9 @@ const Category: React.FC = () => {
       searchText: "",
     });
   const { data: taxData, isLoading: taxLoading } = useGetTaxQuery({
+    searchText: "",
+  });
+  const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery({
     searchText: "",
   });
   const [image, setImage] = useState<string | null>(null);
@@ -154,7 +173,14 @@ const Category: React.FC = () => {
     return taxData?.data as ITaxes[];
   }, [taxData?.data]);
 
-  const formik = useFormik({
+  const printerList: IPrinter[] = useMemo(() => {
+    if (!printerData || !isPrinterArray(printerData.data)) {
+      return [];
+    }
+    return printerData.data;
+  }, [printerData]);
+
+  const formik = useFormik<ICategoryNew>({
     initialValues: {
       categoryName: "",
       departmentId: "",
@@ -165,12 +191,11 @@ const Category: React.FC = () => {
       hideOnlineOrder: false,
       hideKiosk: false,
       Conversational: false,
-      itemServiceCharge: "",
+      itemServiceChargeId: "",
+      itemServiceChargePrice: "",
       ageRestriction: false,
       excludeCheckTax: false,
-      kitchenPrinters: false,
-      labelPrinters: false,
-      restrictPrinters: false,
+      categoryPrinterIds: [],
       taxeId: "",
       categoryButtonColor: "",
       categoryIsLooping: false,
@@ -188,17 +213,15 @@ const Category: React.FC = () => {
           hideOnlineOrder: values.hideOnlineOrder,
           hideKiosk: values.hideKiosk,
           Conversational: values.Conversational,
-          itemServiceCharge: values.itemServiceCharge,
+          itemServiceChargeId: values.itemServiceChargeId,
+          itemServiceChargePrice: values.itemServiceChargePrice,
           ageRestriction: values.ageRestriction,
           excludeCheckTax: values.excludeCheckTax,
-          kitchenPrinters: values.kitchenPrinters,
-          labelPrinters: values.labelPrinters,
-          restrictPrinters: values.restrictPrinters,
+          categoryPrinterIds: values.categoryPrinterIds,
           taxeId: values.taxeId,
           categoryButtonColor: values.categoryButtonColor,
           categoryIsLooping: values.categoryIsLooping,
           categoryLoopingConstant: values.categoryLoopingConstant,
-          // kitchenPrintersTypes: values.kitchenPrintersTypes,
         };
 
         const addCategoryResponse = await newCategory(temData).unwrap();
@@ -207,7 +230,6 @@ const Category: React.FC = () => {
         } else {
           showMessage(addCategoryResponse.message);
           resetForm();
-          // window.location.reload();
         }
       } catch (error) {
         showErrorMessage("Something went wrong");
@@ -260,6 +282,14 @@ const Category: React.FC = () => {
     "/Images/dummy_image.webp",
     "/Images/user_login_photo.webp",
   ];
+
+  const handlePrinterToggle = (printerId: number) => {
+    const { categoryPrinterIds } = formik.values;
+    const updatedPrinterIds = categoryPrinterIds.includes(printerId)
+      ? categoryPrinterIds.filter((id) => id !== printerId)
+      : [...categoryPrinterIds, printerId];
+    formik.setFieldValue("categoryPrinterIds", updatedPrinterIds);
+  };
 
   useEffect(() => {
     setSelectedColor(formik.values.categoryButtonColor ?? "#ffffff");
@@ -617,46 +647,6 @@ const Category: React.FC = () => {
                     </TextField>
                   </Grid>
                 </Grid>
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Tare Group
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select Target Group
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
 
                 <Grid
                   container
@@ -665,7 +655,7 @@ const Category: React.FC = () => {
                   spacing={2}
                   sx={{ mt: 2 }}
                 >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                  <Grid item lg={3} md={3} sm={3} xs={3}>
                     <Typography
                       variant="subtitle1"
                       sx={{
@@ -676,24 +666,81 @@ const Category: React.FC = () => {
                       Item Service Charge
                     </Typography>
                   </Grid>
-                  <Grid item lg={9} md={9} sm={12} xs={12}>
+                  <Grid
+                    item
+                    lg={3}
+                    md={3}
+                    sm={3}
+                    xs={3}
+                    display="flex"
+                    alignItems="center"
+                  >
                     <TextField
                       select
                       size="small"
                       sx={{ width: "100%" }}
                       SelectProps={{
-                        native: true,
+                        native: false,
                       }}
                       defaultValue=""
                       InputLabelProps={{ shrink: true }}
+                      {...formik.getFieldProps("itemServiceChargeId")}
                     >
-                      <option value="" disabled color="gray">
-                        Select an option
-                      </option>
-                      <option>None</option>
-                      <option>Pay</option>
+                      {!formik.values.itemServiceChargeId.length && (
+                        <MenuItem value="" disabled>
+                          Select some option
+                        </MenuItem>
+                      )}
+                      {Object.entries(ItemServiceChargeType).map(
+                        ([key, value], index) => (
+                          <MenuItem key={index} value={value}>
+                            {key}
+                          </MenuItem>
+                        )
+                      )}
                     </TextField>
                   </Grid>
+                  {formik.values.itemServiceChargeId == "1" && (
+                    <>
+                      <Grid item lg={2} md={2} sm={2} xs={2}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                          }}
+                        >
+                          Price
+                        </Typography>
+                      </Grid>
+                      <Grid
+                        item
+                        lg={4}
+                        md={4}
+                        sm={4}
+                        xs={4}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <TextField
+                          placeholder="Enter Item Service Price"
+                          size="small"
+                          {...formik.getFieldProps("itemServiceChargePrice")}
+                          sx={{ width: "100%" }}
+                          InputProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                          InputLabelProps={{
+                            sx: {
+                              fontSize: 14,
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </>
+                  )}
                 </Grid>
 
                 <Grid
@@ -897,58 +944,63 @@ const Category: React.FC = () => {
                       Include Default
                     </Typography>
                   </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Kitchen Printer
-                    </Typography>
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("kitchenPrinters")}
-                      checked={formik.values.kitchenPrinters}
-                    />
+                  <Grid item lg={7} md={7} sm={12} xs={12}>
+                    <Grid container spacing={2}>
+                      {printerList.map((printer) => (
+                        <Grid
+                          item
+                          lg={4}
+                          md={12}
+                          sm={12}
+                          xs={12}
+                          key={printer.id}
+                        >
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 400, fontSize: 14 }}
+                          >
+                            {printer.printerName}
+                          </Typography>
+                          <IOSSwitch
+                            color="primary"
+                            sx={{ mr: 2 }}
+                            checked={formik.values.categoryPrinterIds.includes(
+                              printer.id
+                            )}
+                            onChange={() => handlePrinterToggle(printer.id)}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
                   </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
+
+                  <Grid item lg={2} md={2} sm={4} xs={4} textAlign={"end"}>
+                    <Button
+                      variant="contained"
+                      size="small"
                       sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
+                        backgroundColor: "green",
+                        color: "white",
+                        borderRadius: 0,
+                        ml: 2,
+                        border: 1,
+                        borderColor: "green",
+                        "&:hover": {
+                          backgroundColor: "green",
+                        },
+                        "&:active": {
+                          backgroundColor: "green",
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenPrinter(true);
                       }}
                     >
-                      Label Printers
-                    </Typography>
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("labelPrinters")}
-                      checked={formik.values.labelPrinters}
-                    />
-                  </Grid>
-                  <Grid item lg={3} md={3} sm={4} xs={4}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Restrict PRinters
-                    </Typography>
-                    <IOSSwitch
-                      color="primary"
-                      sx={{ mr: 2 }}
-                      {...formik.getFieldProps("restrictPrinters")}
-                      checked={formik.values.restrictPrinters}
-                    />
+                      <AddIcon sx={{ fontSize: 30 }} />
+                    </Button>
                   </Grid>
                 </Grid>
+
                 <Grid
                   container
                   direction="row"
@@ -1022,92 +1074,7 @@ const Category: React.FC = () => {
                     </Button>
                   </Grid>
                 </Grid>
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Kitchen Printers
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          multiple: true,
-                          native: false,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                        {...formik.getFieldProps("kitchenPrintersTypes")}
-                      >
-                        {!formik.values.kitchenPrintersTypes.length && (
-                          <MenuItem value="" disabled>
-                            Select some option
-                          </MenuItem>
-                        )}
-                        {Object.entries(KitchenPrinterType).map(
-                          ([key, value], index) => (
-                            <MenuItem key={index} value={value}>
-                              {key}
-                            </MenuItem>
-                          )
-                        )}
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Restrict Printers
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select some option
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
+
                 <Grid
                   container
                   direction="row"
@@ -1293,7 +1260,7 @@ const Category: React.FC = () => {
                     </Box>
                   </Grid>
                 </Grid>
-                <Grid
+                {/* <Grid
                   container
                   direction="row"
                   alignItems="center"
@@ -1376,93 +1343,7 @@ const Category: React.FC = () => {
                       </Grid>
                     </>
                   )}
-                </Grid>
-                {/* <Grid
-                  container
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ mt: 2 }}
-                >
-                  <Grid item lg={3} md={3} sm={12} xs={12}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                      }}
-                    >
-                      Looping
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    lg={9}
-                    md={9}
-                    sm={12}
-                    xs={12}
-                    display="flex"
-                    alignItems="center"
-                  >
-                    <TextField
-                      select
-                      size="small"
-                      sx={{ flexGrow: 1 }}
-                      SelectProps={{
-                        native: true,
-                      }}
-                      defaultValue=""
-                      InputLabelProps={{ shrink: true }}
-                      {...formik.getFieldProps("categoryIsLooping")}
-                    >
-                      <option value="" disabled style={{ color: "gray" }}>
-                        Select an option
-                      </option>
-                      <option value="1">Yes</option>
-                      <option value="0">No</option>
-                    </TextField>
-                  </Grid>
                 </Grid> */}
-                {/* <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ mt: 2 }}
-                  >
-                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                        }}
-                      >
-                        Applicable Time Period
-                      </Typography>
-                    </Grid>
-                    <Grid item lg={9} md={9} sm={12} xs={12}>
-                      <TextField
-                        select
-                        size="small"
-                        sx={{ width: "100%" }}
-                        SelectProps={{
-                          native: true,
-                        }}
-                        defaultValue=""
-                        InputLabelProps={{ shrink: true }}
-                      >
-                        <option value="" disabled color="gray">
-                          Select some option
-                        </option>
-                        <option>Food Department</option>
-                        <option>Shop Department</option>
-                        <option>xx Department</option>
-                        <option>cc Department</option>
-                        <option>yy Department</option>
-                      </TextField>
-                    </Grid>
-                  </Grid> */}
               </Grid>
 
               <Grid
@@ -1515,26 +1396,6 @@ const Category: React.FC = () => {
                 >
                   Save
                 </Button>
-                {/* <Box m={0.5}></Box>
-                <Button
-                  variant="contained"
-                  startIcon={<SaveAltIcon />}
-                  sx={{
-                    backgroundColor: "green",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                    "&:active": {
-                      backgroundColor: "green",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Save and publish
-                </Button> */}
               </Grid>
             </Grid>
           </Card>
@@ -1558,6 +1419,13 @@ const Category: React.FC = () => {
         <NewTax
           handleCloseDialog={() => setOpenTax(false)}
           openModel={openTax}
+        />
+      )}
+
+      {openPrinter && (
+        <NewPopUpPrinter
+          handleCloseDialog={() => setOpenPrinter(false)}
+          openModel={openPrinter}
         />
       )}
     </form>
