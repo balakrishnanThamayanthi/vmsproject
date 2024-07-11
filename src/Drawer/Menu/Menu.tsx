@@ -52,6 +52,7 @@ import StyleIcon from '@mui/icons-material/Style';
 import ClassIcon from '@mui/icons-material/Class';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PostAddIcon from '@mui/icons-material/PostAdd';
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 
 const drawerWidth = 240;
 
@@ -217,6 +218,11 @@ const menuList: {
         title: "Modifier",
         icon: <PostAddIcon />,
         path: "/modifier",
+      },
+      {
+        title: "Modifier Group",
+        icon: <DynamicFeedIcon />,
+        path: "/modifier-group",
       },
     ],
   },

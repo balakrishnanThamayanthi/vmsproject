@@ -15,7 +15,7 @@ import ProductTags from "../Pages/ProductTags";
 import Product from "../Pages/Product";
 import Printer from "../Pages/Printer";
 import Modifiers from "../Pages/Modifiers";
-
+import ModifierGroup from "../Pages/ModifierGroup";
 
 /**
  * AppRoutes will load the app routes.
@@ -123,6 +123,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<Loader />}>
             <Modifiers />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/modifier-group"
+        element={
+          <Suspense fallback={<Loader />}>
+            <ModifierGroup />
           </Suspense>
         }
       />
