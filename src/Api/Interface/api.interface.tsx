@@ -231,3 +231,8 @@ export interface IApiResponse {
     setModifierPrice: boolean;
     modifierPrice: number;
   }
+
+  export interface ISearchIsActivePayload {
+    searchText: string;
+    isActive: boolean | null;
+  }

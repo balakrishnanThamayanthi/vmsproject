@@ -83,14 +83,23 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
   );
 
   const { data: productBrandData, isLoading: productBrandLoading } =
-    useGetProductBrandQuery();
+    useGetProductBrandQuery({
+      searchText: "",
+      isActive: true,
+    });
   const { data: coursingData, isLoading: coursingLoading } =
     useGetProductCategoryQuery();
-  const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery();
+  const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery({
+    searchText: "",
+    isActive: true,
+  });
   const { data: productCategoryData, isLoading: productCategoryLoading } =
     useGetProductCategoryQuery();
   const { data: productTagData, isLoading: ProductTagLoading } =
-    useGetProductTagQuery();
+    useGetProductTagQuery({
+      searchText: "",
+      isActive: true,
+    });
 
   const productBrandList = useMemo(() => {
     return productBrandData?.data as IProductBrand[];
@@ -470,7 +479,9 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
                           InputLabelProps={{ shrink: true }}
                           placeholder="Select start date"
                           // sx={{ height: "14px", p: "none", fontSize: "10px" }}
-                          InputProps={{ sx: { height: "14px", p: "none", fontSize: "10px" } }}
+                          InputProps={{
+                            sx: { height: "14px", p: "none", fontSize: "10px" },
+                          }}
                         />
                       )}
                       // renderInput={(params) => (

@@ -143,9 +143,15 @@ const Product: React.FC = () => {
   const { data: productCategoryData, isLoading: productCategoryLoading } =
     useGetProductCategoryQuery();
   const { data: productBrandData, isLoading: ProductBrandLoading } =
-    useGetProductBrandQuery();
+    useGetProductBrandQuery({
+      searchText: "",
+      isActive: true,
+    });
   const { data: productTagData, isLoading: ProductTagLoading } =
-    useGetProductTagQuery();
+    useGetProductTagQuery({
+      searchText: "",
+      isActive: true,
+    });
   const { data: printerData, isLoading: PrinterLoading } = useGetPrinterQuery({
     searchText: "",
   });

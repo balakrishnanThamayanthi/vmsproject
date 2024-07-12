@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "../config";
-import { IApiResponse, ICategoryPayload, IProductPayload, ISearchPayload, IUser } from "./Interface/api.interface";
+import { IApiResponse, ICategoryPayload, IProductPayload, ISearchIsActivePayload, ISearchPayload, IUser } from "./Interface/api.interface";
 ;
 
 /**
@@ -186,26 +186,6 @@ export const attoDeskApi = createApi({
         };
       },
       providesTags: ['productCategory','product'],
-      keepUnusedDataFor: 0,
-    }),
-    getProductBrand: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/product/brand/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['productBrand','product'],
-      keepUnusedDataFor: 0,
-    }),
-    getProductTag: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/product/tags/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['productTag', 'product'],
       keepUnusedDataFor: 0,
     }),
     deleteCoursing: builder.mutation<IApiResponse, string>({
@@ -394,7 +374,28 @@ export const attoDeskApi = createApi({
       providesTags:['printer', 'product' ],
       keepUnusedDataFor: 0,
     }),
-    
+    getProductTag: builder.query<IApiResponse, ISearchIsActivePayload>({
+      query: (request) => {
+        return {
+          url: '/product/tags/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['productTag', 'product'],
+      keepUnusedDataFor: 0,
+    }),
+    getProductBrand: builder.query<IApiResponse, ISearchIsActivePayload>({
+      query: (request) => {
+        return {
+          url: '/product/brand/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['productBrand','product'],
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -415,8 +416,6 @@ export const {
   useGetCategoryQuery,
   useGetAddCategoryQuery,
   useGetProductCategoryQuery,
-  useGetProductBrandQuery,
-  useGetProductTagQuery,
   useDeleteCoursingMutation,
   useDeleteDepartmentMutation,
   useDeletePrinterMutation,
@@ -435,4 +434,6 @@ export const {
   useGetTaxQuery,
   useGetCoursingQuery,
   useGetPrinterQuery,
+  useGetProductTagQuery,
+  useGetProductBrandQuery,
 } = attoDeskApi;
