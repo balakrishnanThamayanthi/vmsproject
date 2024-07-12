@@ -141,7 +141,10 @@ const Product: React.FC = () => {
   const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
   const { data: productCategoryData, isLoading: productCategoryLoading } =
-    useGetProductCategoryQuery();
+    useGetProductCategoryQuery({
+      searchText: "",
+      isActive: true,
+    });
   const { data: productBrandData, isLoading: ProductBrandLoading } =
     useGetProductBrandQuery({
       searchText: "",

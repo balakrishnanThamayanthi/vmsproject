@@ -88,13 +88,19 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
       isActive: true,
     });
   const { data: coursingData, isLoading: coursingLoading } =
-    useGetProductCategoryQuery();
+    useGetProductCategoryQuery({
+      searchText: "",
+      isActive: true,
+    });
   const { data: taxData, isLoading: taxLoading } = useGetProductTagQuery({
     searchText: "",
     isActive: true,
   });
   const { data: productCategoryData, isLoading: productCategoryLoading } =
-    useGetProductCategoryQuery();
+    useGetProductCategoryQuery({
+      searchText: "",
+      isActive: true,
+    });
   const { data: productTagData, isLoading: ProductTagLoading } =
     useGetProductTagQuery({
       searchText: "",

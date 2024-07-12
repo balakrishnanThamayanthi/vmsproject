@@ -178,16 +178,6 @@ export const attoDeskApi = createApi({
       providesTags: ['product', "category"],
       keepUnusedDataFor: 0,
     }),
-    getProductCategory: builder.query<IApiResponse, void>({
-      query: () => {
-        return {
-          url: '/product/category/getAll',
-          method: 'POST',
-        };
-      },
-      providesTags: ['productCategory','product'],
-      keepUnusedDataFor: 0,
-    }),
     deleteCoursing: builder.mutation<IApiResponse, string>({
       query: (Id) => {
         return {
@@ -396,6 +386,18 @@ export const attoDeskApi = createApi({
       providesTags:['productBrand','product'],
       keepUnusedDataFor: 0,
     }),
+    getProductCategory: builder.query<IApiResponse, ISearchIsActivePayload>({
+      query: (request) => {
+        return {
+          url: '/product/category/getAll',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['productCategory','product'],
+      keepUnusedDataFor: 0,
+    }),
+    
   }),
 });
 
@@ -415,7 +417,6 @@ export const {
   useCreatePrinterMutation,
   useGetCategoryQuery,
   useGetAddCategoryQuery,
-  useGetProductCategoryQuery,
   useDeleteCoursingMutation,
   useDeleteDepartmentMutation,
   useDeletePrinterMutation,
@@ -436,4 +437,5 @@ export const {
   useGetPrinterQuery,
   useGetProductTagQuery,
   useGetProductBrandQuery,
+  useGetProductCategoryQuery,
 } = attoDeskApi;
