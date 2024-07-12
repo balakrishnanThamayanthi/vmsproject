@@ -149,6 +149,7 @@ export interface IApiResponse {
     productDetailsIsLooping: boolean;
     productsDetailsLoopingConstant: string
     productCanSell: boolean;
+    productMainCategoryId: string;
   }
 
   export interface IProductEx {
@@ -169,6 +170,7 @@ export interface IApiResponse {
     productLongDescription: string;
     productConversionUnit: number[];
     productBrandId: number | null;
+    productMainCategoryId: string;
     productCategoryId: number;
     productTagIds: number[];
     productViewOnline: boolean; // Assuming this should be a boolean
@@ -206,6 +208,7 @@ export interface IApiResponse {
     productViewOnline: string;
     createdDateEnd: Date;
     createdDateStart: Date;
+    searchText: string;
   }
 
   export interface ICategoryPayload {
@@ -235,4 +238,8 @@ export interface IApiResponse {
   export interface ISearchIsActivePayload {
     searchText: string;
     isActive: boolean | null;
+  }
+
+  export interface IGetByCategoryPayload {
+    categoryId: string;
   }

@@ -28,14 +28,17 @@ import ColorLensIcon from "@mui/icons-material/ColorLens";
 import AppsIcon from "@mui/icons-material/Apps";
 import {
   useCreateProductMutation,
+  useGetCategoryQuery,
   useGetLastProductIdQuery,
   useGetPrinterQuery,
   useGetProductBrandQuery,
   useGetProductCategoryQuery,
   useGetProductTagQuery,
+  useGetSubCategoryByCategoryIdQuery,
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import {
+  ICategory,
   ILastProductId,
   IPrinter,
   IProduct,
@@ -140,11 +143,16 @@ const isPrinterArray = (data: any): data is IPrinter[] => {
 const Product: React.FC = () => {
   const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: productCategoryData, isLoading: productCategoryLoading } =
-    useGetProductCategoryQuery({
-      searchText: "",
-      isActive: true,
-    });
+  const [currentCategoryId, setCurrentCategoryId] = useState("");
+  const { data: categoryData, isLoading: departmentLoading } =
+    useGetCategoryQuery();
+  const {
+    data: productCategoryData,
+    isLoading: productCategoryLoading,
+    refetch: refetchSubCategories,
+  } = useGetSubCategoryByCategoryIdQuery({
+    categoryId: currentCategoryId,
+  });
   const { data: productBrandData, isLoading: ProductBrandLoading } =
     useGetProductBrandQuery({
       searchText: "",
@@ -182,7 +190,7 @@ const Product: React.FC = () => {
   }, [newLastProductIdData?.data]);
 
   const productList = useMemo(() => {
-    return productCategoryData?.data as IProductCategory[];
+    return (productCategoryData?.data ?? []) as IProductCategory[];
   }, [productCategoryData?.data]);
 
   const productBrandList = useMemo(() => {
@@ -196,6 +204,10 @@ const Product: React.FC = () => {
   const lastProductIdList = useMemo(() => {
     return productCategoryData?.data as IProductCategory[];
   }, [productCategoryData?.data]);
+
+  const categoryList = useMemo(() => {
+    return categoryData?.data as ICategory[];
+  }, [categoryData?.data]);
 
   const printerList: IPrinter[] = useMemo(() => {
     if (!printerData || !isPrinterArray(printerData.data)) {
@@ -211,6 +223,7 @@ const Product: React.FC = () => {
       productLongDescription: "",
       productConversionUnit: [],
       productBrandId: "",
+      productMainCategoryId: "",
       productCategoryId: "",
       productTagIds: [],
       productViewOnline: false,
@@ -256,6 +269,7 @@ const Product: React.FC = () => {
           productLongDescription: values.productLongDescription,
           productConversionUnit: values.productConversionUnit,
           productBrandId: values.productBrandId,
+          productMainCategoryId: values.productMainCategoryId,
           productCategoryId: values.productCategoryId,
           productTagIds: values.productTagIds,
           productViewOnline: values.productViewOnline,
@@ -284,14 +298,16 @@ const Product: React.FC = () => {
   });
 
   const formValid = useMemo(() => {
-    const { productName, productCategoryId, phoneType, computerModel } =
+    const { productName, productMainCategoryId, productBrandId, phoneType, computerModel } =
       formik.values;
 
     if (
       productName === "" ||
       productName === undefined ||
-      productCategoryId === null ||
-      productCategoryId === undefined
+      productMainCategoryId === null ||
+      productMainCategoryId === undefined ||
+      productBrandId === null ||
+      productBrandId === undefined
     ) {
       return false;
     }
@@ -387,11 +403,26 @@ const Product: React.FC = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   if (lastProductId) {
+  //     formik.setFieldValue("productBarcode", String(lastProductId + 1));
+  //   }
+  // }, [lastProductId]);
+
   useEffect(() => {
     if (lastProductId) {
-      formik.setFieldValue("productBarcode", String(lastProductId + 1));
+      const newProductBarcode = String(lastProductId + 1) +
+        (formik.values.productMainCategoryId || "") +
+        (formik.values.productBrandId || "");
+      formik.setFieldValue("productBarcode", newProductBarcode);
     }
-  }, [lastProductId]);
+  }, [lastProductId, formik.values.productMainCategoryId, formik.values.productBrandId]); 
+
+  useEffect(() => {
+    if (currentCategoryId) {
+      refetchSubCategories();
+    }
+  }, [currentCategoryId, refetchSubCategories]);
 
   const selectedProductIsLoading = useMemo(() => {
     return productList.find(
@@ -407,6 +438,7 @@ const Product: React.FC = () => {
         productLongDescription: formik.values.productLongDescription,
         productConversionUnit: formik.values.productConversionUnit,
         productCategoryId: formik.values.productCategoryId,
+        productMainCategoryId: formik.values.productMainCategoryId,
         productBrandId: formik.values.productBrandId,
         productTagIds: formik.values.productTagIds,
         productViewOnline: formik.values.productViewOnline,
@@ -552,6 +584,7 @@ const Product: React.FC = () => {
                     />
                   </Grid>
                 </Grid>
+
                 <Grid
                   container
                   direction="row"
@@ -567,7 +600,62 @@ const Product: React.FC = () => {
                         fontSize: 14,
                       }}
                     >
-                      Product Category
+                      Product Main Category
+                    </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    lg={9}
+                    md={9}
+                    sm={12}
+                    xs={12}
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ flexGrow: 1 }}
+                      SelectProps={{
+                        native: true,
+                      }}
+                      defaultValue=""
+                      InputLabelProps={{ shrink: true }}
+                      {...formik.getFieldProps("productMainCategoryId")}
+                      onChange={(e) => {
+                        formik.handleChange(e);
+                        setCurrentCategoryId(e.target.value);
+                      }}
+                    >
+                      <option value="" disabled style={{ color: "gray" }}>
+                        Select an option
+                      </option>
+                      {categoryList &&
+                        categoryList.map((productCat) => (
+                          <option key={productCat.id} value={productCat.id}>
+                            {productCat.categoryName}
+                          </option>
+                        ))}
+                    </TextField>
+                  </Grid>
+                </Grid>
+
+                <Grid
+                  container
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{ mt: 2 }}
+                >
+                  <Grid item lg={3} md={3} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                      }}
+                    >
+                      Product Sub Category
                     </Typography>
                   </Grid>
                   <Grid
@@ -626,6 +714,7 @@ const Product: React.FC = () => {
                     </Button>
                   </Grid>
                 </Grid>
+
                 <Grid
                   container
                   direction="row"

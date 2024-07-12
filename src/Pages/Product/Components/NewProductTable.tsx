@@ -16,6 +16,7 @@ import {
   TextField,
   MenuItem,
   FormControl,
+  InputAdornment,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -38,16 +39,18 @@ import { useNotifier } from "../../../Core/Notifier";
 import NewPopUpProduct from "./NewPopUpProduct";
 import { TextFieldProps } from "@mui/material/TextField"; // Import TextFieldProps
 import dayjs, { Dayjs } from "dayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import SearchIcon from "@mui/icons-material/Search";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
 const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
   onDataLoaded,
 }) => {
   const { showErrorMessage, showMessage } = useNotifier();
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [selectedProductBrandId, setSelectedProductBrandId] =
     useState<string>("");
   const [selectedProductCategoryId, setSelectedProductCategoryId] =
@@ -61,14 +64,16 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const startDateAsDate = startDate?.toDate() || null;
   const endDateAsDate = endDate?.toDate() || null;
+  const [isPaperVisible, setIsPaperVisible] = useState(false);
 
-  const { data, isLoading, isError } = useGetProductQuery({
+  const { data, isLoading, isError, refetch } = useGetProductQuery({
     productBrandId: selectedProductBrandId,
     productCategoryId: selectedProductCategoryId,
     productTagIds: selectedProductTagIds,
     productViewOnline: selectedProductViewOnline,
     createdDateStart: startDateAsDate as Date,
     createdDateEnd: endDateAsDate as Date,
+    searchText: currentSearchQuery,
   });
 
   const [page, setPage] = useState(0);
@@ -235,6 +240,10 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
     }
   };
 
+  const handleToggle = () => {
+    setIsPaperVisible(!isPaperVisible);
+  };
+
   useEffect(() => {
     if (
       !isLoading &&
@@ -289,253 +298,377 @@ const ProductTable: React.FC<{ onDataLoaded: () => void }> = ({
     setEndDate(null);
   };
 
+  const handleSearch = () => {
+    setCurrentSearchQuery(searchQuery);
+  };
+
+  const resetSearchFields = () => {
+    setSearchQuery("");
+    setCurrentSearchQuery("");
+    refetch();
+  };
+
   return (
     <Box>
+      {isPaperVisible && (
+        <>
+          <Paper
+            sx={{
+              borderRadius: 2,
+              maxWidth: "100%",
+              p: 2,
+              py: 5,
+            }}
+          >
+            <Grid container spacing={2}>
+              <Grid item lg={3} md={12} sm={12} xs={12}>
+                <Grid container>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 400, fontSize: 14 }}
+                    >
+                      Product View Online
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ flexGrow: 1, width: "100%" }}
+                      SelectProps={{ native: true }}
+                      value={selectedProductViewOnline || ""}
+                      onChange={handleProductViewOnline}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <option value="" style={{ color: "gray" }}>
+                        Select an option
+                      </option>
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item lg={3} md={12} sm={12} xs={12}>
+                <Grid container>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 400, fontSize: 14 }}
+                    >
+                      Product Brand
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ flexGrow: 1, width: "100%" }}
+                      SelectProps={{ native: true }}
+                      value={selectedProductBrandId || ""}
+                      onChange={handleProductBrandChange}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <option value="" style={{ color: "gray" }}>
+                        Select an option
+                      </option>
+                      {productBrandList.map((productBrand) => (
+                        <option key={productBrand.id} value={productBrand.id}>
+                          {productBrand.productBrandName}
+                        </option>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item lg={3} md={12} sm={12} xs={12}>
+                <Grid container>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 400, fontSize: 14 }}
+                    >
+                      Product Category
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ flexGrow: 1, width: "100%" }}
+                      SelectProps={{ native: true }}
+                      value={selectedProductCategoryId || ""}
+                      onChange={handleProductCategory}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <option value="" style={{ color: "gray" }}>
+                        Select an option
+                      </option>
+                      {productList.map((productCategory) => (
+                        <option
+                          key={productCategory.id}
+                          value={productCategory.id}
+                        >
+                          {productCategory.productCatName}
+                        </option>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item lg={3} md={12} sm={12} xs={12}>
+                <Grid container>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 400, fontSize: 14 }}
+                    >
+                      Product Tag
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <TextField
+                      select
+                      size="small"
+                      sx={{ width: "100%" }}
+                      SelectProps={{
+                        multiple: true,
+                        native: false,
+                      }}
+                      InputLabelProps={{ shrink: true }}
+                      value={selectedProductTagIds || ""}
+                      onChange={handleProductTag}
+                    >
+                      {productTagList && productTagList.length > 0 ? (
+                        productTagList.map((productTag: IProductTag) => (
+                          <MenuItem key={productTag.id} value={productTag.id}>
+                            {productTag.tagName}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem value="" style={{ color: "gray" }}>
+                          Select an option
+                        </MenuItem>
+                      )}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item lg={2} md={12} sm={12} xs={12}>
+                <Grid container>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 400, fontSize: 14 }}
+                    >
+                      Start Date
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <FormControl fullWidth sx={{ width: "100%" }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          views={["year", "month", "day"]}
+                          onChange={handleStartDateChange}
+                          value={startDate}
+                          // renderInput={(params) => (
+                          //   <TextField
+                          //     {...params}
+                          //     InputProps={{ sx: { height: "32px" } }} // Adjust height here
+                          //   />
+                          // )}
+                        />
+                      </LocalizationProvider>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item lg={2} md={12} sm={12} xs={12}>
+                <Grid container>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 400, fontSize: 14 }}
+                    >
+                      End Date
+                    </Typography>
+                  </Grid>
+                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                    <FormControl fullWidth sx={{ width: "100%" }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          views={["year", "month", "day"]}
+                          onChange={handleEndDateChange}
+                          value={endDate}
+                          // @ts-ignore
+                          renderInput={(params: any) => (
+                            <TextField
+                              {...params}
+                              size="small"
+                              InputLabelProps={{ shrink: true }}
+                              placeholder="Select start date"
+                              // sx={{ height: "14px", p: "none", fontSize: "10px" }}
+                              InputProps={{
+                                sx: {
+                                  height: "14px",
+                                  p: "none",
+                                  fontSize: "10px",
+                                },
+                              }}
+                            />
+                          )}
+                          // renderInput={(params) => (
+                          //   <TextField {...params} size="small" />
+                          // )}
+                          // InputProps={{ sx: { height: "5px" } }}
+                        />
+                      </LocalizationProvider>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Box display="flex" justifyContent="flex-end">
+                  <Button
+                    variant="contained"
+                    startIcon={<RestartAltIcon />}
+                    sx={{
+                      backgroundColor: appColor.grey[90],
+                      textTransform: "none",
+                      boxShadow: "none",
+                      "&:hover": {
+                        backgroundColor: appColor.grey[90],
+                        boxShadow: "none",
+                      },
+                      "&:active": {
+                        backgroundColor: appColor.grey[90],
+                        boxShadow: "none",
+                      },
+                    }}
+                    onClick={resetFields}
+                  >
+                    Reset
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
+          <Box sx={{ height: "25px" }} />
+        </>
+      )}
+
       <Paper
         sx={{
           borderRadius: 2,
           maxWidth: "100%",
           p: 2,
-          py: 5,
         }}
       >
-        <Grid container spacing={2}>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
-            <Grid container>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 400, fontSize: 14 }}
-                >
-                  Product View Online
-                </Typography>
-              </Grid>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <TextField
-                  select
-                  size="small"
-                  sx={{ flexGrow: 1, width: "100%" }}
-                  SelectProps={{ native: true }}
-                  value={selectedProductViewOnline || ""}
-                  onChange={handleProductViewOnline}
-                  InputLabelProps={{ shrink: true }}
-                >
-                  <option value="" style={{ color: "gray" }}>
-                    Select an option
-                  </option>
-                  <option value="1">Yes</option>
-                  <option value="0">No</option>
-                </TextField>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
-            <Grid container>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 400, fontSize: 14 }}
-                >
-                  Product Brand
-                </Typography>
-              </Grid>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <TextField
-                  select
-                  size="small"
-                  sx={{ flexGrow: 1, width: "100%" }}
-                  SelectProps={{ native: true }}
-                  value={selectedProductBrandId || ""}
-                  onChange={handleProductBrandChange}
-                  InputLabelProps={{ shrink: true }}
-                >
-                  <option value="" style={{ color: "gray" }}>
-                    Select an option
-                  </option>
-                  {productBrandList.map((productBrand) => (
-                    <option key={productBrand.id} value={productBrand.id}>
-                      {productBrand.productBrandName}
-                    </option>
-                  ))}
-                </TextField>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
-            <Grid container>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 400, fontSize: 14 }}
-                >
-                  Product Category
-                </Typography>
-              </Grid>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <TextField
-                  select
-                  size="small"
-                  sx={{ flexGrow: 1, width: "100%" }}
-                  SelectProps={{ native: true }}
-                  value={selectedProductCategoryId || ""}
-                  onChange={handleProductCategory}
-                  InputLabelProps={{ shrink: true }}
-                >
-                  <option value="" style={{ color: "gray" }}>
-                    Select an option
-                  </option>
-                  {productList.map((productCategory) => (
-                    <option key={productCategory.id} value={productCategory.id}>
-                      {productCategory.productCatName}
-                    </option>
-                  ))}
-                </TextField>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={3} md={12} sm={12} xs={12}>
-            <Grid container>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 400, fontSize: 14 }}
-                >
-                  Product Tag
-                </Typography>
-              </Grid>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <TextField
-                  select
-                  size="small"
-                  sx={{ width: "100%" }}
-                  SelectProps={{
-                    multiple: true,
-                    native: false,
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                  value={selectedProductTagIds || ""}
-                  onChange={handleProductTag}
-                >
-                  {productTagList && productTagList.length > 0 ? (
-                    productTagList.map((productTag: IProductTag) => (
-                      <MenuItem key={productTag.id} value={productTag.id}>
-                        {productTag.tagName}
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem value="" style={{ color: "gray" }}>
-                      Select an option
-                    </MenuItem>
-                  )}
-                </TextField>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={2} md={12} sm={12} xs={12}>
-            <Grid container>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 400, fontSize: 14 }}
-                >
-                  Start Date
-                </Typography>
-              </Grid>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <FormControl fullWidth sx={{ width: "100%" }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      views={["year", "month", "day"]}
-                      onChange={handleStartDateChange}
-                      value={startDate}
-                      // renderInput={(params) => (
-                      //   <TextField
-                      //     {...params}
-                      //     InputProps={{ sx: { height: "32px" } }} // Adjust height here
-                      //   />
-                      // )}
-                    />
-                  </LocalizationProvider>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={2} md={12} sm={12} xs={12}>
-            <Grid container>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 400, fontSize: 14 }}
-                >
-                  End Date
-                </Typography>
-              </Grid>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <FormControl fullWidth sx={{ width: "100%" }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      views={["year", "month", "day"]}
-                      onChange={handleEndDateChange}
-                      value={endDate}
-                      // @ts-ignore
-                      renderInput={(params: any) => (
-                        <TextField
-                          {...params}
-                          size="small"
-                          InputLabelProps={{ shrink: true }}
-                          placeholder="Select start date"
-                          // sx={{ height: "14px", p: "none", fontSize: "10px" }}
-                          InputProps={{
-                            sx: { height: "14px", p: "none", fontSize: "10px" },
-                          }}
-                        />
-                      )}
-                      // renderInput={(params) => (
-                      //   <TextField {...params} size="small" />
-                      // )}
-                      // InputProps={{ sx: { height: "5px" } }}
-                    />
-                  </LocalizationProvider>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={12} md={12} sm={12} xs={12}>
-            <Box display="flex" justifyContent="flex-end">
-              <Button
-                variant="contained"
-                startIcon={<RotateLeftIcon />}
-                sx={{
-                  backgroundColor: appColor.grey[90],
-                  textTransform: "none",
+        <Grid
+          container
+          spacing={2}
+          display={"flex"}
+          justifyContent={"flex-end"}
+        >
+          <Grid
+            item
+            lg={4}
+            md={6}
+            sm={12}
+            xs={12}
+            sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}
+          >
+            <TextField
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Product Name"
+              sx={{ width: "100%" }}
+              InputLabelProps={{
+                sx: {
+                  fontSize: 14,
+                },
+              }}
+              size="small"
+            />
+            <Box m={0.5}></Box>
+            <Button
+              variant="contained"
+              // startIcon={<SearchIcon />}
+              sx={{
+                backgroundColor: appColor.blue[100],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.blue[100],
                   boxShadow: "none",
-                  "&:hover": {
-                    backgroundColor: appColor.grey[90],
-                    boxShadow: "none",
-                  },
-                  "&:active": {
-                    backgroundColor: appColor.grey[90],
-                    boxShadow: "none",
-                  },
-                }}
-                onClick={resetFields}
-              >
-                Reset
-              </Button>
-            </Box>
+                },
+                "&:active": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={handleSearch}
+            >
+              <SearchIcon />
+            </Button>
+            <Box m={0.5}></Box>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: appColor.grey[90],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.grey[90],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.grey[90],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={resetSearchFields}
+            >
+              <RestartAltIcon />
+            </Button>
+          </Grid>
+
+          <Grid
+            item
+            sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}
+          >
+            <Button
+              variant="contained"
+              startIcon={<FilterAltIcon />}
+              sx={{
+                backgroundColor: appColor.blue[100],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={handleToggle}
+            >
+              {isPaperVisible ? "Close Filter" : "Open Filter"}
+            </Button>
           </Grid>
         </Grid>
-      </Paper>
 
-      <Box sx={{ height: "25px" }} />
-
-      <Paper
-        sx={{
-          borderRadius: 2,
-          maxWidth: "100%",
-          p: 2,
-        }}
-      >
         <TableContainer
           sx={{
             borderRadius: 2,

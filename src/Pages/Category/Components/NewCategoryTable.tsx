@@ -256,7 +256,7 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
   return (
     <Box>
       <Grid container spacing={2} display={"flex"} justifyContent={"flex-end"}>
-        <Grid
+        {/* <Grid
           item
           lg={4}
           md={6}
@@ -284,7 +284,7 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
           >
             {isPaperVisible ? "Close Filter" : "Open Filter"}
           </Button>
-        </Grid>
+        </Grid> */}
       </Grid>
       {isPaperVisible && (
         <>
@@ -607,6 +607,32 @@ const CategoryTable: React.FC<{ onDataLoaded: () => void }> = ({
               onClick={resetSearchFields}
             >
               <RestartAltIcon />
+            </Button>
+          </Grid>
+
+          <Grid
+            item
+            sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}
+          >
+            <Button
+              variant="contained"
+              startIcon={<FilterAltIcon />}
+              sx={{
+                backgroundColor: appColor.blue[100],
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+                "&:active": {
+                  backgroundColor: appColor.blue[100],
+                  boxShadow: "none",
+                },
+              }}
+              onClick={handleToggle}
+            >
+              {isPaperVisible ? "Close Filter" : "Open Filter"}
             </Button>
           </Grid>
         </Grid>

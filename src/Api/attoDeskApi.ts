@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "../config";
-import { IApiResponse, ICategoryPayload, IProductPayload, ISearchIsActivePayload, ISearchPayload, IUser } from "./Interface/api.interface";
+import { IApiResponse, ICategoryPayload, IGetByCategoryPayload, IProductPayload, ISearchIsActivePayload, ISearchPayload, IUser } from "./Interface/api.interface";
 ;
 
 /**
@@ -33,7 +33,8 @@ export const attoDeskApi = createApi({
     "productBrand",
     "productTag",
     'productCategory',
-    'modifier'
+    'modifier',
+    'productGetByCategory'
   ],
   endpoints: (builder) => ({  
     getUser: builder.query<IApiResponse, void>({
@@ -397,7 +398,28 @@ export const attoDeskApi = createApi({
       providesTags:['productCategory','product'],
       keepUnusedDataFor: 0,
     }),
-    
+    // getSubCategoryByCategoryId: builder.query<IApiResponse, ISearchIsActivePayload>({
+    //   query: (request) => {
+    //     return {
+    //       url: '/product/category/getAll',
+    //       method: "POST",
+    //       body: request,
+    //     };
+    //   },
+    //   providesTags:['productCategory','product'],
+    //   keepUnusedDataFor: 0,
+    // }),
+    getSubCategoryByCategoryId: builder.query<IApiResponse, IGetByCategoryPayload>({
+      query: (request) => {
+        return {
+          url: '/product/get-by-categories',
+          method: "POST",
+          body: request,
+        };
+      },
+      providesTags:['productGetByCategory', 'product'],
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -438,4 +460,5 @@ export const {
   useGetProductTagQuery,
   useGetProductBrandQuery,
   useGetProductCategoryQuery,
+  useGetSubCategoryByCategoryIdQuery
 } = attoDeskApi;

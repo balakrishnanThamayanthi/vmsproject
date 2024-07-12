@@ -28,10 +28,12 @@ import ColorLensIcon from "@mui/icons-material/ColorLens";
 import AppsIcon from "@mui/icons-material/Apps";
 import {
   useCreateProductMutation,
+  useGetCategoryQuery,
   useGetPrinterQuery,
   useGetProductBrandQuery,
   useGetProductCategoryQuery,
   useGetProductTagQuery,
+  useGetSubCategoryByCategoryIdQuery,
 } from "../../../Api/attoDeskApi";
 import { useNotifier } from "../../../Core/Notifier";
 import {
@@ -40,6 +42,7 @@ import {
   IProductBrand,
   IProductCategory,
   IProductTag,
+  ICategory,
 } from "../../../Api/Interface/api.interface";
 import { appColor } from "../../../theme/appColor";
 import { LoopingConst, SizeOfLevelType } from "../../../Core/Enum/enum";
@@ -148,11 +151,17 @@ const ProductPopUP = ({
   const [open] = React.useState(openModel);
   const [newProduct, { isLoading }] = useCreateProductMutation();
   const { showErrorMessage, showMessage } = useNotifier();
-  const { data: productCategoryData, isLoading: productCategoryLoading } =
-    useGetProductCategoryQuery({
-      searchText: "",
-      isActive: true,
-    });
+  const initialCategoryId = data?.productMainCategoryId || "";
+  const [currentCategoryId, setCurrentCategoryId] = useState(initialCategoryId);
+  const { data: categoryData, isLoading: departmentLoading } =
+    useGetCategoryQuery();
+  const {
+    data: productCategoryData,
+    isLoading: productCategoryLoading,
+    refetch: refetchSubCategories,
+  } = useGetSubCategoryByCategoryIdQuery({
+    categoryId: currentCategoryId,
+  });
   const { data: productBrandData, isLoading: ProductBrandLoading } =
     useGetProductBrandQuery({
       searchText: "",
@@ -185,7 +194,7 @@ const ProductPopUP = ({
     useState(false);
 
   const productList = useMemo(() => {
-    return productCategoryData?.data as IProductCategory[];
+    return (productCategoryData?.data ?? []) as IProductCategory[];
   }, [productCategoryData?.data]);
 
   const productBrandList = useMemo(() => {
@@ -195,6 +204,10 @@ const ProductPopUP = ({
   const productTagList = useMemo(() => {
     return productTagData?.data as IProductTag[];
   }, [productTagData?.data]);
+
+  const categoryList = useMemo(() => {
+    return categoryData?.data as ICategory[];
+  }, [categoryData?.data]);
 
   const printerList: IPrinter[] = useMemo(() => {
     if (!printerData || !isPrinterArray(printerData.data)) {
@@ -215,8 +228,8 @@ const ProductPopUP = ({
       productLongDescription: data?.productLongDescription,
       productConversionUnit: data?.productConversionUnit || [],
       productBrandId: data?.productBrandId,
+      productMainCategoryId: data?.productMainCategoryId,
       productCategoryId: data?.productCategoryId,
-
       productTagIds: data?.productTagIds || [],
       productViewOnline: data?.productViewOnline
         ? Boolean(data?.productViewOnline)
@@ -246,6 +259,7 @@ const ProductPopUP = ({
           productLongDescription: values.productLongDescription,
           productConversionUnit: values.productConversionUnit,
           productBrandId: values.productBrandId,
+          productMainCategoryId: values.productMainCategoryId,
           productCategoryId: values.productCategoryId,
           productTagIds: values.productTagIds,
           productViewOnline: Boolean(values.productViewOnline),
@@ -286,14 +300,21 @@ const ProductPopUP = ({
   }, [formik.values.productCategoryId, productList]);
 
   const formValid = useMemo(() => {
-    const { productName, productCategoryId, phoneType, computerModel } =
-      formik.values;
+    const {
+      productName,
+      productMainCategoryId,
+      productBrandId,
+      phoneType,
+      computerModel,
+    } = formik.values;
 
     if (
       productName === "" ||
       productName === undefined ||
-      productCategoryId === null ||
-      productCategoryId === undefined
+      productMainCategoryId === null ||
+      productMainCategoryId === undefined ||
+      productBrandId === null ||
+      productBrandId === undefined
     ) {
       return false;
     }
@@ -384,6 +405,26 @@ const ProductPopUP = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (formik.values.id) {
+      const newProductBarcode =
+        String(formik.values.id) +
+        (formik.values.productMainCategoryId || "") +
+        (formik.values.productBrandId || "");
+      formik.setFieldValue("productBarcode", newProductBarcode);
+    }
+  }, [
+    formik.values.id,
+    formik.values.productMainCategoryId,
+    formik.values.productBrandId,
+  ]);  
+
+  useEffect(() => {
+    if (currentCategoryId) {
+      refetchSubCategories();
+    }
+  }, [currentCategoryId, refetchSubCategories]);
+
   const handleSaveAdditionalQuestions = async () => {
     try {
       const temData: any = {
@@ -393,6 +434,7 @@ const ProductPopUP = ({
         productLongDescription: formik.values.productLongDescription,
         productConversionUnit: formik.values.productConversionUnit,
         productCategoryId: formik.values.productCategoryId,
+        productMainCategoryId: formik.values.productMainCategoryId,
         productBrandId: formik.values.productBrandId,
         productTagIds: formik.values.productTagIds,
         productViewOnline: formik.values.productViewOnline,
@@ -431,24 +473,7 @@ const ProductPopUP = ({
     }
   };
 
-  if (
-    isLoading ||
-    ProductBrandLoading ||
-    productCategoryLoading ||
-    ProductTagLoading ||
-    PrinterLoading
-  ) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="10vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -539,6 +564,7 @@ const ProductPopUP = ({
                       />
                     </Grid>
                   </Grid>
+
                   <Grid
                     container
                     direction="row"
@@ -554,7 +580,7 @@ const ProductPopUP = ({
                           fontSize: 14,
                         }}
                       >
-                        Product Category
+                        Product Main Category
                       </Typography>
                     </Grid>
                     <Grid
@@ -572,7 +598,61 @@ const ProductPopUP = ({
                         sx={{ flexGrow: 1 }}
                         SelectProps={{
                           native: true,
-                          readOnly: true,
+                        }}
+                        defaultValue=""
+                        InputLabelProps={{ shrink: true }}
+                        {...formik.getFieldProps("productMainCategoryId")}
+                        onChange={(e) => {
+                          formik.handleChange(e);
+                          setCurrentCategoryId(e.target.value);
+                        }}
+                      >
+                        <option value="" disabled style={{ color: "gray" }}>
+                          Select an option
+                        </option>
+                        {categoryList &&
+                          categoryList.map((productCat) => (
+                            <option key={productCat.id} value={productCat.id}>
+                              {productCat.categoryName}
+                            </option>
+                          ))}
+                      </TextField>
+                    </Grid>
+                  </Grid>
+
+                  <Grid
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 2 }}
+                  >
+                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                        }}
+                      >
+                        Product Sub Category
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      lg={9}
+                      md={9}
+                      sm={12}
+                      xs={12}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <TextField
+                        select
+                        size="small"
+                        sx={{ flexGrow: 1 }}
+                        SelectProps={{
+                          native: true,
                         }}
                         defaultValue=""
                         InputLabelProps={{ shrink: true }}
@@ -583,11 +663,7 @@ const ProductPopUP = ({
                         </option>
                         {productList &&
                           productList.map((productCat) => (
-                            <option
-                              key={productCat.id}
-                              value={productCat.id}
-                              disabled
-                            >
+                            <option key={productCat.id} value={productCat.id}>
                               {productCat.productCatName}
                             </option>
                           ))}
@@ -618,6 +694,7 @@ const ProductPopUP = ({
                       </Button>
                     </Grid>
                   </Grid>
+
                   <Grid
                     container
                     direction="row"
