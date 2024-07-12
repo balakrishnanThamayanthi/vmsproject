@@ -95,7 +95,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/product/category"
+        path="/sub-category"
         element={
           <Suspense fallback={<Loader />}>
             <ProductCategory />

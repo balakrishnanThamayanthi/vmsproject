@@ -172,10 +172,12 @@ const ProductCategory = ({
   });
 
   const formValid = useMemo(() => {
-    return (
-      formik.values.productCatName !== "" &&
-      formik.values.productCatName !== undefined
-    );
+    return formik.values.productCatName === "" ||
+      formik.values.productCatName === undefined ||
+      formik.values.mainCatId === null ||
+      formik.values.mainCatId === undefined
+      ? false
+      : true;
   }, [formik]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,7 +236,7 @@ const ProductCategory = ({
                       color: appColor.black,
                     }}
                   >
-                    New Product Category
+                    New Sub Category
                   </Typography>
                 </Grid>
 

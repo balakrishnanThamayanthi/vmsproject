@@ -190,6 +190,11 @@ const menuList: {
         path: "/category",
       },
       {
+        title: "Sub Category",
+        icon: <ClassIcon />,
+        path: "/sub-category",
+      },
+      {
         title: "Product Brand",
         icon: <CheckCircleOutlineIcon />,
         path: "/product/brand",
@@ -198,11 +203,6 @@ const menuList: {
         title: "Product Tag",
         icon: <StyleIcon />,
         path: "/product/tag",
-      },
-      {
-        title: "Product Category",
-        icon: <ClassIcon />,
-        path: "/product/category",
       },
       {
         title: "Product",
