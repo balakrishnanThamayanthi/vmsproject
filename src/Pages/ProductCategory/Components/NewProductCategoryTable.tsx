@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -33,7 +33,9 @@ import { useNotifier } from "../../../Core/Notifier";
 import SearchIcon from "@mui/icons-material/Search";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
-const ComponentTable: React.FC = () => {
+const ComponentTable: React.FC<{ onDataLoaded: () => void }> = ({
+  onDataLoaded,
+}) => {
   const { showErrorMessage, showMessage } = useNotifier();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSearchQuery, setCurrentSearchQuery] = useState("");
@@ -45,7 +47,7 @@ const ComponentTable: React.FC = () => {
   const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
   const [coursingToDelete, setCoursingToDelete] =
     useState<IProductCategory | null>(null);
-  const { data: categoryData, isLoading: departmentLoading } =
+  const { data: categoryData, isLoading: categoryLoading } =
     useGetCategoryQuery();
 
   const categoryList = useMemo(() => {
@@ -111,7 +113,21 @@ const ComponentTable: React.FC = () => {
     }
   };
 
-  if (isLoading)
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !categoryLoading 
+    ) {
+      onDataLoaded();
+    }
+  }, [
+    isLoading,
+    categoryLoading,
+    onDataLoaded,
+  ]);
+
+
+  if (isLoading || categoryLoading)
     return (
       <Box
         display="flex"
